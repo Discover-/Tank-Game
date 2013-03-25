@@ -1,0 +1,20 @@
+﻿Build started 28-2-2013 17:24:27.
+     1>Project "d:\gebruikers\Openbaar\mijn documenten\visual studio 2010\Projects\tank_game\tank_game\tank_game.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "x64\Debug\tank_game.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W1 /WX- /O2 /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt main.cpp
+         main.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"d:\Gebruikers\Openbaar\Mijn documenten\Visual Studio 2010\Projects\tank_game\x64\Debug\tank_game.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\tank_game.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"d:\Gebruikers\Openbaar\Mijn documenten\Visual Studio 2010\Projects\tank_game\x64\Debug\tank_game.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"d:\Gebruikers\Openbaar\Mijn documenten\Visual Studio 2010\Projects\tank_game\x64\Debug\tank_game.lib" /MACHINE:X64 x64\Debug\main.obj
+         tank_game.vcxproj -> d:\Gebruikers\Openbaar\Mijn documenten\Visual Studio 2010\Projects\tank_game\x64\Debug\tank_game.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"d:\Gebruikers\Openbaar\Mijn documenten\Visual Studio 2010\Projects\tank_game\x64\Debug\tank_game.exe;#1" /manifest x64\Debug\tank_game.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "x64\Debug\tank_game.unsuccessfulbuild".
+         Touching "x64\Debug\tank_game.lastbuildstate".
+     1>Done Building Project "d:\gebruikers\Openbaar\mijn documenten\visual studio 2010\Projects\tank_game\tank_game\tank_game.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.29

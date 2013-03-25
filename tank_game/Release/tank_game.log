@@ -1,0 +1,13 @@
+﻿Build started 28-2-2013 16:31:17.
+     1>Project "d:\gebruikers\Openbaar\mijn documenten\visual studio 2010\Projects\tank_game\tank_game\tank_game.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\tank_game.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+     1>main.cpp(1): fatal error C1083: Cannot open include file: 'SDL.h': No such file or directory
+     1>Done Building Project "d:\gebruikers\Openbaar\mijn documenten\visual studio 2010\Projects\tank_game\tank_game\tank_game.vcxproj" (build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.04
