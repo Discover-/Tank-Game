@@ -31,31 +31,33 @@
 #include "Windows.h"
 
 //#define main SDL_main
-#define SCREEN_WIDTH            1000
-#define SCREEN_HEIGHT           600
+#define SCREEN_WIDTH                1000
+#define SCREEN_HEIGHT               600
 
-#define FRAMES_PER_SECOND       30
+#define FRAMES_PER_SECOND           30
 
-#define MOVES_SPEED_FORWARD     2
-#define MOVES_SPEED_BACKWARD    2//1.5
+#define PLAYER_MOVES_SPEED_FORWARD  3
+#define PLAYER_MOVES_SPEED_BACKWARD 2//1.5
+#define NPC_MOVES_SPEED_FORWARD     2.5
+#define NPC_MOVES_SPEED_BACKWARD    2.5
 
-#define PLAYER_BULLET_LIFES     2
-#define PLAYER_BULLET_SPEED_X   5
-#define PLAYER_BULLET_SPEED_Y   5
+#define PLAYER_BULLET_LIFES         2
+#define PLAYER_BULLET_SPEED_X       5
+#define PLAYER_BULLET_SPEED_Y       5
 
-#define PLAYER_MAX_BULLETS      50
-#define PLAYER_MAX_LANDMINES    500
+#define PLAYER_MAX_BULLETS          50
+#define PLAYER_MAX_LANDMINES        500
 
-#define PLAYER_WIDTH            77
-#define PLAYER_HEIGHT           51
+#define PLAYER_WIDTH                77
+#define PLAYER_HEIGHT               51
 
-#define BULLET_WIDTH            23
-#define BULLET_HEIGHT           10
+#define BULLET_WIDTH                23
+#define BULLET_HEIGHT               10
 
-#define LANDMINE_WIDTH          35
-#define LANDMINE_HEIGHT         35
+#define LANDMINE_WIDTH              35
+#define LANDMINE_HEIGHT             35
 
-#define MAX_MINE_EXPLOSION_FRAMES 17
+#define MAX_MINE_EXPLOSION_FRAMES   17
 
 #define COLOR_BLACK             SDL_MapRGB(screen->format, 0x00, 0x00, 0x00)
 #define COLOR_RED               SDL_MapRGB(screen->format, 0xff, 0x00, 0x00)
@@ -167,8 +169,8 @@ class Game
         void AddDelayedFunctionCall(Uint8 delayMs, void* function, int param1 = 0, int param2 = 0, int param3 = 0);
         void AddLandmineExplosion();
 
-
         SDL_Rect rotatingRectangle;
+
     private:
         double pipeAngle;
         bool isRunning;

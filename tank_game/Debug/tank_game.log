@@ -1,23 +1,19 @@
-﻿Build started 25-3-2013 20:53:15.
-     1>Project "D:\Gebruikers\Openbaar\Bureaublad\Development\Emulation\Repositories\Tank-Game\tank_game\tank_game.vcxproj" on node 2 (build target(s)).
+﻿Build started 5-4-2013 11:28:00.
+     1>Project "C:\Development\Tank-Game\tank_game\tank_game.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Creating "Debug\tank_game.unsuccessfulbuild" because "AlwaysCreate" was specified.
+         Touching "Debug\tank_game.unsuccessfulbuild".
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt animation.cpp animation.h bullet.cpp enemy.cpp game.cpp keyhandler.cpp landmine.cpp main.cpp player.cpp
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt enemy.cpp game.cpp landmine.cpp main.cpp player.cpp
          player.cpp
          main.cpp
          landmine.cpp
-         keyhandler.cpp
          game.cpp
          enemy.cpp
-         bullet.cpp
-         animation.h
-         animation.cpp
          Generating Code...
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt SDL_rotozoom.c
-         SDL_rotozoom.c
+     1>cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
+         All outputs are up-to-date.
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Gebruikers\Openbaar\Bureaublad\Development\Emulation\Repositories\Tank-Game\Debug\tank_game.exe" /NOLOGO SDL.lib SDLmain.lib SDL_net.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\tank_game.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\Gebruikers\Openbaar\Bureaublad\Development\Emulation\Repositories\Tank-Game\Debug\tank_game.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Gebruikers\Openbaar\Bureaublad\Development\Emulation\Repositories\Tank-Game\Debug\tank_game.lib" /MACHINE:X86 Debug\animation.obj
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Development\Tank-Game\Debug\tank_game.exe" /NOLOGO SDL.lib SDLmain.lib SDL_net.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\tank_game.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Development\Tank-Game\Debug\tank_game.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Development\Tank-Game\Debug\tank_game.lib" /MACHINE:X86 Debug\animation.obj
          Debug\animation.obj
          Debug\bullet.obj
          Debug\enemy.obj
@@ -27,16 +23,16 @@
          Debug\main.obj
          Debug\player.obj
          Debug\SDL_rotozoom.obj
-         LINK : D:\Gebruikers\Openbaar\Bureaublad\Development\Emulation\Repositories\Tank-Game\Debug\tank_game.exe not found or not built by the last incremental link; performing full link
+         LINK : C:\Development\Tank-Game\Debug\tank_game.exe not found or not built by the last incremental link; performing full link
      1>Debug\animation.obj : warning LNK4042: object specified more than once; extras ignored
-         tank_game.vcxproj -> D:\Gebruikers\Openbaar\Bureaublad\Development\Emulation\Repositories\Tank-Game\Debug\tank_game.exe
+         tank_game.vcxproj -> C:\Development\Tank-Game\Debug\tank_game.exe
        Manifest:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"D:\Gebruikers\Openbaar\Bureaublad\Development\Emulation\Repositories\Tank-Game\Debug\tank_game.exe;#1" /manifest Debug\tank_game.exe.intermediate.manifest
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Development\Tank-Game\Debug\tank_game.exe;#1" /manifest Debug\tank_game.exe.intermediate.manifest
        FinalizeBuildStatus:
          Deleting file "Debug\tank_game.unsuccessfulbuild".
          Touching "Debug\tank_game.lastbuildstate".
-     1>Done Building Project "D:\Gebruikers\Openbaar\Bureaublad\Development\Emulation\Repositories\Tank-Game\tank_game\tank_game.vcxproj" (build target(s)).
+     1>Done Building Project "C:\Development\Tank-Game\tank_game\tank_game.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:04.64
+Time Elapsed 00:00:03.95

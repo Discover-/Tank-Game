@@ -35,21 +35,21 @@ void Player::Update()
 
     if (keysDown[0])
     {
-        //posX += float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD);
-        //posY -= float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD);
+        //posX += float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
+        //posY -= float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
 
         //std::vector<SDL_Rect2> wallRects = game->GetWalls();
         //for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         //{
         //    if (WillCollisionAt(&plrRect, &(*itr)))
         //    {
-        //        posX -= float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD);
-        //        posY += float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD);
+        //        posX -= float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
+        //        posY += float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
         //        break;
         //    }
         //}
 
-        newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD));
+        newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD));
         otherOutcomeX = Sint16(newX);
         plrRect.x = Sint16(newX);
 
@@ -77,11 +77,11 @@ void Player::Update()
         }
 
         if (!foundCollision)
-            posX += float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD);
+            posX += float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
 
         foundCollision = false;
 
-        newY = (posY - float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD));
+        newY = (posY - float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD));
         otherOutcomeY = Sint16(newY);
         plrRect.y = Sint16(newY);
 
@@ -105,7 +105,7 @@ void Player::Update()
         }
 
         if (!foundCollision)
-            posY -= float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD);
+            posY -= float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
     }
 
     //prevX = posX;
@@ -119,21 +119,21 @@ void Player::Update()
 
     if (keysDown[2])
     {
-        //posX -= float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD);
-        //posY += float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD);
+        //posX -= float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
+        //posY += float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
 
         //std::vector<SDL_Rect2> wallRects = game->GetWalls();
         //for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         //{
         //    if (WillCollisionAt(&plrRect, &(*itr)))
         //    {
-        //        posX += float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD);
-        //        posY -= float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD);
+        //        posX += float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
+        //        posY -= float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
         //        break;
         //    }
         //}
 
-        newX = Sint16(posX - float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD));
+        newX = Sint16(posX - float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD));
         otherOutcomeX = Sint16(newX);
         plrRect.x = otherOutcomeX;
 
@@ -161,11 +161,11 @@ void Player::Update()
         }
 
         if (!foundCollision)
-            posX -= float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD);
+            posX -= float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
 
         foundCollision = false;
 
-        newY = (posY + float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD));
+        newY = (posY + float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD));
         otherOutcomeY = Sint16(newY);
         plrRect.y = otherOutcomeY;
 
@@ -189,7 +189,7 @@ void Player::Update()
         }
 
         if (!foundCollision)
-            posY += float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD);
+            posY += float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
     }
 
     if (keysDown[1])

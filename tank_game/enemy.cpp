@@ -32,16 +32,16 @@ void Enemy::Update()
 {
     /*if (forward)
     {
-        posX += float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD);
-        posY -= float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_FORWARD);
+        posX += float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
+        posY -= float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
 
         rotatingPipeAngle = -rotatingPipeAngle;
         rotatedPipe = rotozoomSurface(pipeSprite, rotatingPipeAngle, 1.0, 0);
     }
     else
     {
-        posX -= float(cos(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD);
-        posY += float(sin(movingAngle * M_PI / 180.0) * MOVES_SPEED_BACKWARD);
+        posX -= float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
+        posY += float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
 
         rotatingPipeAngle = 180 - rotatingPipeAngle;
         rotatedPipe = rotozoomSurface(pipeSprite, rotatingPipeAngle, 1.0, 0);
@@ -101,6 +101,7 @@ void Enemy::Update()
 
             //if (!turningToNextPoint)
                 movingAngle = float(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
+                //rotatingBodyAngle = movingAngle;
 
             if ((posX < xDestTemp - 50 && posX > xDestTemp + 50 && posY < yDestTemp - 50 && posY > yDestTemp + 50) ||
                 (posX > xDestTemp - 50 && posX < xDestTemp + 50 && posY > yDestTemp - 50 && posY < yDestTemp + 50))
@@ -132,7 +133,8 @@ void Enemy::Update()
                 float nieuweDirection = float(atan2(posY - yDestNext, xDestNext - posX) * 180 / M_PI);
                 float aantalGraden = nieuweDirection - movingAngle;
                 float aantalGradenPerTick = aantalGraden / 29;
-                movingAngle += 30;
+                //rotatingBodyAngle += 40;
+                movingAngle += 40;
 
                 //if (movingAngle >= aantalGraden)
                 //    turningToNextPoint = false;
@@ -220,9 +222,10 @@ void Enemy::Update()
                 rectBody.x = Sint16(posX);
                 rectBody.y = Sint16(posY);
 
-                SDL_Surface* rotatedBodyEnemy = rotozoomSurface(bodySprite, movingAngle, 1.0, 0);
-                SDL_Surface* rotatedPipeEnemy = rotozoomSurface(pipeSprite, _rotatingAngle, 1.0, 0);
+                //SDL_Surface* rotatedBodyEnemy = rotozoomSurface(bodySprite, rotatingBodyAngle, 1.0, 0);
+                //SDL_Surface* rotatedPipeEnemy = rotozoomSurface(pipeSprite, _rotatingAngle, 1.0, 0);
 
+                //rotatedBody = rotozoomSurface(bodySprite, rotatingBodyAngle, 1.0, 0);
                 rotatedBody = rotozoomSurface(bodySprite, movingAngle, 1.0, 0);
                 rotatedPipe = rotozoomSurface(pipeSprite, _rotatingAngle, 1.0, 0);
 
@@ -237,7 +240,7 @@ void Enemy::Update()
                 rectBody.x -= rotatedBody->w / 2 - bodySprite->w / 2;
                 rectBody.y -= rotatedBody->h / 2 - bodySprite->h / 2;
 
-                SetRotatedInfo(rotatedBodyEnemy, rotatedPipeEnemy, bodySprite, pipeSprite);
+                //SetRotatedInfo(rotatedBodyEnemy, rotatedPipeEnemy, bodySprite, pipeSprite);
 
                 //++itr;
             }
@@ -319,11 +322,11 @@ void Enemy::InitializeWaypoints()
     WaypointInformation wpInfo;
     wpInfo.repeat = true;
     wpInfo.repeatReversed = false;
-    wpInfo.xVelocity = 2.0f;
-    wpInfo.yVelocity = 2.0f;
+    wpInfo.xVelocity = NPC_MOVES_SPEED_FORWARD;
+    wpInfo.yVelocity = NPC_MOVES_SPEED_FORWARD;
     wpInfo.currDestPointId = 0;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 8; ++i)
     {
         WaypointNode node;
         node.pointId = i;
@@ -346,22 +349,22 @@ void Enemy::InitializeWaypoints()
                 node.x = 770.0f;
                 node.y = 350.0f;
                 break;
-            //case 4:
-            //    node.x = 500.0f;
-            //    node.y = 100.0f;
-            //    break;
-            //case 5:
-            //    node.x = 200.0f;
-            //    node.y = 200.0f;
-            //    break;
-            //case 6:
-            //    node.x = 300.0f;
-            //    node.y = 300.0f;
-            //    break;
-            //case 7:
-            //    node.x = 40.0f;
-            //    node.y = 10.0f;
-            //    break;
+            case 4:
+                node.x = 212.0f;
+                node.y = 480.0f;
+                break;
+            case 5:
+                node.x = 100.0f;
+                node.y = 450.0f;
+                break;
+            case 6:
+                node.x = 100.0f;
+                node.y = 84.0f;
+                break;
+            case 7:
+                node.x = 278.0f;
+                node.y = 67.0f;
+                break;
             //case 8:
             //    node.x = 400.0f;
             //    node.y = 100.0f;

@@ -17,8 +17,8 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, SDL_Surface* img, float X, flo
 
     //! We maken de x en y co-ordinaten groter zodra de kogel gemaakt wordt. De X en Y as die gegeven zijn (hoofdletters) zijn het midden
     //! van de tank en niet de uitkomst van de pijp.
-    x = X + float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 12.5f;
-    y = Y - float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 12.5f;
+    x = X + float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 14.3f;
+    y = Y - float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 14.3f;
 
     bulletRect.x = Sint16(x);
     bulletRect.y = Sint16(y);
@@ -94,14 +94,14 @@ void Bullet::Update()
         life--;
     }
 
-    if (WillCollisionAt(&bulletRect, &game->rotatingRectangle))
-    {
-        //! Inkomend is in graden
-        double inkomend = atan2(bulletRect.y - y, x - bulletRect.x) * M_PI / 180;
-        directionAngle = -(45 - inkomend);
-        rotateAngle = directionAngle * 180 / M_PI;
-        //life--;
-    }
+    //if (WillCollisionAt(&bulletRect, &game->rotatingRectangle))
+    //{
+    //    //! Inkomend is in graden
+    //    double inkomend = atan2(bulletRect.y - y, x - bulletRect.x) * M_PI / 180;
+    //    directionAngle = -(45 - inkomend);
+    //    rotateAngle = directionAngle * 180 / M_PI;
+    //    //life--;
+    //}
 
     bool collision = false;
 
@@ -232,7 +232,7 @@ void Bullet::Update()
             }
         }
 
-        /*if (life > 0 && !collision)
+        if (life > 0 && !collision)
         {
             std::vector<Enemy*> _enemies = game->GetEnemies();
 
@@ -248,7 +248,7 @@ void Bullet::Update()
                     }
                 }
             }
-        }*/
+        }
     }
 
     bulletRect.x = Sint16(x);
@@ -256,24 +256,4 @@ void Bullet::Update()
 
     if (life <= 0 || collision)
         Explode();
-
-    /*if (WillCollisionAt(&bulletRect, ))
-    {
-        if(x+3<player1->x+player1->w)
-            yVelocity = -yVelocity;
-        else
-            xVelocity = -xVelocity;
-
-        life--;
-    }
-
-    if (WillCollisionAt(&bulletRect, ))
-    {
-        if(x+bulletRect.w-3 > player2->x)
-            yVelocity=-yVelocity;
-        else
-            xVelocity=-xVelocity;
-
-        life--;
-    }*/
 }
