@@ -22,9 +22,7 @@ class Player
 
         /* MOVEMENT */
         float GetMovingAngle() { return movingAngle; }
-        float GetLastMovingAngle() { return lastMovingAngle; }
         void SetMovingAngle(float val) { movingAngle = val; }
-        void SetLastMovingAngle(float val) { lastMovingAngle = val; }
         float GetPosX() { return posX; }
         float GetPosY() { return posY; }
         void SetPosX(float val) { posX = val; }
@@ -44,7 +42,7 @@ class Player
         float posY;
         bool keysDown[4];
         //double pipeAngle;
-        float movingAngle, lastMovingAngle;
+        float movingAngle;
         SDL_Surface* screen;
         Uint8 bulletCount, landmineCount;
 

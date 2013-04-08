@@ -44,7 +44,7 @@ void Landmine::Explode()
     std::vector<SDL_Rect2> wallRects = game->GetWalls();
     for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); )
     {
-        if ((*itr).breakable)
+        if ((*itr).breakable && (*itr).visible)
         {
             float dx = float((*itr).x - landmineRect.x);
             float dy = float((*itr).y - landmineRect.y);
@@ -53,7 +53,7 @@ void Landmine::Explode()
 
             //if (dist > 0 && dist <= 20)
             {
-                wallRects.erase(itr++);
+                (*itr).visible = false;
                 itr = wallRects.begin();
             }
             //else

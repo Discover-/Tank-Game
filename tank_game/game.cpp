@@ -211,6 +211,8 @@ int Game::Update()
 
     walls[0].x = 0;
     walls[0].y = 0;
+    walls[0].visible = true;
+    walls[0].breakable = false;
 
     for (int i = 0; i < 20; ++i)
     {
@@ -222,6 +224,8 @@ int Game::Update()
 
         walls[i].w = 50;
         walls[i].h = 50;
+        walls[i].visible = true;
+        walls[i].breakable = false;
         wallRectangles.push_back(walls[i]);
     }
 
@@ -231,6 +235,8 @@ int Game::Update()
         walls[i].y = walls[i - 1].y + 50;
         walls[i].w = 50;
         walls[i].h = 50;
+        walls[i].visible = true;
+        walls[i].breakable = false;
         wallRectangles.push_back(walls[i]);
     }
 
@@ -240,6 +246,8 @@ int Game::Update()
         walls[i].y = 550;
         walls[i].w = 50;
         walls[i].h = 50;
+        walls[i].visible = true;
+        walls[i].breakable = false;
         wallRectangles.push_back(walls[i]);
     }
 
@@ -249,12 +257,15 @@ int Game::Update()
         walls[i].y = walls[i - 41].y + 50;
         walls[i].w = 50;
         walls[i].h = 50;
+        walls[i].visible = true;
+        walls[i].breakable = false;
         wallRectangles.push_back(walls[i]);
     }
 
     for (int i = 80; i < 86; ++i)
     {
         walls[i].breakable = (i > 81 && i < 84);
+        walls[i].visible = true;
         walls[i].x = 225;
         walls[i].y = i == 80 ? 150 : walls[i - 1].y + 50;
         walls[i].w = 50;
@@ -266,13 +277,14 @@ int Game::Update()
     walls[52].y = 260;
     walls[52].w = 50;
     walls[52].h = 50;
+    walls[52].visible = true;
     wallRectangles.push_back(walls[52]);
 
     int last_time = 0;
     int curr_time = 0;
     int diff_time = 0;
 
-    float rotatingAngle = 0.0f;
+    float rotatingBlockAngle = 0.0f;
     //SDL_Rect rotatingRectangle;
 
     //IPaddress ip;
@@ -282,6 +294,7 @@ int Game::Update()
     //char* text = "Hello client!\n";
 
     unsigned int startTime = 0;
+    Uint8* keystate = SDL_GetKeyState(NULL);
 
     while (isRunning && player)
     {
@@ -343,13 +356,21 @@ int Game::Update()
                                 }
 
                                 player->SetCanPlaceLandmine(false);
-                                player->SetShootCooldown(500);
+                                player->SetPlaceLandmineCooldown(500);
                                 player->IncrLandmineCount();
                             }
                             break;
                         case SDLK_r:
-                            player->SetPosX(400.0f);
-                            player->SetPosY(200.0f);
+                            //! Zet de speler terug naar de start positie als hij Shift + R indrukt en maak alle muren weer heel.
+                            if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
+                            {
+                                player->SetPosX(400.0f);
+                                player->SetPosY(200.0f);
+
+                                for (std::vector<SDL_Rect2>::iterator itr = wallRectangles.begin(); itr != wallRectangles.end(); ++itr)
+                                    if (!itr->visible)
+                                        itr->visible = true;
+                            }
                             break;
                         default:
                             break;
@@ -358,7 +379,6 @@ int Game::Update()
                 case SDL_MOUSEBUTTONDOWN:
                 {
                     //! We plaatsen een landmijn wanneer er shift + muisklik gedaan wordt - dit is gewoon tijdelijk voor testen.
-                    Uint8* keystate = SDL_GetKeyState(NULL);
                     if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
                     {
                         if (Landmine* landmine = new Landmine(this, screen, SDL_LoadBMP("landmine.bmp"), _event.motion.x, _event.motion.y, LANDMINE_WIDTH, LANDMINE_HEIGHT))
@@ -366,6 +386,10 @@ int Game::Update()
                             player->GetLandmines().push_back(landmine);
                             allLandmines.push_back(landmine);
                         }
+
+                        player->SetCanPlaceLandmine(false);
+                        player->SetPlaceLandmineCooldown(500);
+                        player->IncrLandmineCount();
                     }
                     else
                     {
@@ -422,11 +446,8 @@ int Game::Update()
         float plrX = player->GetPosX();
         float plrY = player->GetPosY();
         float plrMovingAngle = player->GetMovingAngle();
-        float plrLastMovingAngle = player->GetLastMovingAngle();
 
-        //! Om de één of andere reden breekt rotated movement als deze if-check gebruikt wordt. >_>
-        //if (plrLastMovingAngle != plrMovingAngle)
-            rotatedBodyPlr = rotozoomSurface(spriteBodyPlr, plrMovingAngle, 1.0, 0);
+        rotatedBodyPlr = rotozoomSurface(spriteBodyPlr, plrMovingAngle, 1.0, 0);
 
         SDL_Rect recBodyPlr = { int(plrX), int(plrY), 0, 0 };
         recBodyPlr.x -= rotatedBodyPlr->w / 2 - spriteBodyPlr->w / 2;
@@ -459,13 +480,8 @@ int Game::Update()
             rotatedPipeNpc = (*itr)->GetRotatedPipeSurface();
         }
 
-        rotatingAngle += 3;
-        rotatedBlock = rotozoomSurface(rotatingBlock, rotatingAngle, 1.0, 0);
-
-        //rotatedPipeNpc = rotozoomSurface(spritePipeNpc, rotatingAngle, 1.0, 0);
-
-        //recPipeNpc.x -= rotatedPipeNpc->w / 2 - spritePipeNpc->w / 2;
-        //recPipeNpc.y -= rotatedPipeNpc->h / 2 - spritePipeNpc->h / 2;
+        rotatingBlockAngle += 3;
+        rotatedBlock = rotozoomSurface(rotatingBlock, rotatingBlockAngle, 1.0, 0);
 
         rotatingRectangle.x = 700;
         rotatingRectangle.y = 100;
@@ -475,8 +491,8 @@ int Game::Update()
         rotatingRectangle.x -= rotatedBlock->w / 2 - rotatingBlock->w / 2;
         rotatingRectangle.y -= rotatedBlock->h / 2 - rotatingBlock->h / 2;
 
-        if (rotatingAngle == 360)
-            rotatingAngle = 0;
+        if (rotatingBlockAngle == 360.0f)
+            rotatingBlockAngle = 0.0f;
 
         if (!mineExplosions.empty())
         {
@@ -562,6 +578,19 @@ int Game::Update()
                 if (Landmine* landmine = (*itr))
                     landmine->Update();
 
+        SDL_Rect itrRect;
+        for (std::vector<SDL_Rect2>::iterator itr = wallRectangles.begin(); itr != wallRectangles.end(); ++itr)
+        {
+            if (itr->visible)
+            {
+                itrRect.x = (*itr).x;
+                itrRect.y = (*itr).y;
+                itrRect.w = (*itr).w;
+                itrRect.h = (*itr).h;
+                SDL_BlitSurface((*itr).breakable ? wallBreakable : wall, NULL, screen, &itrRect);
+            }
+        }
+
         for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
         {
             SDL_Rect bodyRectEnemy = (*itr)->GetRotatedBodyRect();
@@ -579,44 +608,20 @@ int Game::Update()
             SDL_BlitSurface(rotatedPipeEnemy, NULL, screen, &pipeRectEnemy);
         }
 
-        SDL_Rect itrRect;
-        for (std::vector<SDL_Rect2>::iterator itr = wallRectangles.begin(); itr != wallRectangles.end(); ++itr)
-        {
-            itrRect.x = (*itr).x;
-            itrRect.y = (*itr).y;
-            itrRect.w = (*itr).w;
-            itrRect.h = (*itr).h;
-            SDL_BlitSurface((*itr).breakable ? wallBreakable : wall, NULL, screen, &itrRect);
-        }
-
         SDL_BlitSurface(rotatedBodyPlr, NULL, screen, &recBodyPlr);
         SDL_BlitSurface(rotatedPipePlr, NULL, screen, &recPipePlr);
-        //SDL_BlitSurface(rotatedBodyNpc, NULL, screen, &recBodyNpc);
-        //SDL_BlitSurface(rotatedPipeNpc, NULL, screen, &recPipeNpc);
         SDL_BlitSurface(rotatedBlock, NULL, screen, &rotatingRectangle);
-        //SDL_BlitSurface(spriteOld, NULL, screen, &oldRect);
 
         //DrawLine(screen, mouseX, mouseY, 300, 400);
 
-        //std::cout<<"lol"<<std::endl;
-        //std::cin.get();
-        //printf("Tank Game   -   X: %f   -   Y: %f   -   pipeAngle: %f   -   Angle: %f   -   Mouse Y: %u   -   Mouse X: %uddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd \n", plrX, plrY, pipeAngle, plrMovingAngle, _event.motion.y, _event.motion.x);
-        //fflush(stdout);
         SDL_Flip(screen);
-        //printf("Tank Game   -   X: %f   -   Y: %f   -   pipeAngle: %f   -   Angle: %f   -   Mouse Y: %u   -   Mouse X: %uddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd \n", plrX, plrY, pipeAngle, plrMovingAngle, _event.motion.y, _event.motion.x);
-        //fflush(stdout);
 
         if (SDL_GetTicks() - startTime < 1000 / FRAMES_PER_SECOND)
             SDL_Delay(1000 / FRAMES_PER_SECOND - (SDL_GetTicks() - startTime));
 
         char buff[255];
         sprintf_s(buff, "Tank Game   -   X: %f   -   Y: %f   -   pipeAngle: %f   -   Angle: %f   -   Mouse X: %u   -   Mouse Y: %u", plrX, plrY, pipeAngle, plrMovingAngle, _event.motion.x, _event.motion.y);
-        //sprintf_s(buff, "Tank Game   -   pipeX %u  -  pipeY %u  -  middleX %u  -  middleY %u   -   plrX %f   -   plrY %f", pipeX, pipeY, middleX, middleY, plrX, plrY);
         SDL_WM_SetCaption(buff, NULL);
-
-        //? Waarom werken printf en std::cout niet (geen effect at all)?
-        //printf("X: ", x);
-        //printf("y: ", y);
     }
 
     //for (std::vector<TemporarilySurfaces>::iterator itr = temporarilySurfaces.begin(); itr != temporarilySurfaces.end(); ++itr)

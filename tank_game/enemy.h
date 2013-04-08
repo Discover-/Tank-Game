@@ -32,9 +32,7 @@ class Enemy
 
         /* MOVEMENT */
         float GetMovingAngle() { return movingAngle; }
-        float GetLastMovingAngle() { return lastMovingAngle; }
         void SetMovingAngle(float val) { movingAngle = val; }
-        void SetLastMovingAngle(float val) { lastMovingAngle = val; }
         float GetPosX() { return posX; }
         float GetPosY() { return posY; }
         void SetPosX(float val) { posX = val; }
@@ -78,7 +76,7 @@ class Enemy
         float posX;
         float posY;
         //double pipeAngle;
-        float movingAngle, lastMovingAngle, _rotatingAngle;
+        float movingAngle;
         float rotatingBodyAngle, rotatingPipeAngle;
         SDL_Surface* bodySprite;
         SDL_Surface* pipeSprite;

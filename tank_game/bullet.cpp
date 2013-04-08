@@ -170,7 +170,7 @@ void Bullet::Update()
         std::vector<SDL_Rect2> wallRects = game->GetWalls();
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if (WillCollisionAt(&_bulletRect, &(*itr)))
+            if ((*itr).visible && WillCollisionAt(&_bulletRect, &(*itr)))
             {
                 bool hitLeftSide = false, hitRightSide = false, hitBottomSide = false, hitUpperSide = false;
                 bool setWhichSideHit = false;

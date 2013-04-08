@@ -24,8 +24,6 @@ void Player::Update()
     //! We moeten deze event iedere updatecall opnieuw oproepen.
     //SDL_Event _event = game->GetEvent();
 
-    float prevX = posX;
-    float prevY = posY;
     float newX = 0.0f;
     float newY = 0.0f;
     //! otherOutcomeX/Y zijn variabelen die houden wat de nieuwe destination zou zijn zonder collision checks.
@@ -59,7 +57,7 @@ void Player::Update()
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if (WillCollisionAt(&plrRect, &(*itr)))
+            if ((*itr).visible && WillCollisionAt(&plrRect, &(*itr)))
             {
                 foundCollision = true;
 
@@ -108,8 +106,6 @@ void Player::Update()
             posY -= float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
     }
 
-    //prevX = posX;
-    //prevY = posY;
     newX = 0.0f;
     newY = 0.0f;
     otherOutcomeX = 0;
@@ -143,7 +139,7 @@ void Player::Update()
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if (WillCollisionAt(&plrRect, &(*itr)))
+            if ((*itr).visible && WillCollisionAt(&plrRect, &(*itr)))
             {
                 foundCollision = true;
 
@@ -171,7 +167,7 @@ void Player::Update()
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if (WillCollisionAt(&plrRect, &(*itr)))
+            if ((*itr).visible && WillCollisionAt(&plrRect, &(*itr)))
             {
                 foundCollision = true;
 
@@ -209,8 +205,6 @@ void Player::Update()
 
     if (posY > 544)
         posY = 544;
-
-    lastMovingAngle = movingAngle;
 }
 
 void Player::HandleTimers(unsigned int diff_time)

@@ -25,36 +25,8 @@ Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe
     lastPointIncreaseTime = 0;
 }
 
-bool forward = true;
-int counter = 0;
-
 void Enemy::Update()
 {
-    /*if (forward)
-    {
-        posX += float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
-        posY -= float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
-
-        rotatingPipeAngle = -rotatingPipeAngle;
-        rotatedPipe = rotozoomSurface(pipeSprite, rotatingPipeAngle, 1.0, 0);
-    }
-    else
-    {
-        posX -= float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
-        posY += float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
-
-        rotatingPipeAngle = 180 - rotatingPipeAngle;
-        rotatedPipe = rotozoomSurface(pipeSprite, rotatingPipeAngle, 1.0, 0);
-    }
-
-    //movingAngle += 3;
-
-    if (posX < 20 && !forward)
-        forward = true;
-
-    if (posX > 880 && forward)
-        forward = false;*/
-
     bool turningToNextPoint = false;
     float xDestTemp = 0.0f;
     float yDestTemp = 0.0f;
@@ -97,8 +69,6 @@ void Enemy::Update()
             //    yDestTemp = 0.0f;
             //}
 
-            bool canMove = true;
-
             //if (!turningToNextPoint)
                 movingAngle = float(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
                 //rotatingBodyAngle = movingAngle;
@@ -106,7 +76,6 @@ void Enemy::Update()
             if ((posX < xDestTemp - 50 && posX > xDestTemp + 50 && posY < yDestTemp - 50 && posY > yDestTemp + 50) ||
                 (posX > xDestTemp - 50 && posX < xDestTemp + 50 && posY > yDestTemp - 50 && posY < yDestTemp + 50))
             {
-                counter++;
                 float xDestNext = 0.0f;
                 float yDestNext = 0.0f;
                 turningToNextPoint = true;
@@ -121,20 +90,30 @@ void Enemy::Update()
                 }
 
                 // aantal ticks voor we nieuwe node bereiken (+50 / -50)
-                // nieuweDirection
-                // movingAngle += ;
+                // nieuweDirection  62
+                // movingAngle     -99
                 // verschil tussen angle van NU en angle toekomstig
                 // movingAngle - nieuweDirection
                 // (nieuweDirection - movingAngle) / aantalTicks;
                 //float currMovingAngle = double(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
 
-                //! TODO: Een beejte rare bug atm: nieuweDirection doet het op één hoek niet: de laatste. Daar is het resultaat 155 terwijl het
-                //! ongeveer -155 moet zijn (dus negatief).
+                //! TODO: Een beetje rare bug atm: nieuweDirection doet het op één hoek niet: de laatste. Daar is het resultaat ongeveer 155
+                //! terwijl het ongeveer -150 moet zijn (dus negatief).
                 float nieuweDirection = float(atan2(posY - yDestNext, xDestNext - posX) * 180 / M_PI);
                 float aantalGraden = nieuweDirection - movingAngle;
                 float aantalGradenPerTick = aantalGraden / 29;
                 //rotatingBodyAngle += 40;
-                movingAngle += 40;
+
+                //if (nieuweDirection > movingAngle)
+                //{
+                //    while (nieuweDirection > movingAngle)
+                //        movingAngle += 1;
+                //}
+                //else
+                //{
+                //    while (nieuweDirection < movingAngle)
+                //        movingAngle -= 1;
+                //}
 
                 //if (movingAngle >= aantalGraden)
                 //    turningToNextPoint = false;
@@ -206,43 +185,10 @@ void Enemy::Update()
                 else
                 {
                     itr->currDestPointId++;
-                    canMove = true;
                     //++itr;
                 }
 
                 lastPointIncreaseTime = 200;
-            }
-
-            if (canMove)
-            {
-                //movingAngle = double(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
-                _rotatingAngle += 3;
-                posX += float(cos(movingAngle * M_PI / 180.0) * itr->xVelocity);
-                posY -= float(sin(movingAngle * M_PI / 180.0) * itr->yVelocity);
-                rectBody.x = Sint16(posX);
-                rectBody.y = Sint16(posY);
-
-                //SDL_Surface* rotatedBodyEnemy = rotozoomSurface(bodySprite, rotatingBodyAngle, 1.0, 0);
-                //SDL_Surface* rotatedPipeEnemy = rotozoomSurface(pipeSprite, _rotatingAngle, 1.0, 0);
-
-                //rotatedBody = rotozoomSurface(bodySprite, rotatingBodyAngle, 1.0, 0);
-                rotatedBody = rotozoomSurface(bodySprite, movingAngle, 1.0, 0);
-                rotatedPipe = rotozoomSurface(pipeSprite, _rotatingAngle, 1.0, 0);
-
-                rectPipe.x = Sint16(posX);
-                rectPipe.y = Sint16(posY);
-                rectPipe.w = PLAYER_WIDTH;
-                rectPipe.h = PLAYER_HEIGHT;
-
-                rectPipe.x -= rotatedPipe->w / 2 - pipeSprite->w / 2;
-                rectPipe.y -= rotatedPipe->h / 2 - pipeSprite->h / 2;
-
-                rectBody.x -= rotatedBody->w / 2 - bodySprite->w / 2;
-                rectBody.y -= rotatedBody->h / 2 - bodySprite->h / 2;
-
-                //SetRotatedInfo(rotatedBodyEnemy, rotatedPipeEnemy, bodySprite, pipeSprite);
-
-                //++itr;
             }
         }
 
@@ -250,19 +196,84 @@ void Enemy::Update()
             ++itr;
     }
 
-    if (posX < 0)
-        posX = 0;
+    float newX = 0.0f;
+    float newY = 0.0f;
+    Sint16 otherOutcomeX = 0; //! otherOutcomeX/Y zijn variabelen die houden wat de nieuwe destination zou zijn zonder collision checks.
+    Sint16 otherOutcomeY = 0;
+    SDL_Rect npcRect = { Sint16(posX), Sint16(posY), 51, 45 };
 
-    if (posY < 0)
-        posY = 0;
+    newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD));
+    otherOutcomeX = Sint16(newX);
+    npcRect.x = Sint16(newX);
+    bool foundCollision = false;
 
-    if (posX > 938)
-        posX = 938;
+    std::vector<SDL_Rect2> wallRects = game->GetWalls();
 
-    if (posY > 544)
-        posY = 544;
+    for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+    {
+        if ((*itr).visible && WillCollisionAt(&npcRect, &(*itr)))
+        {
+            foundCollision = true;
 
-    lastMovingAngle = movingAngle;
+            while (true)
+            {
+                newX -= 0.01f;
+                npcRect.x = Sint16(newX);
+
+                if (!WillCollisionAt(&npcRect, &(*itr)) || newX >= otherOutcomeX)
+                    break;
+            }
+
+            break;
+        }
+    }
+
+    if (!foundCollision)
+        posX += float(cos(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD);
+
+    foundCollision = false;
+
+    newY = (posY - float(sin(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD));
+    otherOutcomeY = Sint16(newY);
+    npcRect.y = Sint16(newY);
+
+    for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+    {
+        if ((*itr).visible && WillCollisionAt(&npcRect, &(*itr)))
+        {
+            foundCollision = true;
+
+            while (true)
+            {
+                newY += 0.01f;
+                npcRect.y = Sint16(newY);
+
+                if (!WillCollisionAt(&npcRect, &(*itr)) || newY >= otherOutcomeY)
+                    break;
+            }
+
+            break;
+        }
+    }
+
+    if (!foundCollision)
+        posY -= float(sin(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD);
+
+    rectBody.x = Sint16(posX);
+    rectBody.y = Sint16(posY);
+
+    rectPipe.x = Sint16(posX);
+    rectPipe.y = Sint16(posY);
+
+    rotatingPipeAngle += 3;
+    rotatedBody = rotozoomSurface(bodySprite, movingAngle, 1.0, 0);
+    rotatedPipe = rotozoomSurface(pipeSprite, rotatingPipeAngle, 1.0, 0);
+
+    rectPipe.x -= rotatedPipe->w / 2 - pipeSprite->w / 2;
+    rectPipe.y -= rotatedPipe->h / 2 - pipeSprite->h / 2;
+
+    rectBody.x -= rotatedBody->w / 2 - bodySprite->w / 2;
+    rectBody.y -= rotatedBody->h / 2 - bodySprite->h / 2;
 }
 
 void Enemy::HandleTimers(unsigned int diff_time)
@@ -326,7 +337,7 @@ void Enemy::InitializeWaypoints()
     wpInfo.yVelocity = NPC_MOVES_SPEED_FORWARD;
     wpInfo.currDestPointId = 0;
 
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 3; ++i)
     {
         WaypointNode node;
         node.pointId = i;
@@ -341,36 +352,36 @@ void Enemy::InitializeWaypoints()
                 node.x = 400.0f;
                 node.y = 200.0f;
                 break;
-            case 2:
-                node.x = 560.0f;
-                node.y = 130.0f;
-                break;
-            case 3:
-                node.x = 770.0f;
-                node.y = 350.0f;
-                break;
-            case 4:
-                node.x = 212.0f;
-                node.y = 480.0f;
-                break;
-            case 5:
-                node.x = 100.0f;
-                node.y = 450.0f;
-                break;
-            case 6:
-                node.x = 100.0f;
-                node.y = 84.0f;
-                break;
-            case 7:
-                node.x = 278.0f;
-                node.y = 67.0f;
-                break;
-            //case 8:
-            //    node.x = 400.0f;
-            //    node.y = 100.0f;
+            //case 2:
+            //    node.x = 560.0f;
+            //    node.y = 130.0f;
             //    break;
-            default:
+            //case 3:
+            //    node.x = 770.0f;
+            //    node.y = 350.0f;
+            //    break;
+            //case 4:
+            //    node.x = 212.0f;
+            //    node.y = 480.0f;
+            //    break;
+            //case 5:
+            //    node.x = 100.0f;
+            //    node.y = 450.0f;
+            //    break;
+            //case 6:
+            //    node.x = 100.0f;
+            //    node.y = 84.0f;
+            //    break;
+            //case 7:
+            //    node.x = 278.0f;
+            //    node.y = 67.0f;
+            //    break;
+            case 2:
+                node.x = 140.0f;
+                node.y = 330.0f;
                 break;
+            default:
+                return; //! Als we hier door zouden gaan komen er waypoints zonder X en Y as en dat willen we niet.
         }
 
         //if (node.x == 0.0f || node.y == 0.0f)

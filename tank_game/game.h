@@ -37,9 +37,9 @@
 #define FRAMES_PER_SECOND           30
 
 #define PLAYER_MOVES_SPEED_FORWARD  3
-#define PLAYER_MOVES_SPEED_BACKWARD 2//1.5
+#define PLAYER_MOVES_SPEED_BACKWARD 2
 #define NPC_MOVES_SPEED_FORWARD     2.5
-#define NPC_MOVES_SPEED_BACKWARD    2.5
+#define NPC_MOVES_SPEED_BACKWARD    2 // unused
 
 #define PLAYER_BULLET_LIFES         2
 #define PLAYER_BULLET_SPEED_X       5
@@ -107,11 +107,12 @@ struct MineExplosions
 //! Een zelf-gemaakte kopie van structure SDL_Rect zodat we kunnen weten of een muur kapot te maken is d.m.b. landmijnen.
 struct SDL_Rect2
 {
-    SDL_Rect2() : x(0), y(0), w(0), h(0), breakable(false) { }
+    SDL_Rect2() : x(0), y(0), w(0), h(0), breakable(false), visible(true) { }
 
     Sint16 x, y;
     Uint16 w, h;
     bool breakable;
+    bool visible;
 };
 
 inline int urand(int min, int max)
