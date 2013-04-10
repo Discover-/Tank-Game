@@ -110,6 +110,18 @@ void Game::BlitSurface(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* dst, SD
     SDL_SetColorKey(src, SDL_SRCCOLORKEY, SDL_MapRGB(src->format, rgb.r, rgb.g, rgb.b));
 }
 
+void Game::AddWall(Sint16 x, Sint16 y, Sint16 w /* = 50 */, Sint16 h /* = 50 */, bool breakable /* = false */, bool visible /* = true */)
+{
+    SDL_Rect2 wall;
+    wall.x = x;
+    wall.y = y;
+    wall.w = w;
+    wall.h = h;
+    wall.visible = visible;
+    wall.breakable = breakable;
+    wallRectangles.push_back(wall);
+}
+
 int Game::Update()
 {
     isRunning = true;
@@ -137,12 +149,6 @@ int Game::Update()
     SDL_Surface* spritePipeNpc = SDL_DisplayFormat(tmpPipeNpc);
     SDL_FreeSurface(tmpPipeNpc);
     SDL_SetColorKey(spritePipeNpc, SDL_SRCCOLORKEY, COLOR_WHITE);
-
-    //! Tijdelijk uitgezet (geen blitsurface in update code).
-    SDL_Surface* tmpSpriteOld = SDL_LoadBMP("sprite_old.bmp");
-    SDL_Surface* spriteOld = SDL_DisplayFormat(tmpSpriteOld);
-    SDL_FreeSurface(tmpSpriteOld);
-    SDL_SetColorKey(spriteOld, SDL_SRCCOLORKEY, COLOR_WHITE);
     
     SDL_Surface* tmpRotatingBlock = SDL_LoadBMP("rotating_block.bmp");
     SDL_Surface* rotatingBlock = SDL_DisplayFormat(tmpRotatingBlock);
@@ -152,7 +158,7 @@ int Game::Update()
     SDL_Surface* tmpWall = SDL_LoadBMP("wall.bmp");
     SDL_Surface* wall = SDL_DisplayFormat(tmpWall);
     SDL_FreeSurface(tmpWall);
-    SDL_SetColorKey(wall, SDL_SRCCOLORKEY, COLOR_WHITE);
+    //SDL_SetColorKey(wall, SDL_SRCCOLORKEY, COLOR_WHITE);
     
     SDL_Surface* tmpWallBreakable = SDL_LoadBMP("wall_breakable.bmp");
     SDL_Surface* wallBreakable = SDL_DisplayFormat(tmpWallBreakable);
@@ -207,78 +213,45 @@ int Game::Update()
     mineExplosionRect[1].w = 60;
     mineExplosionRect[1].h = 60;
 
-    SDL_Rect2 walls[100];
+    Sint16 currWallX = 0, currWallY = 0;
+    AddWall(0, 0);
 
-    walls[0].x = 0;
-    walls[0].y = 0;
-    walls[0].visible = true;
-    walls[0].breakable = false;
-
-    for (int i = 0; i < 20; ++i)
+    for (int i = 1; i < 80; ++i)
     {
-        if (i != 0)
+        if (i < 20 && i > 0) //! First horizontal wall (starts left upper corner - ends right upper corner)
+            currWallX += 50;
+        else if (i < 40 && i > 20) //! First vertical wall (starts right upper corner - ends right bottom corner)
         {
-            walls[i].x = walls[i - 1].x + 50;
-            walls[i].y = 0;
+            currWallX = 0;
+            currWallY += 50;
+        }
+        else if (i < 60 && i > 40) //! Second horizontal wall (starts left upper corner - ends left bottom corner)
+        {
+            currWallX += 50;
+            currWallY = 550;
+        }
+        else if (i < 80 && i > 60) //! Second vertical wall (starts left bottom corner - ends right bottom corner)
+        {
+            //! Reset Y co-ordinate for this line of walls on first wall placement because it starts from 0.
+            if (i == 61)
+                currWallY = 0;
+
+            currWallX = 950;
+            currWallY += 50;
         }
 
-        walls[i].w = 50;
-        walls[i].h = 50;
-        walls[i].visible = true;
-        walls[i].breakable = false;
-        wallRectangles.push_back(walls[i]);
+        AddWall(currWallX, currWallY);
     }
 
-    for (int i = 20; i < 40; ++i)
-    {
-        walls[i].x = 0;
-        walls[i].y = walls[i - 1].y + 50;
-        walls[i].w = 50;
-        walls[i].h = 50;
-        walls[i].visible = true;
-        walls[i].breakable = false;
-        wallRectangles.push_back(walls[i]);
-    }
+    currWallX = 225;
+    currWallY = 150;
 
-    for (int i = 40; i < 60; ++i)
-    {
-        walls[i].x = walls[i - 1].x + 50;
-        walls[i].y = 550;
-        walls[i].w = 50;
-        walls[i].h = 50;
-        walls[i].visible = true;
-        walls[i].breakable = false;
-        wallRectangles.push_back(walls[i]);
-    }
-
-    for (int i = 60; i < 80; ++i)
-    {
-        walls[i].x = 950;
-        walls[i].y = walls[i - 41].y + 50;
-        walls[i].w = 50;
-        walls[i].h = 50;
-        walls[i].visible = true;
-        walls[i].breakable = false;
-        wallRectangles.push_back(walls[i]);
-    }
-
+    //! A special line of walls in the left middle-ish part of the field.
     for (int i = 80; i < 86; ++i)
     {
-        walls[i].breakable = (i > 81 && i < 84);
-        walls[i].visible = true;
-        walls[i].x = 225;
-        walls[i].y = i == 80 ? 150 : walls[i - 1].y + 50;
-        walls[i].w = 50;
-        walls[i].h = 50;
-        wallRectangles.push_back(walls[i]);
+        AddWall(currWallX, currWallY, 50, 50, (i == 82 || i == 83)); //! Walls 82 and 83 are breakable by landmines.
+        currWallY += 50;
     }
-
-    walls[52].x = 537;
-    walls[52].y = 260;
-    walls[52].w = 50;
-    walls[52].h = 50;
-    walls[52].visible = true;
-    wallRectangles.push_back(walls[52]);
 
     int last_time = 0;
     int curr_time = 0;
@@ -370,6 +343,20 @@ int Game::Update()
                                 for (std::vector<SDL_Rect2>::iterator itr = wallRectangles.begin(); itr != wallRectangles.end(); ++itr)
                                     if (!itr->visible)
                                         itr->visible = true;
+
+                                for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
+                                {
+                                    (*itr)->SetPosX((*itr)->GetStartPosX());
+                                    (*itr)->SetPosY((*itr)->GetStartPosY());
+
+                                    std::vector<WaypointInformation> waypoints = (*itr)->GetWaypoints();
+
+                                    if (!waypoints.empty())
+                                    {
+                                        waypoints.clear();
+                                        (*itr)->InitializeWaypoints();
+                                    }
+                                }
                             }
                             break;
                         default:
@@ -598,9 +585,9 @@ int Game::Update()
             SDL_Surface* rotatedBodyEnemy = (*itr)->GetRotatedBodySurface();
             SDL_Surface* rotatedPipeEnemy = (*itr)->GetRotatedPipeSurface();
 
+            //! Make rotating of the surfaces properly centered.
             bodyRectEnemy.x -= rotatedBodyEnemy->w / 2 - rotatedBodyEnemy->w / 2;
             bodyRectEnemy.y -= rotatedBodyEnemy->h / 2 - rotatedBodyEnemy->h / 2;
-
             pipeRectEnemy.x -= rotatedPipeEnemy->w / 2 - rotatedPipeEnemy->w / 2;
             pipeRectEnemy.y -= rotatedPipeEnemy->h / 2 - rotatedPipeEnemy->h / 2;
 

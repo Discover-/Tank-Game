@@ -169,7 +169,8 @@ class Game
         std::vector<Enemy*> GetEnemies() { return enemies; }
         void AddDelayedFunctionCall(Uint8 delayMs, void* function, int param1 = 0, int param2 = 0, int param3 = 0);
         void AddLandmineExplosion();
-
+        void AddWall(Sint16 x, Sint16 y, Sint16 w = 50, Sint16 h = 50, bool breakable = false, bool visible = true);
+        void AddWall(SDL_Rect2 wallRect) { wallRectangles.push_back(wallRect); }
         SDL_Rect rotatingRectangle;
 
     private:

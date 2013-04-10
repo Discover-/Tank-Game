@@ -1,0 +1,10 @@
+- Menu
+- Gitignore
+- Mine explosions should use a frame animation type of system
+- Memoryleaks
+- Figure out issues with collision on some of the walls. Possible cause might be that we stop iterating over walls when we found a collision.
+- When a player runs into an enemy or the other way around, they should push each other away.
+  * What happens if both players are moving forward and right into each other at the same time? No movement?
+  * Run a check if the new position of the enemy won't be inside a wall.
+    > Can't place this check in Enemy::SetPosX/Y because we need to know whether we substract or add co-ordinates to the movement position in order to then do the opposite in order to move out of the wall/etc.
+  * Remember to also add this functionality to the Enemy class for when a player tank is on their waypoint path.

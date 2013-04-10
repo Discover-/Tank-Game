@@ -7,6 +7,8 @@ Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe
 
     posX = x;
     posY = y;
+    startPosX = x;
+    startPosY = y;
     game = _game;
     //pipeAngle = 0;
     canShoot = true;
@@ -27,253 +29,267 @@ Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe
 
 void Enemy::Update()
 {
-    bool turningToNextPoint = false;
-    float xDestTemp = 0.0f;
-    float yDestTemp = 0.0f;
-
-    for (std::vector<WaypointInformation>::iterator itr = waypoints.begin(); itr != waypoints.end(); )
+    if (!waypoints.empty())
     {
-        Uint32 lastPointId = 0;
-        Uint32 pointId = itr->currDestPointId;
-        float xDest = 0.0f;
-        float yDest = 0.0f;
-        bool incrItr = true;
+        bool turningToNextPoint = false;
+        float xDestTemp = 0.0f;
+        float yDestTemp = 0.0f;
 
-        for (std::vector<WaypointNode>::iterator itr2 = itr->nodes.begin(); itr2 != itr->nodes.end(); ++itr2)
+        for (std::vector<WaypointInformation>::iterator itr = waypoints.begin(); itr != waypoints.end(); )
         {
-            Uint32 nextPointId = itr2->pointId;
+            Uint32 lastPointId = 0;
+            Uint32 pointId = itr->currDestPointId;
+            float xDest = 0.0f;
+            float yDest = 0.0f;
+            bool incrItr = true;
 
-            if (pointId == nextPointId)
+            for (std::vector<WaypointNode>::iterator itr2 = itr->nodes.begin(); itr2 != itr->nodes.end(); ++itr2)
             {
-                xDest = itr2->x;
-                yDest = itr2->y;
-            }
+                Uint32 nextPointId = itr2->pointId;
 
-            lastPointId = nextPointId;
-        }
-
-        //if (!(xDest == 0.0f || yDest == 0.0f || (xDest == posX && yDest == posY)))
-        if (!(xDest == 0.0f || yDest == 0.0f))
-        {
-            //if (turningToNextPoint)
-            {
-                if (xDestTemp == 0.0f && yDestTemp == 0.0f)
+                if (pointId == nextPointId)
                 {
-                    xDestTemp = xDest;
-                    yDestTemp = yDest;
-                }
-            }
-            //else if (xDestTemp != 0.0f || yDestTemp != 0.0f)
-            //{
-            //    xDestTemp = 0.0f;
-            //    yDestTemp = 0.0f;
-            //}
-
-            //if (!turningToNextPoint)
-                movingAngle = float(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
-                //rotatingBodyAngle = movingAngle;
-
-            if ((posX < xDestTemp - 50 && posX > xDestTemp + 50 && posY < yDestTemp - 50 && posY > yDestTemp + 50) ||
-                (posX > xDestTemp - 50 && posX < xDestTemp + 50 && posY > yDestTemp - 50 && posY < yDestTemp + 50))
-            {
-                float xDestNext = 0.0f;
-                float yDestNext = 0.0f;
-                turningToNextPoint = true;
-
-                for (std::vector<WaypointNode>::iterator itr3 = itr->nodes.begin(); itr3 != itr->nodes.end(); ++itr3)
-                {
-                    if (pointId + 1 == itr3->pointId)
-                    {
-                        xDestNext = itr3->x;
-                        yDestNext = itr3->y;
-                    }
+                    xDest = itr2->x;
+                    yDest = itr2->y;
                 }
 
-                // aantal ticks voor we nieuwe node bereiken (+50 / -50)
-                // nieuweDirection  62
-                // movingAngle     -99
-                // verschil tussen angle van NU en angle toekomstig
-                // movingAngle - nieuweDirection
-                // (nieuweDirection - movingAngle) / aantalTicks;
-                //float currMovingAngle = double(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
-
-                //! TODO: Een beetje rare bug atm: nieuweDirection doet het op één hoek niet: de laatste. Daar is het resultaat ongeveer 155
-                //! terwijl het ongeveer -150 moet zijn (dus negatief).
-                float nieuweDirection = float(atan2(posY - yDestNext, xDestNext - posX) * 180 / M_PI);
-                float aantalGraden = nieuweDirection - movingAngle;
-                float aantalGradenPerTick = aantalGraden / 29;
-                //rotatingBodyAngle += 40;
-
-                //if (nieuweDirection > movingAngle)
-                //{
-                //    while (nieuweDirection > movingAngle)
-                //        movingAngle += 1;
-                //}
-                //else
-                //{
-                //    while (nieuweDirection < movingAngle)
-                //        movingAngle -= 1;
-                //}
-
-                //if (movingAngle >= aantalGraden)
-                //    turningToNextPoint = false;
+                lastPointId = nextPointId;
             }
-            else
-                turningToNextPoint = false;
 
-            //! TODO: In plaats van lastPointIncreaseTime een integer genaamd lastPointTurned en verander op iedere nieuwe point turn.
-            //! if (lastPointIncreaseTime != pointId)
-
-            //between 3+ and 3-
-            // als posX 198 is en xDest 200
-            // 198 < 197 && 198 > 203 ||
-            // 198 > 197 && 198 < 203
-            // posX < xDest - 3 && posX > xDest + 3
-            //if (pipeAngle < 138 && pipeAngle > 38) // hoger dan 38, lager dan 138
-            //if (lastPointIncreaseTime == 0 && (posX == xDest && posY == yDest) || (posX < xDest - 2 && posX > xDest + 2) || (posX > xDest - 2 && posX < xDest + 2))
-            if ((posX == xDest && posY == yDest) || (posX < xDest - 6 && posX > xDest + 6 && posY < yDest - 6 && posY > yDest + 6) ||
-                                                    (posX > xDest - 6 && posX < xDest + 6 && posY > yDest - 6 && posY < yDest + 6))
+            //if (!(xDest == 0.0f || yDest == 0.0f || (xDest == posX && yDest == posY)))
+            if (!(xDest == 0.0f || yDest == 0.0f))
             {
-                if (pointId == lastPointId)
+                //if (turningToNextPoint)
                 {
-                    if (itr->repeat)
+                    if (xDestTemp == 0.0f && yDestTemp == 0.0f)
                     {
-                        //incrItr = false;
-                        //canMove = false;
-                        itr->currDestPointId = 0;
-                        //itr->nodes.begin();
-                        //itr = waypoints.begin();
-
-                        //itr->currDestPointId = itr->nodes.begin()->pointId;
-                        xDest = itr->nodes.begin()->x;
-                        yDest = itr->nodes.begin()->y;
-                        //canMove = true;
-                        //break;
-                        //++itr;
+                        xDestTemp = xDest;
+                        yDestTemp = yDest;
                     }
-                    else if (itr->repeatReversed)
+                }
+                //else if (xDestTemp != 0.0f || yDestTemp != 0.0f)
+                //{
+                //    xDestTemp = 0.0f;
+                //    yDestTemp = 0.0f;
+                //}
+
+                //if (!turningToNextPoint)
+                    movingAngle = float(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
+                    //rotatingBodyAngle = movingAngle;
+
+                if ((posX < xDestTemp - 50 && posX > xDestTemp + 50 && posY < yDestTemp - 50 && posY > yDestTemp + 50) ||
+                    (posX > xDestTemp - 50 && posX < xDestTemp + 50 && posY > yDestTemp - 50 && posY < yDestTemp + 50))
+                {
+                    float xDestNext = 0.0f;
+                    float yDestNext = 0.0f;
+                    turningToNextPoint = true;
+
+                    for (std::vector<WaypointNode>::iterator itr3 = itr->nodes.begin(); itr3 != itr->nodes.end(); ++itr3)
                     {
-                        /*incrItr = false;
-                        canMove = false;
-                        //xDest = itr->nodes.end()->x;
-                        //yDest = itr->nodes.end()->y;
-
-                        //std::reverse(itr->nodes.begin(), itr->nodes.end());
-                        //std::reverse(waypoints.begin(), waypoints.end());
-                        //itr->currDestPointId = lastPointId - 1;
-
-                        std::vector<WaypointInformation> tempVector = waypoints;
-
-                        for (std::vector<WaypointInformation>::reverse_iterator itr3 = waypoints.rbegin(); itr3 != waypoints.rend(); ++itr3)
-                            tempVector.push_back(*itr3);
-
-                        waypoints.clear();
-
-                        for (std::vector<WaypointInformation>::iterator itr4 = tempVector.begin(); itr4 != tempVector.end(); ++itr4)
-                            waypoints.push_back(*itr4);
-
-                        break;
-                        //itr = waypoints.begin();
-                        //for (int i = 0; i <= lastPointId; ++i)
-                        //    for (std::vector<WaypointNode>::iterator itr3 = itr->nodes.begin(); itr3 != itr->nodes.end(); ++itr3)
-                        //        itr3->pointId = i;
-
-                        //itr = waypoints.begin();
-                        //break;*/
+                        if (pointId + 1 == itr3->pointId)
+                        {
+                            xDestNext = itr3->x;
+                            yDestNext = itr3->y;
+                        }
                     }
+
+                    // aantal ticks voor we nieuwe node bereiken (+50 / -50)
+                    // nieuweDirection  62
+                    // movingAngle     -99
+                    // verschil tussen angle van NU en angle toekomstig
+                    // movingAngle - nieuweDirection
+                    // (nieuweDirection - movingAngle) / aantalTicks;
+                    //float currMovingAngle = double(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
+
+                    //! TODO: Een beetje rare bug atm: nieuweDirection doet het op één hoek niet: de laatste. Daar is het resultaat ongeveer 155
+                    //! terwijl het ongeveer -150 moet zijn (dus negatief).
+                    float nieuweDirection = float(atan2(posY - yDestNext, xDestNext - posX) * 180 / M_PI);
+                    float aantalGraden = nieuweDirection - movingAngle;
+                    float aantalGradenPerTick = aantalGraden / 29;
+                    //rotatingBodyAngle += 40;
+
+                    //if (nieuweDirection > movingAngle)
+                    //{
+                    //    while (nieuweDirection > movingAngle)
+                    //        movingAngle += 1;
+                    //}
+                    //else
+                    //{
+                    //    while (nieuweDirection < movingAngle)
+                    //        movingAngle -= 1;
+                    //}
+
+                    //if (movingAngle >= aantalGraden)
+                    //    turningToNextPoint = false;
                 }
                 else
+                    turningToNextPoint = false;
+
+                //! TODO: In plaats van lastPointIncreaseTime een integer genaamd lastPointTurned en verander op iedere nieuwe point turn.
+                //! if (lastPointIncreaseTime != pointId)
+
+                //between 3+ and 3-
+                // als posX 198 is en xDest 200
+                // 198 < 197 && 198 > 203 ||
+                // 198 > 197 && 198 < 203
+                // posX < xDest - 3 && posX > xDest + 3
+                //if (pipeAngle < 138 && pipeAngle > 38) // hoger dan 38, lager dan 138
+                //if (lastPointIncreaseTime == 0 && (posX == xDest && posY == yDest) || (posX < xDest - 2 && posX > xDest + 2) || (posX > xDest - 2 && posX < xDest + 2))
+                if ((posX == xDest && posY == yDest) || (posX < xDest - 6 && posX > xDest + 6 && posY < yDest - 6 && posY > yDest + 6) ||
+                                                        (posX > xDest - 6 && posX < xDest + 6 && posY > yDest - 6 && posY < yDest + 6))
                 {
-                    itr->currDestPointId++;
-                    //++itr;
+                    if (pointId == lastPointId)
+                    {
+                        if (itr->repeat)
+                        {
+                            //incrItr = false;
+                            //canMove = false;
+                            itr->currDestPointId = 0;
+                            //itr->nodes.begin();
+                            //itr = waypoints.begin();
+
+                            //itr->currDestPointId = itr->nodes.begin()->pointId;
+                            xDest = itr->nodes.begin()->x;
+                            yDest = itr->nodes.begin()->y;
+                            //canMove = true;
+                            //break;
+                            //++itr;
+                        }
+                        else if (itr->repeatReversed)
+                        {
+                            /*incrItr = false;
+                            canMove = false;
+                            //xDest = itr->nodes.end()->x;
+                            //yDest = itr->nodes.end()->y;
+
+                            //std::reverse(itr->nodes.begin(), itr->nodes.end());
+                            //std::reverse(waypoints.begin(), waypoints.end());
+                            //itr->currDestPointId = lastPointId - 1;
+
+                            std::vector<WaypointInformation> tempVector = waypoints;
+
+                            for (std::vector<WaypointInformation>::reverse_iterator itr3 = waypoints.rbegin(); itr3 != waypoints.rend(); ++itr3)
+                                tempVector.push_back(*itr3);
+
+                            waypoints.clear();
+
+                            for (std::vector<WaypointInformation>::iterator itr4 = tempVector.begin(); itr4 != tempVector.end(); ++itr4)
+                                waypoints.push_back(*itr4);
+
+                            break;
+                            //itr = waypoints.begin();
+                            //for (int i = 0; i <= lastPointId; ++i)
+                            //    for (std::vector<WaypointNode>::iterator itr3 = itr->nodes.begin(); itr3 != itr->nodes.end(); ++itr3)
+                            //        itr3->pointId = i;
+
+                            //itr = waypoints.begin();
+                            //break;*/
+                        }
+                    }
+                    else
+                    {
+                        itr->currDestPointId++;
+                        //++itr;
+                    }
+
+                    lastPointIncreaseTime = 200;
+                }
+            }
+
+            if (incrItr)
+                ++itr;
+        }
+
+        float newX = 0.0f;
+        float newY = 0.0f;
+        Sint16 otherOutcomeX = 0; //! otherOutcomeX/Y zijn variabelen die houden wat de nieuwe destination zou zijn zonder collision checks.
+        Sint16 otherOutcomeY = 0;
+        SDL_Rect npcRect = { Sint16(posX), Sint16(posY), 51, 45 };
+
+        newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD));
+        otherOutcomeX = Sint16(newX);
+        npcRect.x = Sint16(newX);
+        bool foundCollision = false;
+
+        std::vector<SDL_Rect2> wallRects = game->GetWalls();
+
+        for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+        {
+            if ((*itr).visible && WillCollisionAt(&npcRect, &(*itr)))
+            {
+                foundCollision = true;
+
+                while (true)
+                {
+                    newX -= 0.01f;
+                    npcRect.x = Sint16(newX);
+
+                    if (!WillCollisionAt(&npcRect, &(*itr)) || newX >= otherOutcomeX)
+                        break;
                 }
 
-                lastPointIncreaseTime = 200;
+                break;
             }
         }
 
-        if (incrItr)
-            ++itr;
-    }
+        if (!foundCollision)
+            posX += float(cos(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD);
 
-    float newX = 0.0f;
-    float newY = 0.0f;
-    Sint16 otherOutcomeX = 0; //! otherOutcomeX/Y zijn variabelen die houden wat de nieuwe destination zou zijn zonder collision checks.
-    Sint16 otherOutcomeY = 0;
-    SDL_Rect npcRect = { Sint16(posX), Sint16(posY), 51, 45 };
+        foundCollision = false;
 
-    newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD));
-    otherOutcomeX = Sint16(newX);
-    npcRect.x = Sint16(newX);
-    bool foundCollision = false;
+        newY = (posY - float(sin(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD));
+        otherOutcomeY = Sint16(newY);
+        npcRect.y = Sint16(newY);
 
-    std::vector<SDL_Rect2> wallRects = game->GetWalls();
-
-    for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
-    {
-        if ((*itr).visible && WillCollisionAt(&npcRect, &(*itr)))
+        for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            foundCollision = true;
-
-            while (true)
+            if ((*itr).visible && WillCollisionAt(&npcRect, &(*itr)))
             {
-                newX -= 0.01f;
-                npcRect.x = Sint16(newX);
+                foundCollision = true;
 
-                if (!WillCollisionAt(&npcRect, &(*itr)) || newX >= otherOutcomeX)
-                    break;
+                while (true)
+                {
+                    newY += 0.01f;
+                    npcRect.y = Sint16(newY);
+
+                    if (!WillCollisionAt(&npcRect, &(*itr)) || newY >= otherOutcomeY)
+                        break;
+                }
+
+                break;
             }
-
-            break;
         }
+
+        if (!foundCollision)
+            posY -= float(sin(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD);
+
+        rectBody.x = Sint16(posX);
+        rectBody.y = Sint16(posY);
+
+        rectPipe.x = Sint16(posX);
+        rectPipe.y = Sint16(posY);
+
+        rotatingPipeAngle += 3;
+        rotatedBody = rotozoomSurface(bodySprite, movingAngle, 1.0, 0);
+        rotatedPipe = rotozoomSurface(pipeSprite, rotatingPipeAngle, 1.0, 0);
+
+        rectPipe.x -= rotatedPipe->w / 2 - pipeSprite->w / 2;
+        rectPipe.y -= rotatedPipe->h / 2 - pipeSprite->h / 2;
+
+        rectBody.x -= rotatedBody->w / 2 - bodySprite->w / 2;
+        rectBody.y -= rotatedBody->h / 2 - bodySprite->h / 2;
     }
-
-    if (!foundCollision)
-        posX += float(cos(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD);
-
-    foundCollision = false;
-
-    newY = (posY - float(sin(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD));
-    otherOutcomeY = Sint16(newY);
-    npcRect.y = Sint16(newY);
-
-    for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+    else
     {
-        if ((*itr).visible && WillCollisionAt(&npcRect, &(*itr)))
-        {
-            foundCollision = true;
-
-            while (true)
-            {
-                newY += 0.01f;
-                npcRect.y = Sint16(newY);
-
-                if (!WillCollisionAt(&npcRect, &(*itr)) || newY >= otherOutcomeY)
-                    break;
-            }
-
-            break;
-        }
+        rectBody.x = Sint16(posX);
+        rectBody.y = Sint16(posY);
+        rectPipe.x = Sint16(posX);
+        rectPipe.y = Sint16(posY);
+        rotatingBodyAngle += 3.0f;
+        rotatedBody = rotozoomSurface(bodySprite, rotatingBodyAngle, 1.0, 0);
+        rectBody.x -= rotatedBody->w / 2 - bodySprite->w / 2;
+        rectBody.y -= rotatedBody->h / 2 - bodySprite->h / 2;
     }
-
-    if (!foundCollision)
-        posY -= float(sin(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD);
-
-    rectBody.x = Sint16(posX);
-    rectBody.y = Sint16(posY);
-
-    rectPipe.x = Sint16(posX);
-    rectPipe.y = Sint16(posY);
-
-    rotatingPipeAngle += 3;
-    rotatedBody = rotozoomSurface(bodySprite, movingAngle, 1.0, 0);
-    rotatedPipe = rotozoomSurface(pipeSprite, rotatingPipeAngle, 1.0, 0);
-
-    rectPipe.x -= rotatedPipe->w / 2 - pipeSprite->w / 2;
-    rectPipe.y -= rotatedPipe->h / 2 - pipeSprite->h / 2;
-
-    rectBody.x -= rotatedBody->w / 2 - bodySprite->w / 2;
-    rectBody.y -= rotatedBody->h / 2 - bodySprite->h / 2;
 }
 
 void Enemy::HandleTimers(unsigned int diff_time)

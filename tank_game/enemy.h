@@ -39,6 +39,8 @@ class Enemy
         void SetPosY(float val) { posY = val; }
         void SetRectPosX(Sint16 val, bool body, bool pipe);
         void SetRectPosY(Sint16 val, bool body, bool pipe);
+        float GetStartPosX() { return startPosX; }
+        float GetStartPosY() { return startPosY; }
 
         void SetRotatedInfo(SDL_Surface* body, SDL_Surface* pipe, SDL_Surface* _bodySprite, SDL_Surface* _pipeSprite) { rotatedBody = body; rotatedPipe = pipe; bodySprite = _bodySprite; pipeSprite = _pipeSprite; }
         void SetRotatedBodySurface(SDL_Surface* body) { rotatedBody = body; }
@@ -69,12 +71,13 @@ class Enemy
         /* WAYPOINTS */
         void InitializeWaypoints();
         void AddWaypointPath(WaypointInformation wpInfo);
+        std::vector<WaypointInformation>& GetWaypoints() { return waypoints; }
 
     private:
         SDL_Surface* screen;
         Game* game;
-        float posX;
-        float posY;
+        float posX, posY;
+        float startPosX, startPosY;
         //double pipeAngle;
         float movingAngle;
         float rotatingBodyAngle, rotatingPipeAngle;
