@@ -25,14 +25,10 @@ Landmine::~Landmine()
     delete this;
 }
 
-void Landmine::Explode()
+void Landmine::Explode(bool showExplosion /* = true */)
 {
-    MineExplosions mineExplosion;
-    mineExplosion.x = Sint16(landmineRect.x);// + (landmineRect.w / 2));
-    mineExplosion.y = Sint16(landmineRect.y);// + (landmineRect.h / 2));
-    mineExplosion.frame = 0;
-    mineExplosion.delay = 80;
-    game->AddLandMineExplosion(mineExplosion);
+    if (showExplosion)
+        game->AddLandMineExplosion(landmineRect.x, landmineRect.y, 0, 80);
 
     //RGB explosionRGB;
     //explosionRGB.r = 0x00;
@@ -46,18 +42,19 @@ void Landmine::Explode()
     {
         if ((*itr).breakable && (*itr).visible)
         {
-            float dx = float((*itr).x - landmineRect.x);
-            float dy = float((*itr).y - landmineRect.y);
+            //float dx = float((*itr).x - landmineRect.x);
+            //float dy = float((*itr).y - landmineRect.y);
             //float dist = sqrt(double((dx * dx) + (dy * dy)));
             //sqrt( pow( x2 - x1, 2 ) + pow( y2 - y1, 2 ) );
-
             //if (dist > 0 && dist <= 20)
+
+            if (IsInRange(landmineRect.x, (*itr).x, landmineRect.y, (*itr).y, 100.0f))
             {
                 (*itr).visible = false;
                 itr = wallRects.begin();
             }
-            //else
-            //    ++itr;
+            else
+                ++itr;
         }
         else
             ++itr;
@@ -65,24 +62,41 @@ void Landmine::Explode()
 
     game->SetWalls(wallRects);
 
+    std::vector<Bullet*> _bullets = game->GetAllBullets();
+
+    if (!_bullets.empty())
+        for (std::vector<Bullet*>::iterator itr = _bullets.begin(); itr != _bullets.end(); ++itr)
+            if (!(*itr)->IsRemoved() && IsInRange(landmineRect.x, (*itr)->GetPosX(), landmineRect.y, (*itr)->GetPosY(), 100.0f))
+                (*itr)->Explode();
+
+    //std::vector<Landmine*> _landmines = game->GetAllLandmines();
+
+    //if (!_landmines.empty())
+    //    for (std::vector<Landmine*>::iterator itr = _landmines.begin(); itr != _landmines.end(); ++itr)
+    //        if (!(*itr)->IsRemoved() && (*itr) != this && IsInRange(landmineRect.x, (*itr)->GetPosX(), landmineRect.y, (*itr)->GetPosY(), 100.0f))
+    //            (*itr)->Explode();
+
+    std::vector<Enemy*> _enemies = game->GetEnemies();
+
+    if (!_enemies.empty())
+        for (std::vector<Enemy*>::iterator itr = _enemies.begin(); itr != _enemies.end(); ++itr)
+            if ((*itr)->IsAlive() && IsInRange(landmineRect.x, (*itr)->GetPosX(), landmineRect.y, (*itr)->GetPosY(), 60.0f))
+                (*itr)->JustDied();
+
+    //if (Player* player = game->GetPlayer())
+    //    if ((*itr)->IsAlive() && IsInRange(landmineRect.x, (*itr)->GetPosX(), landmineRect.y, (*itr)->GetPosY(), 60.0f))
+    //        (*itr)->JustDied();
+
     /*SDL_Surface* tmpExplosion = SDL_LoadBMP("mine_explosion.bmp");
     SDL_Surface* spriteExplosion = SDL_DisplayFormat(tmpExplosion);
     SDL_FreeSurface(tmpExplosion);
     SDL_SetColorKey(spriteExplosion, SDL_SRCCOLORKEY, COLOR_WHITE);*/
 
-    /*Animation animatedExplosion;
-    animatedExplosion.MaxFrames = 12;
-    animatedExplosion.Oscillate = false;
-    animatedExplosion.OnAnimate();
-
-    //CSurface::OnDraw(Surf_Display, Surf_Test, 290, 220, 0, Anim_Yoshi.GetCurrentFrame() * 64, 64, 64);
-	SDL_BlitSurface(tmpExplosion, NULL, game->GetScreen(), &box);*/
-
-    //this->~Landmine();
     //! Just get rid of them...
     landmineRect.x = 5000;
     landmineRect.y = 5000;
     isRemoved = true;
+    game->RemoveLandmine(this);
 
     if (Player* player = game->GetPlayer())
         player->DecrLandmineCount();
@@ -99,10 +113,9 @@ void Landmine::Update()
     SDL_SetColorKey(image, SDL_SRCCOLORKEY, COLOR_WHITE);
     SDL_BlitSurface(image, NULL, screen, &landmineRect);
 
-    SDL_Rect plrRect;
-
     if (Player* player = game->GetPlayer())
     {
+        SDL_Rect plrRect;
         plrRect.x = Sint16(player->GetPosX());
         plrRect.y = Sint16(player->GetPosY());
         plrRect.w = PLAYER_WIDTH;
@@ -120,16 +133,19 @@ void Landmine::Update()
     std::vector<Enemy*> enemies = game->GetEnemies();
     for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
     {
-        SDL_Rect npcRect;
-        npcRect.x = Sint16((*itr)->GetPosX());
-        npcRect.y = Sint16((*itr)->GetPosY());
-        npcRect.w = 45;
-        npcRect.h = 51;
-
-        if (WillCollisionAt(&landmineRect, &npcRect))
+        if ((*itr)->IsAlive())
         {
-            Explode();
-            return;
+            SDL_Rect npcRect;
+            npcRect.x = Sint16((*itr)->GetPosX());
+            npcRect.y = Sint16((*itr)->GetPosY());
+            npcRect.w = 45;
+            npcRect.h = 51;
+
+            if (WillCollisionAt(&landmineRect, &npcRect))
+            {
+                Explode();
+                return;
+            }
         }
     }
 }

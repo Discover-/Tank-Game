@@ -101,7 +101,8 @@ void Game::HandleTimers(unsigned int diff_time)
         player->HandleTimers(diff_time);
 
     for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
-        (*itr)->HandleTimers(diff_time);
+        if ((*itr)->IsAlive())
+            (*itr)->HandleTimers(diff_time);
 }
 
 void Game::BlitSurface(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* dst, SDL_Rect* dstrect, RGB rgb)
@@ -122,97 +123,8 @@ void Game::AddWall(Sint16 x, Sint16 y, Sint16 w /* = 50 */, Sint16 h /* = 50 */,
     wallRectangles.push_back(wall);
 }
 
-int Game::Update()
+void Game::InitializeWalls()
 {
-    isRunning = true;
-
-    SDL_Init(SDL_INIT_EVERYTHING);
-    //SDLNet_Init();
-    screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_SWSURFACE);
-    
-    SDL_Surface* tmpBodyPlr = SDL_LoadBMP("sprite_body.bmp");
-    SDL_Surface* spriteBodyPlr = SDL_DisplayFormat(tmpBodyPlr);
-    SDL_FreeSurface(tmpBodyPlr);
-    SDL_SetColorKey(spriteBodyPlr, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpPipePlr = SDL_LoadBMP("sprite_pipe.bmp");
-    SDL_Surface* spritePipePlr = SDL_DisplayFormat(tmpPipePlr);
-    SDL_FreeSurface(tmpPipePlr);
-    SDL_SetColorKey(spritePipePlr, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpBodyNpc = SDL_LoadBMP("sprite_body_npc.bmp");
-    SDL_Surface* spriteBodyNpc = SDL_DisplayFormat(tmpBodyNpc);
-    SDL_FreeSurface(tmpBodyNpc);
-    SDL_SetColorKey(spriteBodyNpc, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpPipeNpc = SDL_LoadBMP("sprite_pipe_npc.bmp");
-    SDL_Surface* spritePipeNpc = SDL_DisplayFormat(tmpPipeNpc);
-    SDL_FreeSurface(tmpPipeNpc);
-    SDL_SetColorKey(spritePipeNpc, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpRotatingBlock = SDL_LoadBMP("rotating_block.bmp");
-    SDL_Surface* rotatingBlock = SDL_DisplayFormat(tmpRotatingBlock);
-    SDL_FreeSurface(tmpRotatingBlock);
-    SDL_SetColorKey(rotatingBlock, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpWall = SDL_LoadBMP("wall.bmp");
-    SDL_Surface* wall = SDL_DisplayFormat(tmpWall);
-    SDL_FreeSurface(tmpWall);
-    //SDL_SetColorKey(wall, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpWallBreakable = SDL_LoadBMP("wall_breakable.bmp");
-    SDL_Surface* wallBreakable = SDL_DisplayFormat(tmpWallBreakable);
-    SDL_FreeSurface(tmpWallBreakable);
-    SDL_SetColorKey(wallBreakable, SDL_SRCCOLORKEY, COLOR_WHITE);
-
-    player = new Player(this, 400.0f, 200.0f);
-
-    SDL_Rect npcRect1 = { 300, 300, PLAYER_WIDTH, PLAYER_HEIGHT };
-    SDL_Rect npcRect2 = { 300, 400, PLAYER_WIDTH, PLAYER_HEIGHT };
-    SDL_Rect npcRect3 = { 300, 500, PLAYER_WIDTH, PLAYER_HEIGHT };
-    Enemy* enemy1 = new Enemy(this, 300.0f, 300.0f, spriteBodyNpc, spritePipeNpc, npcRect1, npcRect1);
-    Enemy* enemy2 = new Enemy(this, 350.0f, 350.0f, spriteBodyNpc, spritePipeNpc, npcRect2, npcRect2);
-    Enemy* enemy3 = new Enemy(this, 400.0f, 400.0f, spriteBodyNpc, spritePipeNpc, npcRect3, npcRect3);
-    enemies.push_back(enemy1);
-    enemies.push_back(enemy2);
-    enemies.push_back(enemy3);
-
-    //! Dit geeft een crash op start... (daarom gebruiken we lelijke code hierboven)
-    //Enemy* enemiesArray[3];
-    //enemiesArray[0] = new Enemy(this, 300.0f, 300.0f, npcRect1, npcRect1);
-    //enemiesArray[1] = new Enemy(this, 300.0f, 400.0f, npcRect2, npcRect2);
-    //enemiesArray[2] = new Enemy(this, 300.0f, 500.0f, npcRect3, npcRect3);
-
-    //for (int i = 0; i < sizeof(enemiesArray); ++i)
-    //    enemies.push_back(enemiesArray[i]);
-
-    enemy1->InitializeWaypoints();
-    //for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
-    //    (*itr)->InitializeWaypoints();
-
-    SDL_Surface* rotatedBodyPlr = rotozoomSurface(spriteBodyPlr, 0.0f, 1.0, 0);
-    SDL_Surface* rotatedPipePlr = rotozoomSurface(spritePipePlr, 0.0f, 1.0, 0);
-
-    SDL_Surface* rotatedBlock   = rotozoomSurface(rotatingBlock, 0.0f, 1.0, 0);
-
-    SDL_Surface* rotatedBodyNpc = rotozoomSurface(spriteBodyNpc, 0.0f, 1.0, 0);
-    SDL_Surface* rotatedPipeNpc = rotozoomSurface(spritePipeNpc, 0.0f, 1.0, 0);
-
-    for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
-        (*itr)->SetRotatedInfo(rotatedBodyNpc, rotatedPipeNpc, spriteBodyNpc, spritePipeNpc);
-
-    int mouseX = 10, mouseY = 10;
-
-    mineExplosionRect[0].x = 0;
-    mineExplosionRect[0].y = 0;
-    mineExplosionRect[0].w = 60;
-    mineExplosionRect[0].h = 60;
-
-    mineExplosionRect[1].x = 145;
-    mineExplosionRect[1].y = 0;
-    mineExplosionRect[1].w = 60;
-    mineExplosionRect[1].h = 60;
-
     Sint16 currWallX = 0, currWallY = 0;
     AddWall(0, 0);
 
@@ -252,13 +164,98 @@ int Game::Update()
         AddWall(currWallX, currWallY, 50, 50, (i == 82 || i == 83)); //! Walls 82 and 83 are breakable by landmines.
         currWallY += 50;
     }
+}
+
+void Game::InitializeCharacters(SDL_Surface* spriteBodyPlr, SDL_Surface* spritePipePlr, SDL_Surface* spriteBodyNpc, SDL_Surface* spritePipeNpc)
+{
+    player = new Player(this, 400.0f, 200.0f);
+
+    SDL_Rect npcRect1 = { 300, 300, PLAYER_WIDTH, PLAYER_HEIGHT };
+    SDL_Rect npcRect2 = { 300, 400, PLAYER_WIDTH, PLAYER_HEIGHT };
+    SDL_Rect npcRect3 = { 300, 500, PLAYER_WIDTH, PLAYER_HEIGHT };
+    Enemy* enemy1 = new Enemy(this, 300.0f, 300.0f, spriteBodyNpc, spritePipeNpc, npcRect1, npcRect1);
+    Enemy* enemy2 = new Enemy(this, 350.0f, 350.0f, spriteBodyNpc, spritePipeNpc, npcRect2, npcRect2);
+    Enemy* enemy3 = new Enemy(this, 400.0f, 400.0f, spriteBodyNpc, spritePipeNpc, npcRect3, npcRect3);
+    enemies.push_back(enemy1);
+    enemies.push_back(enemy2);
+    enemies.push_back(enemy3);
+
+    for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
+        (*itr)->InitializeWaypoints();
+}
+
+int Game::Update()
+{
+    isRunning = true;
+
+    SDL_Init(SDL_INIT_EVERYTHING);
+    //SDLNet_Init();
+    screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_SWSURFACE);
+    
+    SDL_Surface* tmpBodyPlr = SDL_LoadBMP("sprite_body.bmp");
+    SDL_Surface* spriteBodyPlr = SDL_DisplayFormat(tmpBodyPlr);
+    SDL_FreeSurface(tmpBodyPlr);
+    SDL_SetColorKey(spriteBodyPlr, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpPipePlr = SDL_LoadBMP("sprite_pipe.bmp");
+    SDL_Surface* spritePipePlr = SDL_DisplayFormat(tmpPipePlr);
+    SDL_FreeSurface(tmpPipePlr);
+    SDL_SetColorKey(spritePipePlr, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpBodyNpc = SDL_LoadBMP("sprite_body_npc.bmp");
+    SDL_Surface* spriteBodyNpc = SDL_DisplayFormat(tmpBodyNpc);
+    SDL_FreeSurface(tmpBodyNpc);
+    SDL_SetColorKey(spriteBodyNpc, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpPipeNpc = SDL_LoadBMP("sprite_pipe_npc.bmp");
+    SDL_Surface* spritePipeNpc = SDL_DisplayFormat(tmpPipeNpc);
+    SDL_FreeSurface(tmpPipeNpc);
+    SDL_SetColorKey(spritePipeNpc, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpWall = SDL_LoadBMP("wall.bmp");
+    SDL_Surface* wall = SDL_DisplayFormat(tmpWall);
+    SDL_FreeSurface(tmpWall);
+    //SDL_SetColorKey(wall, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpWallBreakable = SDL_LoadBMP("wall_breakable.bmp");
+    SDL_Surface* wallBreakable = SDL_DisplayFormat(tmpWallBreakable);
+    SDL_FreeSurface(tmpWallBreakable);
+    SDL_SetColorKey(wallBreakable, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpSlowArea = SDL_LoadBMP("slow_area.bmp");
+    SDL_Surface* slowArea = SDL_DisplayFormat(tmpSlowArea);
+    SDL_FreeSurface(tmpSlowArea);
+    SDL_SetColorKey(slowArea, SDL_SRCCOLORKEY, COLOR_WHITE);
+
+    InitializeWalls();
+    InitializeCharacters(spriteBodyPlr, spritePipePlr, spriteBodyNpc, spritePipeNpc);
+
+    SDL_Rect slowAreaRect = { 200, 70, 150, 75 };
+    slowAreaRectangles.push_back(slowAreaRect);
+
+    SDL_Surface* rotatedBodyPlr = rotozoomSurface(spriteBodyPlr, 0.0f, 1.0, 0);
+    SDL_Surface* rotatedPipePlr = rotozoomSurface(spritePipePlr, 0.0f, 1.0, 0);
+    SDL_Surface* rotatedBodyNpc = rotozoomSurface(spriteBodyNpc, 0.0f, 1.0, 0);
+    SDL_Surface* rotatedPipeNpc = rotozoomSurface(spritePipeNpc, 0.0f, 1.0, 0);
+
+    for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
+        (*itr)->SetRotatedInfo(rotatedBodyNpc, rotatedPipeNpc, spriteBodyNpc, spritePipeNpc);
+
+    int mouseX = 10, mouseY = 10;
+
+    //mineExplosionRect[0].x = 0;
+    //mineExplosionRect[0].y = 0;
+    //mineExplosionRect[0].w = 60;
+    //mineExplosionRect[0].h = 60;
+
+    //mineExplosionRect[1].x = 145;
+    //mineExplosionRect[1].y = 0;
+    //mineExplosionRect[1].w = 60;
+    //mineExplosionRect[1].h = 60;
 
     int last_time = 0;
     int curr_time = 0;
     int diff_time = 0;
-
-    float rotatingBlockAngle = 0.0f;
-    //SDL_Rect rotatingRectangle;
 
     //IPaddress ip;
     //SDLNet_ResolveHost(&ip, NULL, 12345);
@@ -324,7 +321,7 @@ int Game::Update()
                             {
                                 if (Landmine* landmine = new Landmine(this, screen, SDL_LoadBMP("landmine.bmp"), float(player->GetPosX() + (PLAYER_WIDTH / 2) + 40), float(player->GetPosY() + (PLAYER_HEIGHT / 2)), LANDMINE_WIDTH, LANDMINE_HEIGHT))
                                 {
-                                    player->GetLandmines().push_back(landmine);
+                                    player->AddLandmine(landmine);
                                     allLandmines.push_back(landmine);
                                 }
 
@@ -346,17 +343,27 @@ int Game::Update()
 
                                 for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
                                 {
+                                    if (!(*itr)->IsAlive())
+                                        (*itr)->SetIsAlive(true);
+
                                     (*itr)->SetPosX((*itr)->GetStartPosX());
                                     (*itr)->SetPosY((*itr)->GetStartPosY());
 
                                     std::vector<WaypointInformation> waypoints = (*itr)->GetWaypoints();
 
                                     if (!waypoints.empty())
-                                    {
-                                        waypoints.clear();
-                                        (*itr)->InitializeWaypoints();
-                                    }
+                                        (*itr)->InitializeWaypoints(true);
                                 }
+
+                                if (!allBullets.empty())
+                                    for (std::vector<Bullet*>::iterator itr = allBullets.begin(); itr != allBullets.end(); ++itr)
+                                        if (Bullet* bullet = (*itr))
+                                            bullet->Explode(false);
+
+                                if (!allLandmines.empty())
+                                    for (std::vector<Landmine*>::iterator itr = allLandmines.begin(); itr != allLandmines.end(); ++itr)
+                                        if (Landmine* landmine = (*itr))
+                                            landmine->Explode(false);
                             }
                             break;
                         default:
@@ -370,7 +377,7 @@ int Game::Update()
                     {
                         if (Landmine* landmine = new Landmine(this, screen, SDL_LoadBMP("landmine.bmp"), _event.motion.x, _event.motion.y, LANDMINE_WIDTH, LANDMINE_HEIGHT))
                         {
-                            player->GetLandmines().push_back(landmine);
+                            player->AddLandmine(landmine);
                             allLandmines.push_back(landmine);
                         }
 
@@ -389,9 +396,9 @@ int Game::Update()
                             float bulletX = float(player->GetPosX() + (PLAYER_WIDTH / 2) - 12) + (16 / 2);
                             float bulletY = float(player->GetPosY() + (PLAYER_HEIGHT / 2) - 12) + (16 / 2);
 
-                            if (Bullet* bullet = new Bullet(this, screen, SDL_LoadBMP("bullet.bmp"), bulletX, bulletY, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_BULLET_SPEED_X, PLAYER_BULLET_SPEED_Y, PLAYER_BULLET_LIFES, pipeAngle))
+                            if (Bullet* bullet = new Bullet(this, screen, bulletX, bulletY, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_BULLET_SPEED_X, PLAYER_BULLET_SPEED_Y, PLAYER_BULLET_LIFES, pipeAngle))
                             {
-                                player->GetBullets().push_back(bullet);
+                                player->AddBullet(bullet);
                                 allBullets.push_back(bullet);
                                 //RGB smokeRGB;
                                 //smokeRGB.r = 0xff;
@@ -403,11 +410,11 @@ int Game::Update()
                                 //smokeRect.y = Sint16(bulletY);
 
                                 //StoreSurfaceByTime("smoke.bmp", smokeRect, smokeRGB);
-                            }
 
-                            player->SetCanShoot(false);
-                            player->SetShootCooldown(200);
-                            player->IncrBulletCount();
+                                player->SetCanShoot(false);
+                                player->SetShootCooldown(200);
+                                player->IncrBulletCount();
+                            }
                         }
                     }
                     break;
@@ -428,7 +435,8 @@ int Game::Update()
         player->Update();
 
         for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
-            (*itr)->Update();
+            if ((*itr)->IsAlive())
+                (*itr)->Update();
 
         float plrX = player->GetPosX();
         float plrY = player->GetPosY();
@@ -457,29 +465,21 @@ int Game::Update()
 
         //for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
         //{
-        //    (*itr)->GetRotatedBodyRect().x -= (*itr)->GetRotatedBodySurface()->w / 2 - spriteBodyNpc->w / 2;
-        //    (*itr)->GetRotatedBodyRect().y -= (*itr)->GetRotatedBodySurface()->h / 2 - spriteBodyNpc->h / 2;
+        //    if ((*itr)->IsAlive())
+        //    {
+        //        (*itr)->GetRotatedBodyRect().x -= (*itr)->GetRotatedBodySurface()->w / 2 - spriteBodyNpc->w / 2;
+        //        (*itr)->GetRotatedBodyRect().y -= (*itr)->GetRotatedBodySurface()->h / 2 - spriteBodyNpc->h / 2;
+        //    }
         //}
 
         for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
         {
-            rotatedBodyNpc = (*itr)->GetRotatedBodySurface();
-            rotatedPipeNpc = (*itr)->GetRotatedPipeSurface();
+            if ((*itr)->IsAlive())
+            {
+                rotatedBodyNpc = (*itr)->GetRotatedBodySurface();
+                rotatedPipeNpc = (*itr)->GetRotatedPipeSurface();
+            }
         }
-
-        rotatingBlockAngle += 3;
-        rotatedBlock = rotozoomSurface(rotatingBlock, rotatingBlockAngle, 1.0, 0);
-
-        rotatingRectangle.x = 700;
-        rotatingRectangle.y = 100;
-        rotatingRectangle.w = 100;
-        rotatingRectangle.h = 100;
-
-        rotatingRectangle.x -= rotatedBlock->w / 2 - rotatingBlock->w / 2;
-        rotatingRectangle.y -= rotatedBlock->h / 2 - rotatingBlock->h / 2;
-
-        if (rotatingBlockAngle == 360.0f)
-            rotatingBlockAngle = 0.0f;
 
         if (!mineExplosions.empty())
         {
@@ -565,11 +565,11 @@ int Game::Update()
                 if (Landmine* landmine = (*itr))
                     landmine->Update();
 
-        SDL_Rect itrRect;
         for (std::vector<SDL_Rect2>::iterator itr = wallRectangles.begin(); itr != wallRectangles.end(); ++itr)
         {
             if (itr->visible)
             {
+                SDL_Rect itrRect;
                 itrRect.x = (*itr).x;
                 itrRect.y = (*itr).y;
                 itrRect.w = (*itr).w;
@@ -578,26 +578,31 @@ int Game::Update()
             }
         }
 
+        for (std::vector<SDL_Rect>::iterator itr = slowAreaRectangles.begin(); itr != slowAreaRectangles.end(); ++itr)
+            SDL_BlitSurface(slowArea, NULL, screen, &(*itr));
+
         for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
         {
-            SDL_Rect bodyRectEnemy = (*itr)->GetRotatedBodyRect();
-            SDL_Rect pipeRectEnemy = (*itr)->GetRotatedPipeRect();
-            SDL_Surface* rotatedBodyEnemy = (*itr)->GetRotatedBodySurface();
-            SDL_Surface* rotatedPipeEnemy = (*itr)->GetRotatedPipeSurface();
+            if ((*itr)->IsAlive())
+            {
+                SDL_Rect bodyRectEnemy = (*itr)->GetRotatedBodyRect();
+                SDL_Rect pipeRectEnemy = (*itr)->GetRotatedPipeRect();
+                SDL_Surface* rotatedBodyEnemy = (*itr)->GetRotatedBodySurface();
+                SDL_Surface* rotatedPipeEnemy = (*itr)->GetRotatedPipeSurface();
 
-            //! Make rotating of the surfaces properly centered.
-            bodyRectEnemy.x -= rotatedBodyEnemy->w / 2 - rotatedBodyEnemy->w / 2;
-            bodyRectEnemy.y -= rotatedBodyEnemy->h / 2 - rotatedBodyEnemy->h / 2;
-            pipeRectEnemy.x -= rotatedPipeEnemy->w / 2 - rotatedPipeEnemy->w / 2;
-            pipeRectEnemy.y -= rotatedPipeEnemy->h / 2 - rotatedPipeEnemy->h / 2;
+                //! Make rotating of the surfaces properly centered.
+                bodyRectEnemy.x -= rotatedBodyEnemy->w / 2 - rotatedBodyEnemy->w / 2;
+                bodyRectEnemy.y -= rotatedBodyEnemy->h / 2 - rotatedBodyEnemy->h / 2;
+                pipeRectEnemy.x -= rotatedPipeEnemy->w / 2 - rotatedPipeEnemy->w / 2;
+                pipeRectEnemy.y -= rotatedPipeEnemy->h / 2 - rotatedPipeEnemy->h / 2;
 
-            SDL_BlitSurface(rotatedBodyEnemy, NULL, screen, &bodyRectEnemy);
-            SDL_BlitSurface(rotatedPipeEnemy, NULL, screen, &pipeRectEnemy);
+                SDL_BlitSurface(rotatedBodyEnemy, NULL, screen, &bodyRectEnemy);
+                SDL_BlitSurface(rotatedPipeEnemy, NULL, screen, &pipeRectEnemy);
+            }
         }
 
         SDL_BlitSurface(rotatedBodyPlr, NULL, screen, &recBodyPlr);
         SDL_BlitSurface(rotatedPipePlr, NULL, screen, &recPipePlr);
-        SDL_BlitSurface(rotatedBlock, NULL, screen, &rotatingRectangle);
 
         //DrawLine(screen, mouseX, mouseY, 300, 400);
 
@@ -734,4 +739,46 @@ void DrawLine(SDL_Surface* dest, int x0, int y0, int x1, int y1)
             error -= 1.0f;
         }
     }
+}
+
+void Game::RemoveBullet(Bullet* bullet)
+{
+    //for (std::vector<Bullet*>::iterator itr = allBullets.begin(); itr != allBullets.end(); ++itr)
+    //{
+    //    if ((*itr) == bullet)
+    //    {
+    //        allBullets.erase(itr);
+    //        break;
+    //    }
+    //}
+}
+
+void Game::RemoveLandmine(Landmine* landmine)
+{
+    //for (std::vector<Landmine*>::iterator itr = allLandmines.begin(); itr != allLandmines.end(); ++itr)
+    //{
+    //    if ((*itr) == landmine)
+    //    {
+    //        allLandmines.erase(itr);
+    //        break;
+    //    }
+    //}
+}
+
+bool Game::IsInSlowArea(float x, float y)
+{
+    for (std::vector<SDL_Rect>::iterator itr = slowAreaRectangles.begin(); itr != slowAreaRectangles.end(); ++itr)
+    {
+        float actualX = Sint16(itr->x - (itr->w / 2 - itr->w / 2));
+        float actualY = Sint16(itr->y - (itr->h / 2 - itr->h / 2));
+        float _actualX = x - (PLAYER_WIDTH / 2 - PLAYER_WIDTH / 2);
+        float _actualY = y - (PLAYER_HEIGHT / 2 - PLAYER_HEIGHT / 2);
+        //pipeRectEnemy.x -= rotatedPipeEnemy->w / 2 - rotatedPipeEnemy->w / 2;
+        //pipeRectEnemy.y -= rotatedPipeEnemy->h / 2 - rotatedPipeEnemy->h / 2;
+
+        if (IsInRange(_actualX, actualX, _actualY, actualY, 100.0f))
+            return true;
+    }
+
+    return false;
 }

@@ -11,6 +11,9 @@ Player::Player(Game* _game, float x, float y)
     canPlaceLandmine = true;
     landmineCooldown = 0;
     bulletCount = 0;
+    moveSpeed[MOVE_TYPE_FORWARD] = PLAYER_MOVES_SPEED_FORWARD;
+    moveSpeed[MOVE_TYPE_BACKWARD] = PLAYER_MOVES_SPEED_BACKWARD;
+    inSlowArea = false;
 
     for (int i = 0; i < 4; ++i)
         keysDown[i] = false;
@@ -24,6 +27,24 @@ void Player::Update()
     //! We moeten deze event iedere updatecall opnieuw oproepen.
     //SDL_Event _event = game->GetEvent();
 
+    if (game->IsInSlowArea(posX, posY))
+    {
+        if (!inSlowArea)
+        {
+            for (int i = 0; i < MOVE_TYPE_MAX; ++i)
+                moveSpeed[i] /= 2;
+
+            inSlowArea = true;
+        }
+    }
+    else if (inSlowArea)
+    {
+        for (int i = 0; i < MOVE_TYPE_MAX; ++i)
+            moveSpeed[i] *= 2;
+
+        inSlowArea = false;
+    }
+
     float newX = 0.0f;
     float newY = 0.0f;
     //! otherOutcomeX/Y zijn variabelen die houden wat de nieuwe destination zou zijn zonder collision checks.
@@ -34,21 +55,21 @@ void Player::Update()
 
     if (keysDown[0])
     {
-        //posX += float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
-        //posY -= float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
+        //posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+        //posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
 
         //std::vector<SDL_Rect2> wallRects = game->GetWalls();
         //for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         //{
         //    if (WillCollisionAt(&plrRect, &(*itr)))
         //    {
-        //        posX -= float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
-        //        posY += float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
+        //        posX -= float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+        //        posY += float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
         //        break;
         //    }
         //}
 
-        newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD));
+        newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
         otherOutcomeX = Sint16(newX);
         plrRect.x = Sint16(newX);
         bool foundCollision = false;
@@ -72,6 +93,7 @@ void Player::Update()
             }
         }
 
+        //! Pushing an enemy away logic.
         if (!foundCollision)
         {
             std::vector<Enemy*> enemies = game->GetEnemies();
@@ -80,51 +102,58 @@ void Player::Update()
 
             for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
             {
-                SDL_Rect currNpcRect = { Sint16((*itr)->GetPosX()), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
-                float _newX = (*itr)->GetPosX() - 2;
-
-                if (WillCollisionAt(&plrRect, &currNpcRect))
+                if ((*itr)->IsAlive())
                 {
-                    foundCollision = true;
-                    foundCollisionWithNpc = true;
-                    Sint16 _otherOutcomeX = Sint16(_newX);
-                    SDL_Rect newNpcRect = { _newX, Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
+                    SDL_Rect currNpcRect = { Sint16((*itr)->GetPosX()), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
+                    float _newX = (*itr)->GetPosX() - 2;
 
-                    for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+                    if (WillCollisionAt(&plrRect, &currNpcRect))
                     {
-                        if ((*itr).visible && WillCollisionAt(&newNpcRect, &(*itr)))
+                        foundCollision = true;
+                        foundCollisionWithNpc = true;
+                        Sint16 _otherOutcomeX = Sint16(_newX);
+                        SDL_Rect newNpcRect = { _otherOutcomeX, Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
+
+                        for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
                         {
-                            foundCollisionNpcNewPos = true;
-
-                            while (true)
+                            if ((*itrWall).visible && WillCollisionAt(&newNpcRect, &(*itrWall)))
                             {
-                                _newX += 0.01f;
-                                newNpcRect.x = Sint16(_newX);
+                                foundCollisionNpcNewPos = true;
 
-                                if (!WillCollisionAt(&newNpcRect, &(*itr)) || _newX >= _otherOutcomeX)
-                                    break;
+                                while (true)
+                                {
+                                    _newX += 0.01f;
+                                    newNpcRect.x = Sint16(_newX);
+
+                                    if (!WillCollisionAt(&newNpcRect, &(*itrWall)) || _newX <= _otherOutcomeX)
+                                        break;
+                                }
                             }
                         }
+
+                        //break;
                     }
 
-                    //break;
-                }
+                    if (foundCollisionWithNpc)
+                    {
+                        if (foundCollisionNpcNewPos)
+                            (*itr)->SetPosX(Sint16(_newX));
+                        else
+                            (*itr)->SetPosX((*itr)->GetPosX() - 2);
+                    }
 
-                if (foundCollisionWithNpc)
-                {
-                    if (foundCollisionNpcNewPos)
-                        (*itr)->SetPosX(Sint16(_newX));
-                    else
-                        (*itr)->SetPosX((*itr)->GetPosX() - 2);
+                    //! TEMP: This will prevent the player from pushing more than one enemy at the same time. Just a temporarily testing thing.
+                    if (foundCollision)
+                        break;
                 }
             }
         }
 
         if (!foundCollision)
-            posX += float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
+            posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
 
         foundCollision = false;
-        newY = (posY - float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD));
+        newY = (posY - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
         otherOutcomeY = Sint16(newY);
         plrRect.y = Sint16(newY);
 
@@ -148,7 +177,62 @@ void Player::Update()
         }
 
         if (!foundCollision)
-            posY -= float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_FORWARD);
+        {
+            std::vector<Enemy*> enemies = game->GetEnemies();
+            bool foundCollisionWithNpc = false;
+            bool foundCollisionNpcNewPos = false;
+
+            for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
+            {
+                if ((*itr)->IsAlive())
+                {
+                    SDL_Rect currNpcRect = { Sint16((*itr)->GetPosX()), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
+                    float _newY = (*itr)->GetPosY() - 2;
+
+                    if (WillCollisionAt(&plrRect, &currNpcRect))
+                    {
+                        foundCollision = true;
+                        foundCollisionWithNpc = true;
+                        Sint16 _otherOutcomeY = Sint16(_newY);
+                        SDL_Rect newNpcRect = { _otherOutcomeY, Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
+
+                        for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
+                        {
+                            if ((*itrWall).visible && WillCollisionAt(&newNpcRect, &(*itrWall)))
+                            {
+                                foundCollisionNpcNewPos = true;
+
+                                while (true)
+                                {
+                                    _newY += 0.01f;
+                                    newNpcRect.y = Sint16(_newY);
+
+                                    if (!WillCollisionAt(&newNpcRect, &(*itrWall)) || _newY >= _otherOutcomeY)
+                                        break;
+                                }
+                            }
+                        }
+
+                        //break;
+                    }
+
+                    if (foundCollisionWithNpc)
+                    {
+                        if (foundCollisionNpcNewPos)
+                            (*itr)->SetPosY(Sint16(_newY));
+                        else
+                            (*itr)->SetPosY((*itr)->GetPosY() - 2);
+                    }
+
+                    //! TEMP: This will prevent the player from pushing more than one enemy at the same time. Just a temporarily testing thing.
+                    if (foundCollision)
+                        break;
+                }
+            }
+        }
+
+        if (!foundCollision)
+            posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
     }
 
     newX = 0.0f;
@@ -160,21 +244,21 @@ void Player::Update()
 
     if (keysDown[2])
     {
-        //posX -= float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
-        //posY += float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
+        //posX -= float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
+        //posY += float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
 
         //std::vector<SDL_Rect2> wallRects = game->GetWalls();
         //for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         //{
         //    if (WillCollisionAt(&plrRect, &(*itr)))
         //    {
-        //        posX += float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
-        //        posY -= float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
+        //        posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
+        //        posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
         //        break;
         //    }
         //}
 
-        newX = Sint16(posX - float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD));
+        newX = Sint16(posX - float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]));
         otherOutcomeX = Sint16(newX);
         plrRect.x = otherOutcomeX;
         bool foundCollision = false;
@@ -199,11 +283,11 @@ void Player::Update()
         }
 
         if (!foundCollision)
-            posX -= float(cos(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
+            posX -= float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
 
         foundCollision = false;
 
-        newY = (posY + float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD));
+        newY = (posY + float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]));
         otherOutcomeY = Sint16(newY);
         plrRect.y = otherOutcomeY;
 
@@ -218,7 +302,7 @@ void Player::Update()
                     newY -= 0.01f;
                     plrRect.y = Sint16(newY);
 
-                    if (!WillCollisionAt(&plrRect, &(*itr)) || newY >= otherOutcomeY)
+                    if (!WillCollisionAt(&plrRect, &(*itr)) || newY <= otherOutcomeY)
                         break;
                 }
 
@@ -227,7 +311,7 @@ void Player::Update()
         }
 
         if (!foundCollision)
-            posY += float(sin(movingAngle * M_PI / 180.0) * PLAYER_MOVES_SPEED_BACKWARD);
+            posY += float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
     }
 
     if (keysDown[1])

@@ -8,3 +8,7 @@
   * Run a check if the new position of the enemy won't be inside a wall.
     > Can't place this check in Enemy::SetPosX/Y because we need to know whether we substract or add co-ordinates to the movement position in order to then do the opposite in order to move out of the wall/etc.
   * Remember to also add this functionality to the Enemy class for when a player tank is on their waypoint path.
+  * Move other unit away based on their current movement speed.
+- Properly get rid of bullets instead of setting their position to out of the game (which is obviously just a temporarily solution).
+- Figure out why distance check for landmine explosions isn't working (the 2D distance formula should work...)
+- Remove bullets from Game::allBullets when they exploded.

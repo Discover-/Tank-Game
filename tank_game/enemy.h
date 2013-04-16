@@ -1,5 +1,6 @@
 //#include "game.h"
 
+
 struct WaypointNode
 {
     Uint32 pointId;
@@ -15,6 +16,7 @@ struct WaypointInformation
     float yVelocity;
     bool repeat;
     bool repeatReversed;
+    bool pickRandomAtEnd;
 };
 
 class Game;
@@ -69,9 +71,13 @@ class Enemy
         void SetPlaceLandmineCooldown(unsigned int val) { landmineCooldown = val; }
 
         /* WAYPOINTS */
-        void InitializeWaypoints();
+        void InitializeWaypoints(bool eraseCurrent = false);
         void AddWaypointPath(WaypointInformation wpInfo);
         std::vector<WaypointInformation>& GetWaypoints() { return waypoints; }
+
+        void JustDied() { isDead = true; }
+        bool IsAlive() { return !isDead; }
+        void SetIsAlive(bool val) { isDead = !val; }
 
     private:
         SDL_Surface* screen;
@@ -96,4 +102,11 @@ class Enemy
         std::vector<WaypointInformation> waypoints;
 
         Uint32 lastPointIncreaseTime;
+
+        bool isDead;
+
+        Uint32 randomShootTimer;
+
+        float moveSpeed[MOVE_TYPE_MAX];
+        bool inSlowArea;
 };

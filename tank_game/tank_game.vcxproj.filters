@@ -36,14 +36,11 @@
     <ClCompile Include="enemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="animation.h">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
     <ClCompile Include="keyhandler.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="animation.cpp">
-      <Filter>Resource Files</Filter>
+    <ClCompile Include="unit.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -65,11 +62,14 @@
     <ClInclude Include="enemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vector2.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="keyhandler.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shareddefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="unit.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

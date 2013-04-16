@@ -25,10 +25,50 @@ Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe
     rotatingPipeAngle = 1.0f;
     screen = game->GetScreen();
     lastPointIncreaseTime = 0;
+    isDead = false;
+    randomShootTimer = urand(1000, 15000);
+    moveSpeed[MOVE_TYPE_FORWARD] = NPC_MOVES_SPEED_FORWARD;
+    moveSpeed[MOVE_TYPE_BACKWARD] = NPC_MOVES_SPEED_BACKWARD;
+    inSlowArea = false;
 }
 
 void Enemy::Update()
 {
+    if (isDead)
+        return;
+
+    if (game->IsInSlowArea(posX, posY))
+    {
+        if (!inSlowArea)
+        {
+            for (int i = 0; i < MOVE_TYPE_MAX; ++i)
+                moveSpeed[i] /= 2;
+
+            inSlowArea = true;
+        }
+    }
+    else if (inSlowArea)
+    {
+        for (int i = 0; i < MOVE_TYPE_MAX; ++i)
+            moveSpeed[i] *= 2;
+
+        inSlowArea = false;
+    }
+
+    if (!randomShootTimer)
+    {
+        float bulletX = float(posX + (PLAYER_WIDTH / 2) - 12) + (16 / 2);
+        float bulletY = float(posY + (PLAYER_HEIGHT / 2) - 12) + (16 / 2);
+
+        if (Bullet* bullet = new Bullet(game, screen, bulletX, bulletY, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_BULLET_SPEED_X, PLAYER_BULLET_SPEED_Y, PLAYER_BULLET_LIFES, rotatingPipeAngle, false))
+        {
+            game->AddBullet(bullet);
+            //AddBullet(bullet);
+        }
+
+        randomShootTimer = urand(4000, 19000);
+    }
+
     if (!waypoints.empty())
     {
         bool turningToNextPoint = false;
@@ -77,8 +117,9 @@ void Enemy::Update()
                     movingAngle = float(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
                     //rotatingBodyAngle = movingAngle;
 
-                if ((posX < xDestTemp - 50 && posX > xDestTemp + 50 && posY < yDestTemp - 50 && posY > yDestTemp + 50) ||
-                    (posX > xDestTemp - 50 && posX < xDestTemp + 50 && posY > yDestTemp - 50 && posY < yDestTemp + 50))
+                //if ((posX < xDestTemp - 50 && posX > xDestTemp + 50 && posY < yDestTemp - 50 && posY > yDestTemp + 50) ||
+                //    (posX > xDestTemp - 50 && posX < xDestTemp + 50 && posY > yDestTemp - 50 && posY < yDestTemp + 50))
+                if (IsInRange(posX, xDestTemp, posY, yDestTemp, 50.0f))
                 {
                     float xDestNext = 0.0f;
                     float yDestNext = 0.0f;
@@ -135,12 +176,15 @@ void Enemy::Update()
                 // posX < xDest - 3 && posX > xDest + 3
                 //if (pipeAngle < 138 && pipeAngle > 38) // hoger dan 38, lager dan 138
                 //if (lastPointIncreaseTime == 0 && (posX == xDest && posY == yDest) || (posX < xDest - 2 && posX > xDest + 2) || (posX > xDest - 2 && posX < xDest + 2))
-                if ((posX == xDest && posY == yDest) || (posX < xDest - 6 && posX > xDest + 6 && posY < yDest - 6 && posY > yDest + 6) ||
-                                                        (posX > xDest - 6 && posX < xDest + 6 && posY > yDest - 6 && posY < yDest + 6))
+                //if ((posX == xDest && posY == yDest) || (posX < xDest - 6 && posX > xDest + 6 && posY < yDest - 6 && posY > yDest + 6) ||
+                //                                        (posX > xDest - 6 && posX < xDest + 6 && posY > yDest - 6 && posY < yDest + 6))
+                if ((posX == xDest && posY == yDest) || IsInRange(posX, xDest, posY, yDest, 6.0f))
                 {
                     if (pointId == lastPointId)
                     {
-                        if (itr->repeat)
+                        if (itr->pickRandomAtEnd)
+                            InitializeWaypoints(true);
+                        else if (itr->repeat)
                         {
                             //incrItr = false;
                             //canMove = false;
@@ -206,7 +250,7 @@ void Enemy::Update()
         Sint16 otherOutcomeY = 0;
         SDL_Rect npcRect = { Sint16(posX), Sint16(posY), 51, 45 };
 
-        newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD));
+        newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
         otherOutcomeX = Sint16(newX);
         npcRect.x = Sint16(newX);
         bool foundCollision = false;
@@ -233,11 +277,11 @@ void Enemy::Update()
         }
 
         if (!foundCollision)
-            posX += float(cos(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD);
+            posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
 
         foundCollision = false;
 
-        newY = (posY - float(sin(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD));
+        newY = (posY - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
         otherOutcomeY = Sint16(newY);
         npcRect.y = Sint16(newY);
 
@@ -261,7 +305,7 @@ void Enemy::Update()
         }
 
         if (!foundCollision)
-            posY -= float(sin(movingAngle * M_PI / 180.0) * NPC_MOVES_SPEED_FORWARD);
+            posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
 
         rectBody.x = Sint16(posX);
         rectBody.y = Sint16(posY);
@@ -294,6 +338,9 @@ void Enemy::Update()
 
 void Enemy::HandleTimers(unsigned int diff_time)
 {
+    if (isDead)
+        return;
+
     if (!canShoot)
     {
         if (diff_time >= shootCooldown)
@@ -303,6 +350,13 @@ void Enemy::HandleTimers(unsigned int diff_time)
         }
         else
             shootCooldown -= diff_time;
+    }
+    else
+    {
+        if (diff_time >= randomShootTimer)
+            randomShootTimer = 0;
+        else
+            randomShootTimer -= diff_time;
     }
 
     if (!canPlaceLandmine)
@@ -325,7 +379,6 @@ void Enemy::HandleTimers(unsigned int diff_time)
     }
 }
 
-
 void Enemy::SetRectPosX(Sint16 val, bool body, bool pipe)
 {
     if (body)
@@ -344,60 +397,117 @@ void Enemy::SetRectPosY(Sint16 val, bool body, bool pipe)
         rectPipe.y = val;
 }
 
-void Enemy::InitializeWaypoints()
+void Enemy::InitializeWaypoints(bool eraseCurrent /* = false */)
 {
+    if (isDead)
+        return;
+
+    if (eraseCurrent)
+        waypoints.clear();
+
     WaypointInformation wpInfo;
-    wpInfo.repeat = true;
+    wpInfo.pickRandomAtEnd = true;
+    wpInfo.repeat = false;
     wpInfo.repeatReversed = false;
-    wpInfo.xVelocity = NPC_MOVES_SPEED_FORWARD;
-    wpInfo.yVelocity = NPC_MOVES_SPEED_FORWARD;
+    wpInfo.xVelocity = moveSpeed[MOVE_TYPE_FORWARD];
+    wpInfo.yVelocity = moveSpeed[MOVE_TYPE_FORWARD];
     wpInfo.currDestPointId = 0;
+    int rand = urand(0, 2);
 
     for (int i = 0; i < 3; ++i)
     {
         WaypointNode node;
         node.pointId = i;
 
-        switch (i)
+        switch (rand)
         {
             case 0:
-                node.x = 270.0f;
-                node.y = 480.0f;
+            {
+                switch (i)
+                {
+                    case 0:
+                        node.x = 270.0f;
+                        node.y = 480.0f;
+                        break;
+                    case 1:
+                        node.x = 400.0f;
+                        node.y = 200.0f;
+                        break;
+                    //case 2:
+                    //    node.x = 560.0f;
+                    //    node.y = 130.0f;
+                    //    break;
+                    //case 3:
+                    //    node.x = 770.0f;
+                    //    node.y = 350.0f;
+                    //    break;
+                    //case 4:
+                    //    node.x = 212.0f;
+                    //    node.y = 480.0f;
+                    //    break;
+                    //case 5:
+                    //    node.x = 100.0f;
+                    //    node.y = 450.0f;
+                    //    break;
+                    //case 6:
+                    //    node.x = 100.0f;
+                    //    node.y = 84.0f;
+                    //    break;
+                    //case 7:
+                    //    node.x = 278.0f;
+                    //    node.y = 67.0f;
+                    //    break;
+                    case 2:
+                        node.x = 140.0f;
+                        node.y = 330.0f;
+                        break;
+                    default:
+                        return; //! Als we hier door zouden gaan komen er waypoints zonder X en Y as en dat willen we niet.
+                }
                 break;
+            }
             case 1:
-                node.x = 400.0f;
-                node.y = 200.0f;
+            {
+                switch (i)
+                {
+                    case 0:
+                        node.x = 820.0f;
+                        node.y = 460.0f;
+                        break;
+                    case 1:
+                        node.x = 370.0f;
+                        node.y = 80.0f;
+                        break;
+                    case 2:
+                        node.x = 90.0f;
+                        node.y = 460.0f;
+                        break;
+                    default:
+                        return; //! Als we hier door zouden gaan komen er waypoints zonder X en Y as en dat willen we niet.
+                }
                 break;
-            //case 2:
-            //    node.x = 560.0f;
-            //    node.y = 130.0f;
-            //    break;
-            //case 3:
-            //    node.x = 770.0f;
-            //    node.y = 350.0f;
-            //    break;
-            //case 4:
-            //    node.x = 212.0f;
-            //    node.y = 480.0f;
-            //    break;
-            //case 5:
-            //    node.x = 100.0f;
-            //    node.y = 450.0f;
-            //    break;
-            //case 6:
-            //    node.x = 100.0f;
-            //    node.y = 84.0f;
-            //    break;
-            //case 7:
-            //    node.x = 278.0f;
-            //    node.y = 67.0f;
-            //    break;
+            }
             case 2:
-                node.x = 140.0f;
-                node.y = 330.0f;
+            {
+                switch (i)
+                {
+                    case 0:
+                        node.x = 65.0f;
+                        node.y = 490.0f;
+                        break;
+                    case 1:
+                        node.x = 140.0f;
+                        node.y = 85.0f;
+                        break;
+                    case 2:
+                        node.x = 575.0f;
+                        node.y = 95.0f;
+                        break;
+                    default:
+                        return; //! Als we hier door zouden gaan komen er waypoints zonder X en Y as en dat willen we niet.
+                }
                 break;
-            default:
-                return; //! Als we hier door zouden gaan komen er waypoints zonder X en Y as en dat willen we niet.
+            }
         }
 
         //if (node.x == 0.0f || node.y == 0.0f)

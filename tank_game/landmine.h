@@ -8,20 +8,20 @@
 */
 
 class Game;
-class Vector2;
 
 class Landmine
 {
     public:
         Landmine(Game* _game, SDL_Surface* _screen, SDL_Surface* img, float x, float y, int w, int h);
         ~Landmine();
+
         void Update();
-        void Explode();
+        void Explode(bool showExplosion = true);
         SDL_Surface* GetSurface() { return image; }
         SDL_Rect GetRectangle() { return landmineRect; }
-        Sint16 GetX() { return landmineRect.x; }
-        Sint16 GetY() { return landmineRect.y; }
-        //Vector2 coords;
+        bool IsRemoved() { return isRemoved; }
+        float GetPosX() { return landmineRect.x; }
+        float GetPosY() { return landmineRect.y; }
 
     private:
         SDL_Surface* screen;
