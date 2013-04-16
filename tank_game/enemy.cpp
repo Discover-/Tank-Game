@@ -246,12 +246,9 @@ void Enemy::Update()
 
         float newX = 0.0f;
         float newY = 0.0f;
-        Sint16 otherOutcomeX = 0; //! otherOutcomeX/Y zijn variabelen die houden wat de nieuwe destination zou zijn zonder collision checks.
-        Sint16 otherOutcomeY = 0;
         SDL_Rect npcRect = { Sint16(posX), Sint16(posY), 51, 45 };
 
         newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
-        otherOutcomeX = Sint16(newX);
         npcRect.x = Sint16(newX);
         bool foundCollision = false;
 
@@ -268,7 +265,7 @@ void Enemy::Update()
                     newX -= 0.01f;
                     npcRect.x = Sint16(newX);
 
-                    if (!WillCollisionAt(&npcRect, &(*itr)) || newX >= otherOutcomeX)
+                    if (!WillCollisionAt(&npcRect, &(*itr)))
                         break;
                 }
 
@@ -282,7 +279,6 @@ void Enemy::Update()
         foundCollision = false;
 
         newY = (posY - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
-        otherOutcomeY = Sint16(newY);
         npcRect.y = Sint16(newY);
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
@@ -296,7 +292,7 @@ void Enemy::Update()
                     newY += 0.01f;
                     npcRect.y = Sint16(newY);
 
-                    if (!WillCollisionAt(&npcRect, &(*itr)) || newY >= otherOutcomeY)
+                    if (!WillCollisionAt(&npcRect, &(*itr)))
                         break;
                 }
 

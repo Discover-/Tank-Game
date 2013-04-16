@@ -17,17 +17,16 @@
 #include <time.h>
 #include <unordered_map>
 #include <set>
+#include "Windows.h"
 #include "SDL.h"
 #include "SDL_rotozoom.h"
-#include "bullet.h"
-#include "vector2.h"
-#include "landmine.h"
 #include "SDL_gfxPrimitives.h"
+#include "bullet.h"
+#include "landmine.h"
 //#include "SDL_net.h"
 #include "player.h"
 #include "enemy.h"
 #include "keyhandler.h"
-#include "Windows.h"
 
 //#define main SDL_main
 

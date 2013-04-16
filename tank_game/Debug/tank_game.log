@@ -1,15 +1,13 @@
-﻿Build started 16-4-2013 9:08:01.
+﻿Build started 16-4-2013 10:22:38.
      1>Project "C:\Development\Tank-Game\tank_game\tank_game.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\tank_game.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt bullet.cpp enemy.cpp game.cpp landmine.cpp main.cpp player.cpp
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt enemy.cpp player.cpp
          player.cpp
-         main.cpp
-         landmine.cpp
-         game.cpp
+     1>c:\development\tank-game\tank_game\player.cpp(247): warning C4244: '=' : conversion from 'float' to 'Sint16', possible loss of data
+     1>c:\development\tank-game\tank_game\player.cpp(273): warning C4244: '=' : conversion from 'float' to 'Sint16', possible loss of data
          enemy.cpp
-         bullet.cpp
          Generating Code...
          All outputs are up-to-date.
        Link:
@@ -33,4 +31,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:10.19
+Time Elapsed 00:00:02.25

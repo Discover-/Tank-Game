@@ -47,9 +47,6 @@ void Player::Update()
 
     float newX = 0.0f;
     float newY = 0.0f;
-    //! otherOutcomeX/Y zijn variabelen die houden wat de nieuwe destination zou zijn zonder collision checks.
-    Sint16 otherOutcomeX = 0;
-    Sint16 otherOutcomeY = 0;
     SDL_Rect plrRect = { Sint16(posX), Sint16(posY), 51, 45 };
     std::vector<SDL_Rect2> wallRects = game->GetWalls();
 
@@ -68,9 +65,10 @@ void Player::Update()
         //        break;
         //    }
         //}
-
+        //posX = 400
+        //newX = 500
+        //othX = 500
         newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
-        otherOutcomeX = Sint16(newX);
         plrRect.x = Sint16(newX);
         bool foundCollision = false;
 
@@ -85,11 +83,9 @@ void Player::Update()
                     newX -= 0.01f;
                     plrRect.x = Sint16(newX);
 
-                    if (!WillCollisionAt(&plrRect, &(*itr)) || newX >= otherOutcomeX)
+                    if (!WillCollisionAt(&plrRect, &(*itr)))
                         break;
                 }
-
-                break;
             }
         }
 
@@ -111,8 +107,7 @@ void Player::Update()
                     {
                         foundCollision = true;
                         foundCollisionWithNpc = true;
-                        Sint16 _otherOutcomeX = Sint16(_newX);
-                        SDL_Rect newNpcRect = { _otherOutcomeX, Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
+                        SDL_Rect newNpcRect = { Sint16(_newX), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
 
                         for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
                         {
@@ -125,13 +120,11 @@ void Player::Update()
                                     _newX += 0.01f;
                                     newNpcRect.x = Sint16(_newX);
 
-                                    if (!WillCollisionAt(&newNpcRect, &(*itrWall)) || _newX <= _otherOutcomeX)
+                                    if (!WillCollisionAt(&newNpcRect, &(*itrWall)))
                                         break;
                                 }
                             }
                         }
-
-                        //break;
                     }
 
                     if (foundCollisionWithNpc)
@@ -154,7 +147,6 @@ void Player::Update()
 
         foundCollision = false;
         newY = (posY - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
-        otherOutcomeY = Sint16(newY);
         plrRect.y = Sint16(newY);
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
@@ -168,11 +160,9 @@ void Player::Update()
                     newY += 0.01f;
                     plrRect.y = Sint16(newY);
 
-                    if (!WillCollisionAt(&plrRect, &(*itr)) || newY >= otherOutcomeY)
+                    if (!WillCollisionAt(&plrRect, &(*itr)))
                         break;
                 }
-
-                break;
             }
         }
 
@@ -193,8 +183,7 @@ void Player::Update()
                     {
                         foundCollision = true;
                         foundCollisionWithNpc = true;
-                        Sint16 _otherOutcomeY = Sint16(_newY);
-                        SDL_Rect newNpcRect = { _otherOutcomeY, Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
+                        SDL_Rect newNpcRect = { Sint16(_newY), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
 
                         for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
                         {
@@ -207,13 +196,11 @@ void Player::Update()
                                     _newY += 0.01f;
                                     newNpcRect.y = Sint16(_newY);
 
-                                    if (!WillCollisionAt(&newNpcRect, &(*itrWall)) || _newY >= _otherOutcomeY)
+                                    if (!WillCollisionAt(&newNpcRect, &(*itrWall)))
                                         break;
                                 }
                             }
                         }
-
-                        //break;
                     }
 
                     if (foundCollisionWithNpc)
@@ -237,8 +224,6 @@ void Player::Update()
 
     newX = 0.0f;
     newY = 0.0f;
-    otherOutcomeX = 0;
-    otherOutcomeY = 0;
     plrRect.x = Sint16(posX);
     plrRect.y = Sint16(posY);
 
@@ -259,8 +244,7 @@ void Player::Update()
         //}
 
         newX = Sint16(posX - float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]));
-        otherOutcomeX = Sint16(newX);
-        plrRect.x = otherOutcomeX;
+        plrRect.x = newX;
         bool foundCollision = false;
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
@@ -274,11 +258,9 @@ void Player::Update()
                     newX += 0.01f;
                     plrRect.x = Sint16(newX);
 
-                    if (!WillCollisionAt(&plrRect, &(*itr)) || newX >= otherOutcomeX)
+                    if (!WillCollisionAt(&plrRect, &(*itr)))
                         break;
                 }
-
-                break;
             }
         }
 
@@ -288,8 +270,7 @@ void Player::Update()
         foundCollision = false;
 
         newY = (posY + float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]));
-        otherOutcomeY = Sint16(newY);
-        plrRect.y = otherOutcomeY;
+        plrRect.y = newY;
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
@@ -302,11 +283,9 @@ void Player::Update()
                     newY -= 0.01f;
                     plrRect.y = Sint16(newY);
 
-                    if (!WillCollisionAt(&plrRect, &(*itr)) || newY <= otherOutcomeY)
+                    if (!WillCollisionAt(&plrRect, &(*itr)))
                         break;
                 }
-
-                break;
             }
         }
 
