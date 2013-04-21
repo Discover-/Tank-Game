@@ -1,14 +1,15 @@
-﻿Build started 16-4-2013 10:22:38.
+﻿Build started 18-4-2013 9:35:41.
      1>Project "C:\Development\Tank-Game\tank_game\tank_game.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Creating "Debug\tank_game.unsuccessfulbuild" because "AlwaysCreate" was specified.
+         Touching "Debug\tank_game.unsuccessfulbuild".
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt enemy.cpp player.cpp
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt player.cpp
          player.cpp
-     1>c:\development\tank-game\tank_game\player.cpp(247): warning C4244: '=' : conversion from 'float' to 'Sint16', possible loss of data
-     1>c:\development\tank-game\tank_game\player.cpp(273): warning C4244: '=' : conversion from 'float' to 'Sint16', possible loss of data
-         enemy.cpp
-         Generating Code...
+     1>c:\development\tank-game\tank_game\bullet.h(20): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\development\tank-game\tank_game\bullet.h(21): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>c:\development\tank-game\tank_game\bullet.h(22): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+     1>c:\development\tank-game\tank_game\bullet.h(23): warning C4244: 'return' : conversion from 'int' to 'float', possible loss of data
+     1>cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
          All outputs are up-to-date.
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Development\Tank-Game\Debug\tank_game.exe" /NOLOGO SDL.lib SDLmain.lib SDL_net.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\tank_game.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Development\Tank-Game\Debug\tank_game.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Development\Tank-Game\Debug\tank_game.lib" /MACHINE:X86 Debug\bullet.obj
@@ -31,4 +32,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.25
+Time Elapsed 00:00:01.20

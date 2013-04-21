@@ -25,6 +25,8 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float X, float Y, int w, int h
     bulletRect.w = w;
     bulletRect.h = h;
 
+    inSlowArea = false;
+
     //std::vector<SDL_Rect2> wallRects = game->GetWalls();
     //for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
     //{
@@ -92,6 +94,22 @@ void Bullet::Update()
     y -= float(sin(directionAngle * M_PI / 180.0) * yVelocity);
     _bulletRect.x = Sint16(x);
     _bulletRect.y = Sint16(y);
+
+    if (game->IsInSlowArea(x, y))
+    {
+        if (!inSlowArea)
+        {
+            xVelocity /= 2;
+            yVelocity /= 2;
+            inSlowArea = true;
+        }
+    }
+    else if (inSlowArea)
+    {
+        xVelocity *= 2;
+        yVelocity *= 2;
+        inSlowArea = false;
+    }
 
     if (x <= 0 || x + bulletRect.w >= screen->clip_rect.w)
     {

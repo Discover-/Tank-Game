@@ -17,6 +17,10 @@ class Bullet
         bool IsRemoved() { return isRemoved; }
         float GetPosX() { return x; }
         float GetPosY() { return y; }
+        void SetVelocityX(float val) { xVelocity = val; }
+        void SetVelocityY(float val) { yVelocity = val; }
+        float GetVelocityX() { return xVelocity; }
+        float GetVelocityY() { return yVelocity; }
 
     private:
         SDL_Surface* screen;
@@ -31,4 +35,5 @@ class Bullet
         float x, y;
         SDL_Surface* rotatedBullet;
         bool shooterIsPlr;
+        bool inSlowArea;
 };

@@ -29,6 +29,7 @@ class Player
         Uint8 GetBulletCount() { return bulletCount; }
         void IncrBulletCount() { bulletCount++; }
         void DecrBulletCount() { bulletCount--; }
+        void SetBulletCount(int val) { bulletCount = val; }
         Uint8 GetLandmineCount() { return landmineCount; }
         void IncrLandmineCount() { landmineCount++; }
         void DecrLandmineCount() { landmineCount--; }

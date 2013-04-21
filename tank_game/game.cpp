@@ -364,6 +364,8 @@ int Game::Update()
                                     for (std::vector<Landmine*>::iterator itr = allLandmines.begin(); itr != allLandmines.end(); ++itr)
                                         if (Landmine* landmine = (*itr))
                                             landmine->Explode(false);
+
+                                player->SetBulletCount(0);
                             }
                             break;
                         default:

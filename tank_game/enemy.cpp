@@ -260,13 +260,10 @@ void Enemy::Update()
             {
                 foundCollision = true;
 
-                while (true)
+                while (WillCollisionAt(&npcRect, &(*itr)))
                 {
                     newX -= 0.01f;
                     npcRect.x = Sint16(newX);
-
-                    if (!WillCollisionAt(&npcRect, &(*itr)))
-                        break;
                 }
 
                 break;
@@ -287,13 +284,10 @@ void Enemy::Update()
             {
                 foundCollision = true;
 
-                while (true)
+                while (WillCollisionAt(&npcRect, &(*itr)))
                 {
                     newY += 0.01f;
                     npcRect.y = Sint16(newY);
-
-                    if (!WillCollisionAt(&npcRect, &(*itr)))
-                        break;
                 }
 
                 break;

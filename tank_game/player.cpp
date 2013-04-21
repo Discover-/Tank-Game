@@ -78,13 +78,10 @@ void Player::Update()
             {
                 foundCollision = true;
 
-                while (true)
+                while (WillCollisionAt(&plrRect, &(*itr)))
                 {
                     newX -= 0.01f;
                     plrRect.x = Sint16(newX);
-
-                    if (!WillCollisionAt(&plrRect, &(*itr)))
-                        break;
                 }
             }
         }
@@ -115,13 +112,10 @@ void Player::Update()
                             {
                                 foundCollisionNpcNewPos = true;
 
-                                while (true)
+                                while (WillCollisionAt(&newNpcRect, &(*itrWall)))
                                 {
                                     _newX += 0.01f;
                                     newNpcRect.x = Sint16(_newX);
-
-                                    if (!WillCollisionAt(&newNpcRect, &(*itrWall)))
-                                        break;
                                 }
                             }
                         }
@@ -155,13 +149,10 @@ void Player::Update()
             {
                 foundCollision = true;
 
-                while (true)
+                while (WillCollisionAt(&plrRect, &(*itr)))
                 {
                     newY += 0.01f;
                     plrRect.y = Sint16(newY);
-
-                    if (!WillCollisionAt(&plrRect, &(*itr)))
-                        break;
                 }
             }
         }
@@ -191,13 +182,10 @@ void Player::Update()
                             {
                                 foundCollisionNpcNewPos = true;
 
-                                while (true)
+                                while (WillCollisionAt(&newNpcRect, &(*itrWall)))
                                 {
                                     _newY += 0.01f;
                                     newNpcRect.y = Sint16(_newY);
-
-                                    if (!WillCollisionAt(&newNpcRect, &(*itrWall)))
-                                        break;
                                 }
                             }
                         }
@@ -244,7 +232,7 @@ void Player::Update()
         //}
 
         newX = Sint16(posX - float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]));
-        plrRect.x = newX;
+        plrRect.x = Sint16(newX);
         bool foundCollision = false;
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
@@ -253,13 +241,10 @@ void Player::Update()
             {
                 foundCollision = true;
 
-                while (true)
+                while (WillCollisionAt(&plrRect, &(*itr)))
                 {
                     newX += 0.01f;
                     plrRect.x = Sint16(newX);
-
-                    if (!WillCollisionAt(&plrRect, &(*itr)))
-                        break;
                 }
             }
         }
@@ -268,9 +253,8 @@ void Player::Update()
             posX -= float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
 
         foundCollision = false;
-
         newY = (posY + float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]));
-        plrRect.y = newY;
+        plrRect.y = Sint16(newY);
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
@@ -278,13 +262,10 @@ void Player::Update()
             {
                 foundCollision = true;
 
-                while (true)
+                while (WillCollisionAt(&plrRect, &(*itr)))
                 {
                     newY -= 0.01f;
                     plrRect.y = Sint16(newY);
-
-                    if (!WillCollisionAt(&plrRect, &(*itr)))
-                        break;
                 }
             }
         }
