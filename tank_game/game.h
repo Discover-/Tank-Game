@@ -44,8 +44,8 @@ class Game
         void HandleTimers(unsigned int diff_time);
         void UnregistrateBullet(Bullet* bullet);
         void UnregistrateLandmine(Landmine* landmine);
-        void AddLandMineExplosion(MineExplosions mineExplosion) { mineExplosions.push_back(mineExplosion); }
-        void AddLandMineExplosion(float x, float y, Uint8 frame, Uint32 delay) { MineExplosions mineExpl = { Sint16(x), Sint16(y), frame, delay }; AddLandMineExplosion(mineExpl); }
+        void AddBigExplosion(MineExplosions mineExplosion) { mineExplosions.push_back(mineExplosion); }
+        void AddBigExplosion(float x, float y, Uint8 frame, Uint32 delay) { MineExplosions mineExpl = { Sint16(x), Sint16(y), frame, delay }; AddBigExplosion(mineExpl); }
         void BlitSurface(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* dst, SDL_Rect* dstrect, RGB rgb);
         SDL_Surface* GetScreen() { return screen; }
         SDL_Event GetEvent() { return _event; }
@@ -61,7 +61,6 @@ class Game
         double GetPipeAngle() { return pipeAngle; }
         std::vector<Enemy*> GetEnemies() { return enemies; }
         void AddDelayedFunctionCall(Uint8 delayMs, void* function, int param1 = 0, int param2 = 0, int param3 = 0);
-        void AddLandmineExplosion();
 
         void InitializeWalls();
         void AddWall(Sint16 x, Sint16 y, Sint16 w = 50, Sint16 h = 50, bool breakable = false, bool visible = true);

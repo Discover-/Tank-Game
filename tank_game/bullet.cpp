@@ -1,15 +1,15 @@
 #include "game.h"
 
-Bullet::Bullet(Game* _game, SDL_Surface* _screen, float X, float Y, int w, int h, int xVel, int yVel, int _life, double _pipeAngle, bool _shooterIsPlr /* = true */)
+Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool _shooterIsPlr /* = true */)
 {
     if (!_game)
         return;
 
     game = _game;
     image = SDL_LoadBMP("bullet.bmp");
-    xVelocity = xVel;
-    yVelocity = yVel;
-    life = _life;
+    xVelocity = PLAYER_BULLET_SPEED_X;
+    yVelocity = PLAYER_BULLET_SPEED_Y;
+    life = PLAYER_BULLET_LIFES;
     isRemoved = false;
     directionAngle = _pipeAngle;
     rotateAngle = _pipeAngle;
@@ -17,13 +17,13 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float X, float Y, int w, int h
 
     //! We maken de x en y co-ordinaten groter zodra de kogel gemaakt wordt. De X en Y as die gegeven zijn (hoofdletters) zijn het midden
     //! van de tank en niet de uitkomst van de pijp.
-    x = X + float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 14.3f;
-    y = Y - float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 14.3f;
+    posX = x + float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 14.3f;
+    posY = y - float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 14.3f;
 
-    bulletRect.x = Sint16(x);
-    bulletRect.y = Sint16(y);
-    bulletRect.w = w;
-    bulletRect.h = h;
+    bulletRect.x = Sint16(posX);
+    bulletRect.y = Sint16(posY);
+    bulletRect.w = BULLET_WIDTH;
+    bulletRect.h = BULLET_HEIGHT;
 
     inSlowArea = false;
 
@@ -90,12 +90,12 @@ void Bullet::Update()
     SDL_BlitSurface(rotatedBullet, NULL, screen, &_bulletRect);
 
     //? TODO: directionAngle wordt alleen gegeven op constructor en is zelfde als pipeangle - wat was ik ook al weer denkende? o_o (hoe kan dit werken?)
-    x += float(cos(directionAngle * M_PI / 180.0) * xVelocity);
-    y -= float(sin(directionAngle * M_PI / 180.0) * yVelocity);
-    _bulletRect.x = Sint16(x);
-    _bulletRect.y = Sint16(y);
+    posX += float(cos(directionAngle * M_PI / 180.0) * xVelocity);
+    posY -= float(sin(directionAngle * M_PI / 180.0) * yVelocity);
+    _bulletRect.x = Sint16(posX);
+    _bulletRect.y = Sint16(posY);
 
-    if (game->IsInSlowArea(x, y))
+    if (game->IsInSlowArea(posX, posY))
     {
         if (!inSlowArea)
         {
@@ -111,21 +111,8 @@ void Bullet::Update()
         inSlowArea = false;
     }
 
-    if (x <= 0 || x + bulletRect.w >= screen->clip_rect.w)
-    {
-        rotateAngle = 180 - rotateAngle;
-        xVelocity = -xVelocity;
-        life--;
-    }
-
-    if (y <= 0 || y + bulletRect.h >= screen->clip_rect.h)
-    {
-        rotateAngle = -rotateAngle;
-        yVelocity = -yVelocity;
-        life--;
-    }
-
     bool collision = false;
+    bool showExplosion = true;
 
     if (life > 0)
     {
@@ -139,11 +126,11 @@ void Bullet::Update()
             collision = WillCollisionAt(&bulletRect, &plrRect);
         }
 
+        std::vector<Bullet*> _bullets = game->GetAllBullets();
+        SDL_Rect otherBulletRec;
+
         if (!collision)
         {
-            std::vector<Bullet*> _bullets = game->GetAllBullets();
-            SDL_Rect otherBulletRec;
-
             if (!_bullets.empty())
             {
                 for (std::vector<Bullet*>::iterator itr = _bullets.begin(); itr != _bullets.end(); ++itr)
@@ -170,71 +157,66 @@ void Bullet::Update()
                 {
                     for (std::vector<Landmine*>::iterator itr = _landmines.begin(); itr != _landmines.end(); ++itr)
                     {
-                        //if ((*itr) != this)
+                        if (!(*itr)->IsRemoved() && WillCollisionAt(&bulletRect, &(*itr)->GetRectangle()))
                         {
-                            if (!(*itr)->IsRemoved() && WillCollisionAt(&bulletRect, &(*itr)->GetRectangle()))
-                            {
-                                //! TODO: Alle dichtbijzijnde kogels, breakable walls en spelers targeten
-                                //(*itr)->SetRemainingLife(0); //! Allebei de kogels mogen kapot
-                                (*itr)->Explode();
-                                Explode(false);
-                                return; //! We roepen Bullet::Explode met een andere parameter als dan we zouden doen als life op 0 springt.
-                            }
+                            showExplosion = false;
+                            (*itr)->Explode();
+                            life = 0;
+                            return;
                         }
                     }
                 }
             }
-        }
 
-        std::vector<SDL_Rect2> wallRects = game->GetWalls();
-        for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
-        {
-            if ((*itr).visible && WillCollisionAt(&_bulletRect, &(*itr)))
+            std::vector<SDL_Rect2> wallRects = game->GetWalls();
+            for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
-                bool hitLeftSide = false, hitRightSide = false, hitBottomSide = false, hitUpperSide = false;
-                bool setWhichSideHit = false;
-
-                if (bulletRect.x + bulletRect.w - 2 <= (*itr).x) //! Left
+                if ((*itr).visible && WillCollisionAt(&_bulletRect, &(*itr)))
                 {
-                    hitLeftSide = true;
-	                setWhichSideHit = true;
-                }
+                    bool hitLeftSide = false, hitRightSide = false, hitBottomSide = false, hitUpperSide = false, setWhichSideHit = false;
 
-                if (!setWhichSideHit && (*itr).x + (*itr).w - 2 <= bulletRect.x) //! Right
-                {
-                    hitRightSide = true;
-	                setWhichSideHit = true;
-                }
+                    if (bulletRect.x + bulletRect.w - 2 <= (*itr).x) //! Left
+                    {
+                        hitLeftSide = true;
+	                    setWhichSideHit = true;
+                    }
 
-                if (!setWhichSideHit && bulletRect.y + bulletRect.h -2 >= (*itr).y) //! Bottom
-                {
-                    hitBottomSide = true;
-	                setWhichSideHit = false;
-                }
+                    if (!setWhichSideHit && (*itr).x + (*itr).w - 2 <= bulletRect.x) //! Right
+                    {
+                        hitRightSide = true;
+	                    setWhichSideHit = true;
+                    }
 
-                if (!setWhichSideHit && (*itr).y + (*itr).h - 2 >= bulletRect.y) //! Top
-                {
-                    hitUpperSide = true;
-	                setWhichSideHit = false;
-                }
+                    if (!setWhichSideHit && bulletRect.y + bulletRect.h -2 >= (*itr).y) //! Bottom
+                    {
+                        hitBottomSide = true;
+	                    setWhichSideHit = false;
+                    }
 
-                if (hitLeftSide || hitRightSide)
-                {
-                    rotateAngle = 180 - rotateAngle;
-                    xVelocity = -xVelocity;
-                    y += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
-                    x = hitLeftSide ? x - 5 : x + 5;
-                }
-                else if (hitBottomSide || hitUpperSide)
-                {
-                    rotateAngle = -rotateAngle;
-                    yVelocity = -yVelocity;
-                    x -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
-                    y = hitUpperSide ? y - 5 : y + 5;
-                }
+                    if (!setWhichSideHit && (*itr).y + (*itr).h - 2 >= bulletRect.y) //! Top
+                    {
+                        hitUpperSide = true;
+	                    setWhichSideHit = false;
+                    }
 
-                life--;
-                break;
+                    if (hitLeftSide || hitRightSide)
+                    {
+                        rotateAngle = 180 - rotateAngle;
+                        xVelocity = -xVelocity;
+                        posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
+                        posX = hitLeftSide ? posX - 5 : posX + 5;
+                    }
+                    else if (hitBottomSide || hitUpperSide)
+                    {
+                        rotateAngle = -rotateAngle;
+                        yVelocity = -yVelocity;
+                        posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
+                        posY = hitUpperSide ? posY - 5 : posY + 5;
+                    }
+
+                    life--;
+                    break;
+                }
             }
         }
 
@@ -249,7 +231,7 @@ void Bullet::Update()
                 {
                     if ((*itr)->IsAlive() && WillCollisionAt(&bulletRect, &(*itr)->GetRotatedBodyRect()))
                     {
-                        game->AddLandMineExplosion(bulletRect.x, bulletRect.y, 0, 80);
+                        game->AddBigExplosion(bulletRect.x, bulletRect.y, 0, 100);
                         (*itr)->JustDied();
                         Explode(false);
                         break;
@@ -259,9 +241,9 @@ void Bullet::Update()
         }
     }
 
-    bulletRect.x = Sint16(x);
-    bulletRect.y = Sint16(y);
+    bulletRect.x = Sint16(posX);
+    bulletRect.y = Sint16(posY);
 
     if (life <= 0 || collision)
-        Explode();
+        Explode(showExplosion);
 }

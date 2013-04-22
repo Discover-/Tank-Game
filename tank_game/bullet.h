@@ -6,7 +6,7 @@ class Enemy;
 class Bullet
 {
     public:
-        Bullet(Game* _game, SDL_Surface* _screen, float x, float y, int w, int h, int xVel, int yVel, int _life, double _pipeAngle, bool shooterIsPlr = true);
+        Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool shooterIsPlr = true);
         ~Bullet();
 
         void Update();
@@ -15,8 +15,8 @@ class Bullet
         void SetRemainingLife(unsigned int _life) { life = _life; }
         SDL_Rect GetRectangle() { return bulletRect; }
         bool IsRemoved() { return isRemoved; }
-        float GetPosX() { return x; }
-        float GetPosY() { return y; }
+        float GetPosX() { return posX; }
+        float GetPosY() { return posY; }
         void SetVelocityX(float val) { xVelocity = val; }
         void SetVelocityY(float val) { yVelocity = val; }
         float GetVelocityX() { return xVelocity; }
@@ -25,14 +25,14 @@ class Bullet
     private:
         SDL_Surface* screen;
         Game* game;
-        int xVelocity, yVelocity;
+        float xVelocity, yVelocity;
         SDL_Surface* image;
         bool isRemoved;
         SDL_Rect bulletRect;
         unsigned int life;
         double directionAngle;
         double rotateAngle;
-        float x, y;
+        float posX, posY;
         SDL_Surface* rotatedBullet;
         bool shooterIsPlr;
         bool inSlowArea;

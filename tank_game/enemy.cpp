@@ -60,7 +60,7 @@ void Enemy::Update()
         float bulletX = float(posX + (PLAYER_WIDTH / 2) - 12) + (16 / 2);
         float bulletY = float(posY + (PLAYER_HEIGHT / 2) - 12) + (16 / 2);
 
-        if (Bullet* bullet = new Bullet(game, screen, bulletX, bulletY, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_BULLET_SPEED_X, PLAYER_BULLET_SPEED_Y, PLAYER_BULLET_LIFES, rotatingPipeAngle, false))
+        if (Bullet* bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false))
         {
             game->AddBullet(bullet);
             //AddBullet(bullet);

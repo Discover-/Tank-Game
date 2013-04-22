@@ -103,6 +103,10 @@ void Game::HandleTimers(unsigned int diff_time)
     for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
         if ((*itr)->IsAlive())
             (*itr)->HandleTimers(diff_time);
+
+    for (std::vector<Landmine*>::iterator itr = allLandmines.begin(); itr != allLandmines.end(); ++itr)
+        if (!(*itr)->IsRemoved())
+            (*itr)->HandleTimers(diff_time);
 }
 
 void Game::BlitSurface(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* dst, SDL_Rect* dstrect, RGB rgb)
@@ -319,7 +323,7 @@ int Game::Update()
 
                             if (player->CanPlaceLandmine())
                             {
-                                if (Landmine* landmine = new Landmine(this, screen, SDL_LoadBMP("landmine.bmp"), float(player->GetPosX() + (PLAYER_WIDTH / 2) + 40), float(player->GetPosY() + (PLAYER_HEIGHT / 2)), LANDMINE_WIDTH, LANDMINE_HEIGHT))
+                                if (Landmine* landmine = new Landmine(this, screen, float(player->GetPosX() + PLAYER_WIDTH / 2), float(player->GetPosY() + (PLAYER_HEIGHT / 2))))
                                 {
                                     player->AddLandmine(landmine);
                                     allLandmines.push_back(landmine);
@@ -368,6 +372,11 @@ int Game::Update()
                                 player->SetBulletCount(0);
                             }
                             break;
+                        case SDLK_t:
+                            if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
+                                for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
+                                    (*itr)->JustDied();
+                            break;
                         default:
                             break;
                     }
@@ -377,7 +386,7 @@ int Game::Update()
                     //! We plaatsen een landmijn wanneer er shift + muisklik gedaan wordt - dit is gewoon tijdelijk voor testen.
                     if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
                     {
-                        if (Landmine* landmine = new Landmine(this, screen, SDL_LoadBMP("landmine.bmp"), _event.motion.x, _event.motion.y, LANDMINE_WIDTH, LANDMINE_HEIGHT))
+                        if (Landmine* landmine = new Landmine(this, screen, _event.motion.x, _event.motion.y))
                         {
                             player->AddLandmine(landmine);
                             allLandmines.push_back(landmine);
@@ -398,10 +407,13 @@ int Game::Update()
                             float bulletX = float(player->GetPosX() + (PLAYER_WIDTH / 2) - 12) + (16 / 2);
                             float bulletY = float(player->GetPosY() + (PLAYER_HEIGHT / 2) - 12) + (16 / 2);
 
-                            if (Bullet* bullet = new Bullet(this, screen, bulletX, bulletY, PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_BULLET_SPEED_X, PLAYER_BULLET_SPEED_Y, PLAYER_BULLET_LIFES, pipeAngle))
+                            if (Bullet* bullet = new Bullet(this, screen, bulletX, bulletY, pipeAngle))
                             {
                                 player->AddBullet(bullet);
                                 allBullets.push_back(bullet);
+                                player->SetCanShoot(false);
+                                player->SetShootCooldown(200);
+                                player->IncrBulletCount();
                                 //RGB smokeRGB;
                                 //smokeRGB.r = 0xff;
                                 //smokeRGB.g = 0xff;
@@ -413,9 +425,7 @@ int Game::Update()
 
                                 //StoreSurfaceByTime("smoke.bmp", smokeRect, smokeRGB);
 
-                                player->SetCanShoot(false);
-                                player->SetShootCooldown(200);
-                                player->IncrBulletCount();
+                                
                             }
                         }
                     }

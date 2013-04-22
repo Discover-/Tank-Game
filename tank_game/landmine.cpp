@@ -1,26 +1,33 @@
 #include "game.h"
 
-Landmine::Landmine(Game* _game, SDL_Surface* _screen, SDL_Surface* img, float x, float y, int w, int h)
+Landmine::Landmine(Game* _game, SDL_Surface* _screen, float x, float y)
 {
     if (!_game)
         return;
 
     game = _game;
-    image = img;
+    screen = _screen;
+    imageNormal = SDL_LoadBMP("landmine_initial.bmp");
+    imageTimer = SDL_LoadBMP("landmine_timer.bmp");
+    posX = x;
+    posY = y;
     landmineRect.x = Sint16(x);
     landmineRect.y = Sint16(y);
-    landmineRect.w = w;
-    landmineRect.h = h;
+    landmineRect.w = LANDMINE_WIDTH;
+    landmineRect.h = LANDMINE_HEIGHT;
     isRemoved = false;
-    screen = _screen;
+    explosionDelay = 3000;
+    timerTillExplode = 15000;
+    countdownTenMs = 0;
+    timerImage = false;
 
-    SDL_SetColorKey(image, SDL_SRCCOLORKEY, COLOR_WHITE);
-    SDL_BlitSurface(image, NULL, screen, &landmineRect);
+    SDL_SetColorKey(imageNormal, SDL_SRCCOLORKEY, COLOR_WHITE);
+    SDL_BlitSurface(imageNormal, NULL, screen, &landmineRect);
 }
 
 Landmine::~Landmine()
 {
-    SDL_FreeSurface(image);
+    SDL_FreeSurface(imageNormal);
     isRemoved = true;
     delete this;
 }
@@ -28,7 +35,7 @@ Landmine::~Landmine()
 void Landmine::Explode(bool showExplosion /* = true */)
 {
     if (showExplosion)
-        game->AddLandMineExplosion(landmineRect.x, landmineRect.y, 0, 80);
+        game->AddBigExplosion(landmineRect.x, landmineRect.y, 0, 80);
 
     //RGB explosionRGB;
     //explosionRGB.r = 0x00;
@@ -110,42 +117,74 @@ void Landmine::Update()
     if (!game || !game->IsRunning() || isRemoved)
         return;
 
-    SDL_SetColorKey(image, SDL_SRCCOLORKEY, COLOR_WHITE);
-    SDL_BlitSurface(image, NULL, screen, &landmineRect);
+    SDL_SetColorKey(timerImage ? imageTimer : imageNormal, SDL_SRCCOLORKEY, COLOR_WHITE);
+    SDL_BlitSurface(timerImage ? imageTimer : imageNormal, NULL, screen, &landmineRect);
 
-    if (Player* player = game->GetPlayer())
+    if (!explosionDelay)
     {
-        SDL_Rect plrRect;
-        plrRect.x = Sint16(player->GetPosX());
-        plrRect.y = Sint16(player->GetPosY());
-        plrRect.w = PLAYER_WIDTH;
-        plrRect.h = PLAYER_HEIGHT;
-        //plrRect.w = 45;
-        //plrRect.h = 50;
-
-        if (WillCollisionAt(&landmineRect, &plrRect))
+        if (Player* player = game->GetPlayer())
         {
-            Explode();
-            return;
-        }
-    }
+            SDL_Rect plrRect;
+            plrRect.x = Sint16(player->GetPosX());
+            plrRect.y = Sint16(player->GetPosY());
+            plrRect.w = PLAYER_WIDTH;
+            plrRect.h = PLAYER_HEIGHT;
 
-    std::vector<Enemy*> enemies = game->GetEnemies();
-    for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
-    {
-        if ((*itr)->IsAlive())
-        {
-            SDL_Rect npcRect;
-            npcRect.x = Sint16((*itr)->GetPosX());
-            npcRect.y = Sint16((*itr)->GetPosY());
-            npcRect.w = 45;
-            npcRect.h = 51;
-
-            if (WillCollisionAt(&landmineRect, &npcRect))
+            if (WillCollisionAt(&landmineRect, &plrRect))
             {
-                Explode();
+                //Explode();
+                timerTillExplode = 50;
                 return;
             }
         }
+
+        std::vector<Enemy*> enemies = game->GetEnemies();
+
+        for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
+        {
+            if ((*itr)->IsAlive())
+            {
+                SDL_Rect npcRect;
+                npcRect.x = Sint16((*itr)->GetPosX());
+                npcRect.y = Sint16((*itr)->GetPosY());
+                npcRect.w = 45;
+                npcRect.h = 51;
+
+                if (WillCollisionAt(&landmineRect, &npcRect))
+                {
+                    //Explode();
+                    timerTillExplode = 50;
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void Landmine::HandleTimers(unsigned int diff_time)
+{
+    if (explosionDelay)
+    {
+        if (diff_time >= explosionDelay)
+            explosionDelay = 0;
+        else
+            explosionDelay -= diff_time;
+    }
+
+    if (timerTillExplode)
+    {
+        if (diff_time >= timerTillExplode)
+        {
+            countdownTenMs += 10;
+            timerTillExplode = 300 - countdownTenMs;
+            timerImage = !timerImage;
+        }
+        else
+            timerTillExplode -= diff_time;
+    }
+    else if (countdownTenMs)
+    {
+        countdownTenMs = 0;
+        Explode();
     }
 }
