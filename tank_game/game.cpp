@@ -357,6 +357,8 @@ int Game::Update()
 
                                     if (!waypoints.empty())
                                         (*itr)->InitializeWaypoints(true);
+
+                                    (*itr)->SetBulletCount(0);
                                 }
 
                                 if (!allBullets.empty())
@@ -406,26 +408,42 @@ int Game::Update()
                             //! De 16 / 2 is de grootte en breedte van de muis.
                             float bulletX = float(player->GetPosX() + (PLAYER_WIDTH / 2) - 12) + (16 / 2);
                             float bulletY = float(player->GetPosY() + (PLAYER_HEIGHT / 2) - 12) + (16 / 2);
+                            bool hitsWall = false;
+                            float actualX = bulletX + float(cos(pipeAngle * M_PI / 180.0) * PLAYER_BULLET_SPEED_X) * 14.3f;
+                            float actualY = bulletY + float(sin(pipeAngle * M_PI / 180.0) * PLAYER_BULLET_SPEED_Y) * 14.3f;
+                            SDL_Rect bulletRect = { Sint16(actualX), Sint16(actualY), BULLET_WIDTH, BULLET_HEIGHT };
 
-                            if (Bullet* bullet = new Bullet(this, screen, bulletX, bulletY, pipeAngle))
+                            for (std::vector<SDL_Rect2>::iterator itrWall = wallRectangles.begin(); itrWall != wallRectangles.end(); ++itrWall)
                             {
-                                player->AddBullet(bullet);
-                                allBullets.push_back(bullet);
-                                player->SetCanShoot(false);
-                                player->SetShootCooldown(200);
-                                player->IncrBulletCount();
-                                //RGB smokeRGB;
-                                //smokeRGB.r = 0xff;
-                                //smokeRGB.g = 0xff;
-                                //smokeRGB.b = 0xff;
+                                if ((*itrWall).visible && WillCollisionAt(&bulletRect, &(*itrWall)))
+                                {
+                                    hitsWall = true;
+                                    break;
+                                }
+                            }
 
-                                //SDL_Rect smokeRect;
-                                //smokeRect.x = Sint16(bulletX);
-                                //smokeRect.y = Sint16(bulletY);
+                            if (!hitsWall)
+                            {
+                                if (Bullet* bullet = new Bullet(this, screen, bulletX, bulletY, pipeAngle))
+                                {
+                                    player->AddBullet(bullet);
+                                    allBullets.push_back(bullet);
+                                    player->SetCanShoot(false);
+                                    player->SetShootCooldown(200);
+                                    player->IncrBulletCount();
+                                    //RGB smokeRGB;
+                                    //smokeRGB.r = 0xff;
+                                    //smokeRGB.g = 0xff;
+                                    //smokeRGB.b = 0xff;
 
-                                //StoreSurfaceByTime("smoke.bmp", smokeRect, smokeRGB);
+                                    //SDL_Rect smokeRect;
+                                    //smokeRect.x = Sint16(bulletX);
+                                    //smokeRect.y = Sint16(bulletY);
+
+                                    //StoreSurfaceByTime("smoke.bmp", smokeRect, smokeRGB);
 
                                 
+                                }
                             }
                         }
                     }
@@ -461,6 +479,8 @@ int Game::Update()
         recBodyPlr.y -= rotatedBodyPlr->h / 2 - spriteBodyPlr->h / 2;
 
         SDL_Rect recPipePlr = { int(plrX), int(plrY), PLAYER_WIDTH, PLAYER_HEIGHT };
+
+        player->SetRectPipeBody(recPipePlr, recBodyPlr);
 
         if (_event.type == SDL_MOUSEMOTION)
         //if (lastMouseX != _event.motion.x || lastMouseY != _event.motion.y)

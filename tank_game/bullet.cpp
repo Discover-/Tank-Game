@@ -1,6 +1,6 @@
 #include "game.h"
 
-Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool _shooterIsPlr /* = true */)
+Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool _shooterIsPlr /* = true */, int _life /* = 2 */)
 {
     if (!_game)
         return;
@@ -41,6 +41,7 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipe
     rotatedBullet = rotozoomSurface(image, rotateAngle, 1.0, 0);
     SDL_BlitSurface(rotatedBullet, NULL, screen, &bulletRect);
     shooterIsPlr = _shooterIsPlr;
+    life = _life;
 }
 
 Bullet::~Bullet()
@@ -231,7 +232,6 @@ void Bullet::Update()
                 {
                     if ((*itr)->IsAlive() && WillCollisionAt(&bulletRect, &(*itr)->GetRotatedBodyRect()))
                     {
-                        game->AddBigExplosion(bulletRect.x, bulletRect.y, 0, 100);
                         (*itr)->JustDied();
                         Explode(false);
                         break;

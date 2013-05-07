@@ -20,6 +20,15 @@ Player::Player(Game* _game, float x, float y)
 
     if (game)
         screen = game->GetScreen();
+
+    rectBody.x = Sint16(posX);
+    rectBody.y = Sint16(posY);
+    rectBody.w = PLAYER_WIDTH;
+    rectBody.h = PLAYER_HEIGHT;
+    rectPipe.x = Sint16(posX);
+    rectPipe.y = Sint16(posY);
+    rectPipe.w = PLAYER_WIDTH;
+    rectPipe.h = PLAYER_HEIGHT;
 }
 
 void Player::Update()
@@ -291,6 +300,11 @@ void Player::Update()
 
     if (posY > 544)
         posY = 544;
+
+    rectBody.x = Sint16(posX);
+    rectBody.y = Sint16(posY);
+    rectPipe.x = Sint16(posX);
+    rectPipe.y = Sint16(posY);
 }
 
 void Player::HandleTimers(unsigned int diff_time)

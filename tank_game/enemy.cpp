@@ -26,10 +26,11 @@ Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe
     screen = game->GetScreen();
     lastPointIncreaseTime = 0;
     isDead = false;
-    randomShootTimer = urand(1000, 15000);
+    randomShootTimer = urand(4000, 10000);
     moveSpeed[MOVE_TYPE_FORWARD] = NPC_MOVES_SPEED_FORWARD;
     moveSpeed[MOVE_TYPE_BACKWARD] = NPC_MOVES_SPEED_BACKWARD;
     inSlowArea = false;
+    bulletCount = 0;
 }
 
 void Enemy::Update()
@@ -55,18 +56,128 @@ void Enemy::Update()
         inSlowArea = false;
     }
 
-    if (!randomShootTimer)
+    if (canShoot && !randomShootTimer)// && bulletCount < PLAYER_MAX_BULLETS)
     {
         float bulletX = float(posX + (PLAYER_WIDTH / 2) - 12) + (16 / 2);
         float bulletY = float(posY + (PLAYER_HEIGHT / 2) - 12) + (16 / 2);
+        float bulletNewX = bulletX;
+        float bulletNewY = bulletY;
+        float bulletVelX = PLAYER_BULLET_SPEED_X;
+        float bulletVelY = PLAYER_BULLET_SPEED_Y;
+        int hitWallTimes = 0;
+        bool hitsWall = false;
+        bool hitsEnemyOnPath = false;
+        SDL_Rect bulletRectNew = { Sint16(bulletNewX), Sint16(bulletNewY), BULLET_WIDTH, BULLET_HEIGHT };
+        std::vector<SDL_Rect2> wallRects = game->GetWalls();
+        Player* player = game->GetPlayer();
 
-        if (Bullet* bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false))
+        if (!player)
+            return;
+
+        if (!IsInRange(posX, player->GetPosX(), posY, player->GetPosY(), 80.0f))
         {
-            game->AddBullet(bullet);
-            //AddBullet(bullet);
-        }
+            for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+            {
+                if ((*itr).visible && WillCollisionAt(&bulletRectNew, &(*itr)))
+                {
+                    hitsWall = true;
+                    break;
+                }
+            }
 
-        randomShootTimer = urand(4000, 19000);
+            if (!hitsWall)
+            {
+                for (int i = 0; i < 300; ++i)
+                {
+                    bulletNewX += float(cos(rotatingPipeAngle * M_PI / 180.0) * bulletVelX);
+                    bulletNewY -= float(sin(rotatingPipeAngle * M_PI / 180.0) * bulletVelY);
+                    bulletRectNew.x = Sint16(bulletNewX);
+                    bulletRectNew.y = Sint16(bulletNewY);
+                    //hitsEnemyOnPath = false;
+
+                    for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+                    {
+                        if ((*itr).visible && WillCollisionAt(&bulletRectNew, &(*itr)) && hitWallTimes < PLAYER_BULLET_LIFES)
+                        {
+                            bool hitLeftSide = false, hitRightSide = false, hitBottomSide = false, hitUpperSide = false, setWhichSideHit = false;
+
+                            if (bulletRectNew.x + bulletRectNew.w - 2 <= (*itr).x) //! Left
+                            {
+                                hitLeftSide = true;
+	                            setWhichSideHit = true;
+                            }
+
+                            if (!setWhichSideHit && (*itr).x + (*itr).w - 2 <= bulletRectNew.x) //! Right
+                            {
+                                hitRightSide = true;
+	                            setWhichSideHit = true;
+                            }
+
+                            if (!setWhichSideHit && bulletRectNew.y + bulletRectNew.h -2 >= (*itr).y) //! Bottom
+                            {
+                                hitBottomSide = true;
+	                            setWhichSideHit = false;
+                            }
+
+                            if (!setWhichSideHit && (*itr).y + (*itr).h - 2 >= bulletRectNew.y) //! Top
+                            {
+                                hitUpperSide = true;
+	                            setWhichSideHit = false;
+                            }
+
+                            if (hitLeftSide || hitRightSide)
+                            {
+                                hitWallTimes++;
+                                bulletVelX = -bulletVelX;
+                                bulletNewY += float(sin(rotatingPipeAngle * M_PI / 180.0) * bulletVelX) * 1.5f;
+                                bulletNewX = hitLeftSide ? bulletNewX - 5 : bulletNewX + 5;
+                            }
+                            else if (hitBottomSide || hitUpperSide)
+                            {
+                                hitWallTimes++;
+                                bulletVelY = -bulletVelY;
+                                bulletNewX -= float(cos(rotatingPipeAngle * M_PI / 180.0) * bulletVelY) * 1.5f;
+                                bulletNewY = hitUpperSide ? bulletNewY - 5 : bulletNewY + 5;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    std::vector<Enemy*> _enemies = game->GetEnemies();
+
+                    if (!_enemies.empty())
+                    {
+                        for (std::vector<Enemy*>::iterator itr = _enemies.begin(); itr != _enemies.end(); ++itr)
+                        {
+                            if ((*itr)->IsAlive() && WillCollisionAt(&(*itr)->GetRotatedBodyRect(), &bulletRectNew))
+                            {
+                                //hitsEnemyOnPath = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (hitsEnemyOnPath)
+                        break;
+
+                    if (WillCollisionAt(&player->GetRectBody(), &bulletRectNew))
+                    {
+                        if (Bullet* bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false))
+                        {
+                            game->AddBullet(bullet);
+                            //AddBullet(bullet);
+                            canShoot = false;
+                            shootCooldown = 200;
+                            bulletCount++;
+                            break;
+                        }
+                    }
+                }
+
+                randomShootTimer = urand(100, 400);
+            }
+        }
     }
 
     if (!waypoints.empty())
@@ -512,4 +623,10 @@ void Enemy::InitializeWaypoints(bool eraseCurrent /* = false */)
 void Enemy::AddWaypointPath(WaypointInformation wpInfo)
 {
     return;
+}
+
+void Enemy::JustDied()
+{
+    isDead = true;
+    game->AddBigExplosion(posX, posY, 0, 80);
 }

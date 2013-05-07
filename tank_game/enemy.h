@@ -75,9 +75,14 @@ class Enemy
         void AddWaypointPath(WaypointInformation wpInfo);
         std::vector<WaypointInformation>& GetWaypoints() { return waypoints; }
 
-        void JustDied() { isDead = true; }
+        void JustDied();
         bool IsAlive() { return !isDead; }
         void SetIsAlive(bool val) { isDead = !val; }
+
+        Uint8 GetBulletCount() { return bulletCount; }
+        void IncrBulletCount() { bulletCount++; }
+        void DecrBulletCount() { bulletCount--; }
+        void SetBulletCount(int val) { bulletCount = val; }
 
     private:
         SDL_Surface* screen;
@@ -109,4 +114,6 @@ class Enemy
 
         float moveSpeed[MOVE_TYPE_MAX];
         bool inSlowArea;
+
+        Uint8 bulletCount;
 };

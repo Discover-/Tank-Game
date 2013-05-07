@@ -6,13 +6,15 @@ class Enemy;
 class Bullet
 {
     public:
-        Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool shooterIsPlr = true);
+        Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool shooterIsPlr = true, int life = 2);
         ~Bullet();
 
         void Update();
         void Explode(bool showExplosion = true);
         SDL_Surface* GetSurface() { return image; }
         void SetRemainingLife(unsigned int _life) { life = _life; }
+        unsigned int GetRemainingLife() { return life; }
+
         SDL_Rect GetRectangle() { return bulletRect; }
         bool IsRemoved() { return isRemoved; }
         float GetPosX() { return posX; }

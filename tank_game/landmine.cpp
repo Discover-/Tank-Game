@@ -20,6 +20,7 @@ Landmine::Landmine(Game* _game, SDL_Surface* _screen, float x, float y)
     timerTillExplode = 15000;
     countdownTenMs = 0;
     timerImage = false;
+    steppedOn = false;
 
     SDL_SetColorKey(imageNormal, SDL_SRCCOLORKEY, COLOR_WHITE);
     SDL_BlitSurface(imageNormal, NULL, screen, &landmineRect);
@@ -120,7 +121,7 @@ void Landmine::Update()
     SDL_SetColorKey(timerImage ? imageTimer : imageNormal, SDL_SRCCOLORKEY, COLOR_WHITE);
     SDL_BlitSurface(timerImage ? imageTimer : imageNormal, NULL, screen, &landmineRect);
 
-    if (!explosionDelay)
+    if (!explosionDelay && !steppedOn)
     {
         if (Player* player = game->GetPlayer())
         {
@@ -134,6 +135,7 @@ void Landmine::Update()
             {
                 //Explode();
                 timerTillExplode = 50;
+                steppedOn = true;
                 return;
             }
         }
@@ -154,6 +156,7 @@ void Landmine::Update()
                 {
                     //Explode();
                     timerTillExplode = 50;
+                    steppedOn = true;
                     return;
                 }
             }

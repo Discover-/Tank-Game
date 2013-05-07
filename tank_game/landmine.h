@@ -34,5 +34,5 @@ class Landmine
         float posX, posY;
         unsigned int explosionDelay;
         unsigned int timerTillExplode, countdownTenMs;
-        bool timerImage;
+        bool timerImage, steppedOn;
 };

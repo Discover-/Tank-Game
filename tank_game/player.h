@@ -40,6 +40,12 @@ class Player
         void SetShootCooldown(unsigned int val) { shootCooldown = val; }
         void SetPlaceLandmineCooldown(unsigned int val) { landmineCooldown = val; }
 
+        void SetRectPipe(SDL_Rect rect) { rectPipe = rect; }
+        void SetRectBody(SDL_Rect rect) { rectBody = rect; }
+        void SetRectPipeBody(SDL_Rect rectPipe, SDL_Rect rectBody) { rectPipe = rectPipe; rectBody = rectBody; }
+        SDL_Rect GetRectPipe() { return rectPipe; }
+        SDL_Rect GetRectBody() { return rectBody; }
+
     private:
         Game* game;
         float posX, posY;
@@ -54,4 +60,5 @@ class Player
         std::vector<Bullet*> bullets;
         std::vector<Landmine*> landmines;
         bool inSlowArea;
+        SDL_Rect rectPipe, rectBody;
 };
