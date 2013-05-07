@@ -13,14 +13,13 @@ TODO:
 - Remove bullets from Game::allBullets when they exploded.
 - Create public class 'Unit' for classes Player and Enemy for shared functionalities.
 - Implement a method to identify enemies (guids held in database perhaps?) so we can properly reduce bullet count when a bullet is shot.
+- Add a database to the system that comes with the game. This means you can't install the game if you're not going to create the database (that comes with it) too, though.
+  * Table for bullet types with BMP filename of image, speed, lifes, etc.
+  * Respective tables for enemies and players including guid, speed, bulletcount, BMP filename of image (model), etc.
+  * Table for all objects (walls, for example).
+- Instead of having one player at the time, allow the possibility of playing multiplayer (1 versus 1, 2 versus NPCs, etc.).
+- Level design storing in XML.
 
 DONE:
 - Figure out why distance check for landmine explosions isn't working (the 2D distance formula should work...)
 - Figure out issues with collision on some of the walls. Possible cause might be that we stop iterating over walls when we found a collision.
-
-
-
-
-
-- Landmines no longer start their timer from scratch when walking over one while it's already counting down.
-- 
