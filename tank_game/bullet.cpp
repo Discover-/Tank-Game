@@ -9,7 +9,6 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipe
     image = SDL_LoadBMP("bullet.bmp");
     xVelocity = PLAYER_BULLET_SPEED_X;
     yVelocity = PLAYER_BULLET_SPEED_Y;
-    life = PLAYER_BULLET_LIFES;
     isRemoved = false;
     directionAngle = _pipeAngle;
     rotateAngle = _pipeAngle;
