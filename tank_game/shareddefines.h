@@ -47,6 +47,15 @@ enum MoveTypes
 
 #define MOVE_TYPE_MAX     2
 
+enum SideHit
+{
+    SIDE_LEFT           = 0,
+    SIDE_RIGHT          = 1,
+    SIDE_BOTTOM         = 2,
+    SIDE_TOP            = 3,
+    SIDE_MAX            = 4,
+};
+
 struct RGB
 {
     //SDL_PixelFormat const* format;
@@ -86,11 +95,12 @@ struct MineExplosions
 struct SDL_Rect2
 {
     SDL_Rect2() : x(0), y(0), w(0), h(0), breakable(false), visible(true) { }
-
     Sint16 x, y;
     Uint16 w, h;
     bool breakable;
     bool visible;
+
+    SDL_Rect GetNormalRect() { SDL_Rect rect = { x, y, w, h }; return rect; }
 };
 
 inline int urand(int min, int max)
@@ -98,22 +108,22 @@ inline int urand(int min, int max)
     return (rand() % (max - min + 1) + min);
 }
 
-inline bool WillCollisionAt(SDL_Rect* rect1, SDL_Rect* rect2)
+inline bool WillCollision(SDL_Rect* rect1, SDL_Rect* rect2)
 {
     return !(rect1->y >= rect2->y + rect2->h || rect1->x >= rect2->x + rect2->w || rect1->y + rect1->h <= rect2->y || rect1->x + rect1->w <= rect2->x);
 }
 
-inline bool WillCollisionAt(SDL_Rect* rect1, SDL_Rect2* rect2)
+inline bool WillCollision(SDL_Rect* rect1, SDL_Rect2* rect2)
 {
     return !(rect1->y >= rect2->y + rect2->h || rect1->x >= rect2->x + rect2->w || rect1->y + rect1->h <= rect2->y || rect1->x + rect1->w <= rect2->x);
 }
 
-inline bool WillCollisionAt(SDL_Rect2* rect1, SDL_Rect* rect2)
+inline bool WillCollision(SDL_Rect2* rect1, SDL_Rect* rect2)
 {
     return !(rect1->y >= rect2->y + rect2->h || rect1->x >= rect2->x + rect2->w || rect1->y + rect1->h <= rect2->y || rect1->x + rect1->w <= rect2->x);
 }
 
-inline bool WillCollisionAt(SDL_Rect2* rect1, SDL_Rect2* rect2)
+inline bool WillCollision(SDL_Rect2* rect1, SDL_Rect2* rect2)
 {
     return !(rect1->y >= rect2->y + rect2->h || rect1->x >= rect2->x + rect2->w || rect1->y + rect1->h <= rect2->y || rect1->x + rect1->w <= rect2->x);
 }
@@ -122,4 +132,56 @@ inline bool IsInRange(float currX, float xDest, float currY, float yDest, float 
 {
     return ((currX < xDest - distance && currX > xDest + distance && currY < yDest - distance && currY > yDest + distance) ||
             (currX > xDest - distance && currX < xDest + distance && currY > yDest - distance && currY < yDest + distance));
+}
+
+inline bool HitLeftSide(SDL_Rect* rect1, SDL_Rect* rect2)
+{
+    if (WillCollision(rect1, rect2) && rect1->x + rect1->w - 2 <= rect2->x)
+        return true;
+
+    return false;
+}
+
+inline bool HitRightSide(SDL_Rect* rect1, SDL_Rect* rect2)
+{
+    if (WillCollision(rect1, rect2) && rect2->x + rect2->w - 2 <= rect1->x)
+        return true;
+
+    return false;
+}
+
+inline bool HitBottomSide(SDL_Rect* rect1, SDL_Rect* rect2)
+{
+    if (WillCollision(rect1, rect2) && rect1->y + rect1->h -2 >= rect2->y)
+        return true;
+
+    return false;
+}
+
+inline bool HitTopSide(SDL_Rect* rect1, SDL_Rect* rect2)
+{
+    if (WillCollision(rect1, rect2) && rect2->y + rect2->h - 2 >= rect1->y)
+        return true;
+
+    return false;
+}
+
+inline SideHit GetHitSide(SDL_Rect* rect1, SDL_Rect* rect2)
+{
+    if (!WillCollision(rect1, rect2))
+        return SIDE_MAX;
+
+    if (HitLeftSide(rect1, rect2))
+        return SIDE_LEFT;
+
+    if (HitRightSide(rect1, rect2))
+        return SIDE_RIGHT;
+
+    if (HitBottomSide(rect1, rect2))
+        return SIDE_BOTTOM;
+
+    if (HitTopSide(rect1, rect2))
+        return SIDE_TOP;
+
+    return SIDE_MAX;
 }

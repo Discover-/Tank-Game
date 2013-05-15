@@ -29,7 +29,7 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipe
     //std::vector<SDL_Rect2> wallRects = game->GetWalls();
     //for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
     //{
-    //    if ((*itr).visible && WillCollisionAt(&bulletRect, &(*itr)))
+    //    if ((*itr).visible && WillCollision(&bulletRect, &(*itr)))
     //    {
     //        Explode(false);
     //        return;
@@ -123,7 +123,7 @@ void Bullet::Update()
             plrRect.y = Sint16(player->GetPosY());
             plrRect.w = PLAYER_WIDTH;
             plrRect.h = PLAYER_HEIGHT;
-            collision = WillCollisionAt(&bulletRect, &plrRect);
+            collision = WillCollision(&bulletRect, &plrRect);
         }
 
         std::vector<Bullet*> _bullets = game->GetAllBullets();
@@ -139,7 +139,7 @@ void Bullet::Update()
                     {
                         otherBulletRec = (*itr)->bulletRect;
 
-                        if (WillCollisionAt(&bulletRect, &otherBulletRec))
+                        if (WillCollision(&bulletRect, &otherBulletRec))
                         {
                             (*itr)->SetRemainingLife(0); //! Allebei de kogels mogen kapot
                             collision = true;
@@ -157,7 +157,7 @@ void Bullet::Update()
                 {
                     for (std::vector<Landmine*>::iterator itr = _landmines.begin(); itr != _landmines.end(); ++itr)
                     {
-                        if (!(*itr)->IsRemoved() && WillCollisionAt(&bulletRect, &(*itr)->GetRectangle()))
+                        if (!(*itr)->IsRemoved() && WillCollision(&bulletRect, &(*itr)->GetRectangle()))
                         {
                             showExplosion = false;
                             (*itr)->Explode();
@@ -171,47 +171,23 @@ void Bullet::Update()
             std::vector<SDL_Rect2> wallRects = game->GetWalls();
             for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
-                if ((*itr).visible && WillCollisionAt(&_bulletRect, &(*itr)))
+                if ((*itr).visible && WillCollision(&_bulletRect, &(*itr)))
                 {
-                    bool hitLeftSide = false, hitRightSide = false, hitBottomSide = false, hitUpperSide = false, setWhichSideHit = false;
+                    SideHit hitSide = GetHitSide(&_bulletRect, &(*itr).GetNormalRect());
 
-                    if (bulletRect.x + bulletRect.w - 2 <= (*itr).x) //! Left
-                    {
-                        hitLeftSide = true;
-	                    setWhichSideHit = true;
-                    }
-
-                    if (!setWhichSideHit && (*itr).x + (*itr).w - 2 <= bulletRect.x) //! Right
-                    {
-                        hitRightSide = true;
-	                    setWhichSideHit = true;
-                    }
-
-                    if (!setWhichSideHit && bulletRect.y + bulletRect.h -2 >= (*itr).y) //! Bottom
-                    {
-                        hitBottomSide = true;
-	                    setWhichSideHit = false;
-                    }
-
-                    if (!setWhichSideHit && (*itr).y + (*itr).h - 2 >= bulletRect.y) //! Top
-                    {
-                        hitUpperSide = true;
-	                    setWhichSideHit = false;
-                    }
-
-                    if (hitLeftSide || hitRightSide)
+                    if (hitSide == SIDE_LEFT || hitSide == SIDE_RIGHT)
                     {
                         rotateAngle = 180 - rotateAngle;
                         xVelocity = -xVelocity;
                         posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
-                        posX = hitLeftSide ? posX - 5 : posX + 5;
+                        posX = hitSide == SIDE_LEFT ? posX - 5 : posX + 5;
                     }
-                    else if (hitBottomSide || hitUpperSide)
+                    else if (hitSide == SIDE_BOTTOM || hitSide == SIDE_TOP)
                     {
                         rotateAngle = -rotateAngle;
                         yVelocity = -yVelocity;
                         posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
-                        posY = hitUpperSide ? posY - 5 : posY + 5;
+                        posY = hitSide == SIDE_TOP ? posY - 5 : posY + 5;
                     }
 
                     life--;
@@ -229,7 +205,7 @@ void Bullet::Update()
             {
                 for (std::vector<Enemy*>::iterator itr = _enemies.begin(); itr != _enemies.end(); ++itr)
                 {
-                    if ((*itr)->IsAlive() && WillCollisionAt(&bulletRect, &(*itr)->GetRotatedBodyRect()))
+                    if ((*itr)->IsAlive() && WillCollision(&bulletRect, &(*itr)->GetRotatedBodyRect()))
                     {
                         (*itr)->JustDied();
                         Explode(false);

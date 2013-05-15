@@ -19,6 +19,7 @@ TODO:
   * Table for all objects (walls, for example).
 - Instead of having one player at the time, allow the possibility of playing multiplayer (1 versus 1, 2 versus NPCs, etc.).
 - Level design storing in XML.
+- Translate all Dutch comments into English.
 
 DONE:
 - Figure out why distance check for landmine explosions isn't working (the 2D distance formula should work...)

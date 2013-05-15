@@ -131,7 +131,7 @@ void Landmine::Update()
             plrRect.w = PLAYER_WIDTH;
             plrRect.h = PLAYER_HEIGHT;
 
-            if (WillCollisionAt(&landmineRect, &plrRect))
+            if (WillCollision(&landmineRect, &plrRect))
             {
                 //Explode();
                 timerTillExplode = 50;
@@ -152,7 +152,7 @@ void Landmine::Update()
                 npcRect.w = 45;
                 npcRect.h = 51;
 
-                if (WillCollisionAt(&landmineRect, &npcRect))
+                if (WillCollision(&landmineRect, &npcRect))
                 {
                     //Explode();
                     timerTillExplode = 50;

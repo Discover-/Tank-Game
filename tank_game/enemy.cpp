@@ -80,7 +80,7 @@ void Enemy::Update()
         {
             for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
-                if ((*itr).visible && WillCollisionAt(&bulletRect, &(*itr)))
+                if ((*itr).visible && WillCollision(&bulletRect, &(*itr)))
                 {
                     hitsWallOnStart = true;
                     break;
@@ -99,47 +99,23 @@ void Enemy::Update()
 
                     for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
                     {
-                        if ((*itr).visible && WillCollisionAt(&bulletRect, &(*itr)) && hitWallTimes < PLAYER_BULLET_LIFES)
+                        if ((*itr).visible && WillCollision(&bulletRect, &(*itr)) && hitWallTimes < PLAYER_BULLET_LIFES)
                         {
-                            bool hitLeftSide = false, hitRightSide = false, hitBottomSide = false, hitUpperSide = false, setWhichSideHit = false;
+                            SideHit hitSide = GetHitSide(&bulletRect, &(*itr).GetNormalRect());
 
-                            if (bulletRect.x + bulletRect.w - 2 <= (*itr).x) //! Left
-                            {
-                                hitLeftSide = true;
-	                            setWhichSideHit = true;
-                            }
-
-                            if (!setWhichSideHit && (*itr).x + (*itr).w - 2 <= bulletRect.x) //! Right
-                            {
-                                hitRightSide = true;
-	                            setWhichSideHit = true;
-                            }
-
-                            if (!setWhichSideHit && bulletRect.y + bulletRect.h -2 >= (*itr).y) //! Bottom
-                            {
-                                hitBottomSide = true;
-	                            setWhichSideHit = false;
-                            }
-
-                            if (!setWhichSideHit && (*itr).y + (*itr).h - 2 >= bulletRect.y) //! Top
-                            {
-                                hitUpperSide = true;
-	                            setWhichSideHit = false;
-                            }
-
-                            if (hitLeftSide || hitRightSide)
+                            if (hitSide == SIDE_LEFT || hitSide == SIDE_RIGHT)
                             {
                                 hitWallTimes++;
                                 bulletVelX = -bulletVelX;
                                 bulletNewY += float(sin(rotatingPipeAngle * M_PI / 180.0) * bulletVelX) * 1.5f;
-                                bulletNewX = hitLeftSide ? bulletNewX - 5 : bulletNewX + 5;
+                                bulletNewX = hitSide == SIDE_LEFT ? bulletNewX - 5 : bulletNewX + 5;
                             }
-                            else if (hitBottomSide || hitUpperSide)
+                            else if (hitSide == SIDE_BOTTOM || hitSide == SIDE_TOP)
                             {
                                 hitWallTimes++;
                                 bulletVelY = -bulletVelY;
                                 bulletNewX -= float(cos(rotatingPipeAngle * M_PI / 180.0) * bulletVelY) * 1.5f;
-                                bulletNewY = hitUpperSide ? bulletNewY - 5 : bulletNewY + 5;
+                                bulletNewY = hitSide == SIDE_TOP ? bulletNewY - 5 : bulletNewY + 5;
                             }
 
                             break;
@@ -152,7 +128,7 @@ void Enemy::Update()
                     {
                         for (std::vector<Enemy*>::iterator itr = _enemies.begin(); itr != _enemies.end(); ++itr)
                         {
-                            if ((*itr)->IsAlive() && WillCollisionAt(&(*itr)->GetRotatedBodyRect(), &bulletRect))
+                            if ((*itr)->IsAlive() && WillCollision(&(*itr)->GetRotatedBodyRect(), &bulletRect))
                             {
                                 //hitsEnemyOnPath = true;
                                 break;
@@ -163,7 +139,7 @@ void Enemy::Update()
                     if (hitsEnemyOnPath)
                         break;
 
-                    if (WillCollisionAt(&player->GetRectBody(), &bulletRect))
+                    if (WillCollision(&player->GetRectBody(), &bulletRect))
                     {
                         if (Bullet* bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false))
                         {
@@ -369,11 +345,11 @@ void Enemy::Update()
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if ((*itr).visible && WillCollisionAt(&npcRect, &(*itr)))
+            if ((*itr).visible && WillCollision(&npcRect, &(*itr)))
             {
                 foundCollision = true;
 
-                while (WillCollisionAt(&npcRect, &(*itr)))
+                while (WillCollision(&npcRect, &(*itr)))
                 {
                     newX -= 0.01f;
                     npcRect.x = Sint16(newX);
@@ -393,11 +369,11 @@ void Enemy::Update()
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if ((*itr).visible && WillCollisionAt(&npcRect, &(*itr)))
+            if ((*itr).visible && WillCollision(&npcRect, &(*itr)))
             {
                 foundCollision = true;
 
-                while (WillCollisionAt(&npcRect, &(*itr)))
+                while (WillCollision(&npcRect, &(*itr)))
                 {
                     newY += 0.01f;
                     npcRect.y = Sint16(newY);
