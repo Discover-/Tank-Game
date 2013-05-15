@@ -84,6 +84,8 @@ class Enemy
         void DecrBulletCount() { bulletCount--; }
         void SetBulletCount(int val) { bulletCount = val; }
 
+        float GetMoveSpeed(MoveTypes moveType) { return moveSpeed[moveType]; }
+
     private:
         SDL_Surface* screen;
         Game* game;

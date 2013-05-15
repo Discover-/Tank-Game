@@ -47,7 +47,7 @@ enum MoveTypes
 
 #define MOVE_TYPE_MAX     2
 
-enum SideHit
+enum CollisionSide
 {
     SIDE_LEFT           = 0,
     SIDE_RIGHT          = 1,
@@ -166,7 +166,7 @@ inline bool HitTopSide(SDL_Rect* rect1, SDL_Rect* rect2)
     return false;
 }
 
-inline SideHit GetHitSide(SDL_Rect* rect1, SDL_Rect* rect2)
+inline CollisionSide GetSideOfCollision(SDL_Rect* rect1, SDL_Rect* rect2)
 {
     if (!WillCollision(rect1, rect2))
         return SIDE_MAX;

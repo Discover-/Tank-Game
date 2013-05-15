@@ -141,7 +141,7 @@ void Bullet::Update()
 
                         if (WillCollision(&bulletRect, &otherBulletRec))
                         {
-                            (*itr)->SetRemainingLife(0); //! Allebei de kogels mogen kapot
+                            (*itr)->SetRemainingLife(0); //! Both bullets will be destroyed.
                             collision = true;
                             break;
                         }
@@ -173,21 +173,22 @@ void Bullet::Update()
             {
                 if ((*itr).visible && WillCollision(&_bulletRect, &(*itr)))
                 {
-                    SideHit hitSide = GetHitSide(&_bulletRect, &(*itr).GetNormalRect());
+                    CollisionSide collisionSide = GetSideOfCollision(&_bulletRect, &(*itr).GetNormalRect());
 
-                    if (hitSide == SIDE_LEFT || hitSide == SIDE_RIGHT)
+                    //! Now we place the bullet back a few pixels so it can properly turn and move into the new given direction.
+                    if (collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT)
                     {
                         rotateAngle = 180 - rotateAngle;
                         xVelocity = -xVelocity;
                         posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
-                        posX = hitSide == SIDE_LEFT ? posX - 5 : posX + 5;
+                        posX = collisionSide == SIDE_LEFT ? posX - 5 : posX + 5;
                     }
-                    else if (hitSide == SIDE_BOTTOM || hitSide == SIDE_TOP)
+                    else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
                     {
                         rotateAngle = -rotateAngle;
                         yVelocity = -yVelocity;
                         posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
-                        posY = hitSide == SIDE_TOP ? posY - 5 : posY + 5;
+                        posY = collisionSide == SIDE_TOP ? posY - 5 : posY + 5;
                     }
 
                     life--;

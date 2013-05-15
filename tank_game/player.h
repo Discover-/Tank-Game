@@ -46,6 +46,8 @@ class Player
         SDL_Rect GetRectPipe() { return rectPipe; }
         SDL_Rect GetRectBody() { return rectBody; }
 
+        float GetMoveSpeed(MoveTypes moveType) { return moveSpeed[moveType]; }
+
     private:
         Game* game;
         float posX, posY;

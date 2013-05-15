@@ -3,12 +3,12 @@ TODO:
 - Gitignore
 - Mine explosions should use a frame animation type of system
 - Memoryleaks
-- When a player runs into an enemy or the other way around, they should push each other away.
-  * What happens if both players are moving forward and right into each other at the same time? No movement?
-  * Run a check if the new position of the enemy won't be inside a wall.
+- [DONE] When a player runs into an enemy or the other way around, they should push each other away.
+  * [DONE] Stop movement when both parties (enemy and player) are both moving right into each other.
+  * [DONE] Run a check if the new position of the enemy won't be inside a wall.
     > Can't place this check in Enemy::SetPosX/Y because we need to know whether we substract or add co-ordinates to the movement position in order to then do the opposite in order to move out of the wall/etc.
   * Remember to also add this functionality to the Enemy class for when a player tank is on their waypoint path.
-  * Move other unit away based on their current movement speed.
+  * Figure out a way so the enemy and player won't get 'stuck' together because they collided, making them move together as long as the forward key is held (player > enemy only).
 - Properly get rid of bullets instead of setting their position to out of the game (which is obviously just a temporarily solution).
 - Remove bullets from Game::allBullets when they exploded.
 - Create public class 'Unit' for classes Player and Enemy for shared functionalities.

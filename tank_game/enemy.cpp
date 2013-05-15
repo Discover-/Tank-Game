@@ -56,6 +56,11 @@ void Enemy::Update()
         inSlowArea = false;
     }
 
+    Player* player = game->GetPlayer();
+
+    if (!player)
+        return;
+
     if (canShoot && !randomShootTimer)// && bulletCount < PLAYER_MAX_BULLETS)
     {
         float bulletX = float(posX + (PLAYER_WIDTH / 2) - 12) + (16 / 2);
@@ -71,10 +76,6 @@ void Enemy::Update()
         bool hitsEnemyOnPath = false;
         SDL_Rect bulletRect = { Sint16(actualX), Sint16(actualY), BULLET_WIDTH, BULLET_HEIGHT };
         std::vector<SDL_Rect2> wallRects = game->GetWalls();
-        Player* player = game->GetPlayer();
-
-        if (!player)
-            return;
 
         if (!IsInRange(posX, player->GetPosX(), posY, player->GetPosY(), 80.0f))
         {
@@ -101,21 +102,21 @@ void Enemy::Update()
                     {
                         if ((*itr).visible && WillCollision(&bulletRect, &(*itr)) && hitWallTimes < PLAYER_BULLET_LIFES)
                         {
-                            SideHit hitSide = GetHitSide(&bulletRect, &(*itr).GetNormalRect());
+                            CollisionSide collisionSide = GetSideOfCollision(&bulletRect, &(*itr).GetNormalRect());
 
-                            if (hitSide == SIDE_LEFT || hitSide == SIDE_RIGHT)
+                            if (collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT)
                             {
                                 hitWallTimes++;
                                 bulletVelX = -bulletVelX;
                                 bulletNewY += float(sin(rotatingPipeAngle * M_PI / 180.0) * bulletVelX) * 1.5f;
-                                bulletNewX = hitSide == SIDE_LEFT ? bulletNewX - 5 : bulletNewX + 5;
+                                bulletNewX = collisionSide == SIDE_LEFT ? bulletNewX - 5 : bulletNewX + 5;
                             }
-                            else if (hitSide == SIDE_BOTTOM || hitSide == SIDE_TOP)
+                            else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
                             {
                                 hitWallTimes++;
                                 bulletVelY = -bulletVelY;
                                 bulletNewX -= float(cos(rotatingPipeAngle * M_PI / 180.0) * bulletVelY) * 1.5f;
-                                bulletNewY = hitSide == SIDE_TOP ? bulletNewY - 5 : bulletNewY + 5;
+                                bulletNewY = collisionSide == SIDE_TOP ? bulletNewY - 5 : bulletNewY + 5;
                             }
 
                             break;
@@ -333,58 +334,70 @@ void Enemy::Update()
                 ++itr;
         }
 
-        float newX = 0.0f;
-        float newY = 0.0f;
-        SDL_Rect npcRect = { Sint16(posX), Sint16(posY), 51, 45 };
-
-        newX = Sint16(posX + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
-        npcRect.x = Sint16(newX);
+        SDL_Rect npcNewRect = { Sint16(posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD])), Sint16(posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD])), PLAYER_WIDTH, PLAYER_HEIGHT };
         bool foundCollision = false;
 
         std::vector<SDL_Rect2> wallRects = game->GetWalls();
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if ((*itr).visible && WillCollision(&npcRect, &(*itr)))
+            if ((*itr).visible && WillCollision(&npcNewRect, &(*itr)))
             {
+                CollisionSide collisionSide = GetSideOfCollision(&npcNewRect, &(*itr).GetNormalRect());
                 foundCollision = true;
 
-                while (WillCollision(&npcRect, &(*itr)))
-                {
-                    newX -= 0.01f;
-                    npcRect.x = Sint16(newX);
-                }
+                //! Move up or down ONLY.
+                if (collisionSide == SIDE_RIGHT || collisionSide == SIDE_LEFT)
+                    posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+                //! Move to left or right ONLY.
+                else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
+                    posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
 
                 break;
             }
         }
 
-        if (!foundCollision)
-            posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
-
-        foundCollision = false;
-
-        newY = (posY - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
-        npcRect.y = Sint16(newY);
-
-        for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+        //! Pushing an enemy away logic.
         {
-            if ((*itr).visible && WillCollision(&npcRect, &(*itr)))
+            if (!foundCollision)
             {
-                foundCollision = true;
+                SDL_Rect currPlrRect = { Sint16(player->GetPosX()), Sint16(player->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
 
-                while (WillCollision(&npcRect, &(*itr)))
+                if (WillCollision(&rectBody, &currPlrRect))
                 {
-                    newY += 0.01f;
-                    npcRect.y = Sint16(newY);
-                }
+                    foundCollision = true; //! Maybe useful in the future - who knows..
 
-                break;
+                    //? TODO: Take mass in consideration (use some alg. or not?)
+                    float _newX = player->GetPosX() + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+                    float _newY = player->GetPosY() - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+                    SDL_Rect newNpcRect = { Sint16(_newX), Sint16(_newY), PLAYER_WIDTH, PLAYER_HEIGHT };
+
+                    for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
+                    {
+                        if ((*itrWall).visible && WillCollision(&newNpcRect, &(*itrWall)))
+                        {
+                            CollisionSide collisionSide = GetSideOfCollision(&newNpcRect, &(*itrWall).GetNormalRect());
+
+                            //! Move up or down ONLY.
+                            if (collisionSide == SIDE_RIGHT || collisionSide == SIDE_LEFT)
+                                _newX = player->GetPosX();
+                            //! Move to left or right ONLY.
+                            else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
+                                _newY = player->GetPosY();
+
+                            //! TODO: This will fix one issue but bring up another. If we are currently pushing the player into a corner and we only iterate over the first
+                            //! wall found in the iteration the player collides with and do this over and over, we will be pushed outside the game (through the walls).
+                            //! However, if we do NOT have this break here we will collide with more than one wall which often means we stop moving because both the _newX
+                            //! and the _newY variables are set to not be changed as we, for example, hit the upper side of one wall but the left side of another.
+                            break;
+                        }
+                    }
+
+                    player->SetPosX(_newX);
+                    player->SetPosY(_newY);
+                }
             }
         }
-
-        if (!foundCollision)
-            posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
 
         rectBody.x = Sint16(posX);
         rectBody.y = Sint16(posY);
