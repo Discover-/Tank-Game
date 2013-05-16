@@ -1,12 +1,5 @@
 //#include "game.h"
 
-/* Volledige idee:
- - Als er een tank (speler en computer-gestuurde tank) binnen X pixels van een landmijn komt moet hij beginnen met af te tellen. Na
-   drie seconden ontploft hij.
- - Alles in een radius zo groot als de explosie moet kapot (tanks, andere mijnen, breakable walls en kogels).
- - 
-*/
-
 class Game;
 
 class Landmine

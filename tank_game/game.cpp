@@ -219,12 +219,10 @@ int Game::Update()
     SDL_Surface* tmpWall = SDL_LoadBMP("wall.bmp");
     SDL_Surface* wall = SDL_DisplayFormat(tmpWall);
     SDL_FreeSurface(tmpWall);
-    //SDL_SetColorKey(wall, SDL_SRCCOLORKEY, COLOR_WHITE);
     
     SDL_Surface* tmpWallBreakable = SDL_LoadBMP("wall_breakable.bmp");
     SDL_Surface* wallBreakable = SDL_DisplayFormat(tmpWallBreakable);
     SDL_FreeSurface(tmpWallBreakable);
-    SDL_SetColorKey(wallBreakable, SDL_SRCCOLORKEY, COLOR_WHITE);
     
     SDL_Surface* tmpSlowArea = SDL_LoadBMP("slow_area.bmp");
     SDL_Surface* slowArea = SDL_DisplayFormat(tmpSlowArea);
@@ -246,16 +244,6 @@ int Game::Update()
         (*itr)->SetRotatedInfo(rotatedBodyNpc, rotatedPipeNpc, spriteBodyNpc, spritePipeNpc);
 
     int mouseX = 10, mouseY = 10;
-
-    //mineExplosionRect[0].x = 0;
-    //mineExplosionRect[0].y = 0;
-    //mineExplosionRect[0].w = 60;
-    //mineExplosionRect[0].h = 60;
-
-    //mineExplosionRect[1].x = 145;
-    //mineExplosionRect[1].y = 0;
-    //mineExplosionRect[1].w = 60;
-    //mineExplosionRect[1].h = 60;
 
     int last_time = 0;
     int curr_time = 0;
@@ -295,8 +283,8 @@ int Game::Update()
                     mouseX = _event.motion.x;
                     mouseY = _event.motion.y;
                     break;
-                //! Om de één of andere reden werkt movement nogal slecht als het in de Player class handled is via Player::Update, ookal
-                //! wordt die functie ook vanuit hier opgeroepen...
+                //! For whatever reason movement works really ugly if this key handling is handled in Player::Update, even though the function
+                //! would be called from the same place.. >_>
                 case SDL_KEYDOWN:
                 case SDL_KEYUP:
                     switch (_event.key.keysym.sym)
@@ -335,7 +323,9 @@ int Game::Update()
                             }
                             break;
                         case SDLK_r:
-                            //! Zet de speler terug naar de start positie als hij Shift + R indrukt en maak alle muren weer heel.
+                            //! Place the player back to the start position when pressing Shift + R. Also repair all walls, get rid
+                            //! of all currently flying bullets, reset bulletcount, respawn all enemies and let all enemies choose
+                            //! a new waypoint path to follow.
                             if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
                             {
                                 player->SetPosX(400.0f);
@@ -385,7 +375,7 @@ int Game::Update()
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                 {
-                    //! We plaatsen een landmijn wanneer er shift + muisklik gedaan wordt - dit is gewoon tijdelijk voor testen.
+                    //! Using Shift + Mouseclick will place a landmine at the mouse. This is a temporarily thing to make testing easier.
                     if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
                     {
                         if (Landmine* landmine = new Landmine(this, screen, _event.motion.x, _event.motion.y))
@@ -405,7 +395,6 @@ int Game::Update()
 
                         if (player->CanShoot())
                         {
-                            //! De 16 / 2 is de grootte en breedte van de muis.
                             float bulletX = float(player->GetPosX() + (PLAYER_WIDTH / 2) - 12) + (16 / 2);
                             float bulletY = float(player->GetPosY() + (PLAYER_HEIGHT / 2) - 12) + (16 / 2);
                             bool hitsWall = false;
@@ -491,7 +480,8 @@ int Game::Update()
             lastMouseY = _event.motion.y;
         }
 
-        //! Hiermee zorgen we ervoor dat rotozoomSurface het midden van de pijp (het kanon) pakt als 'source' om vanaf te rotaten.
+        //! This makes the rotozoomSurface (rotating the surface) functions properly take the center rather than
+        //! the upper left corner in consideration.
         recPipePlr.x -= rotatedPipePlr->w / 2 - spritePipePlr->w / 2;
         recPipePlr.y -= rotatedPipePlr->h / 2 - spritePipePlr->h / 2;
 
@@ -573,8 +563,7 @@ int Game::Update()
                 {
                     SDL_BlitSurface(srfc, NULL, screen, &itr->rect);
 
-                    //! TODO: Deze colorkey call zou niet hoeven aangezien er per surface maar één oproep tot color key nodig is (tenzij je
-                    //! de values wilt veranderen o.i.d.).
+                    //? TODO: Is this colorkey call neccessary?
                     SDL_SetColorKey(srfc, SDL_SRCCOLORKEY, SDL_MapRGB(srfc->format, itr->rgb.r, itr->rgb.g, itr->rgb.b));
                 }
                 else
@@ -662,7 +651,7 @@ int Game::Update()
     SDL_FreeSurface(rotatedBodyNpc);
     //SDLNet_TCP_Close(server);
     //SDLNet_Quit();
-    SDL_Quit(); //! 'Screen' wordt in SDL_Quit weggegooid.
+    SDL_Quit(); //! 'Screen' is dumped in SDL_Quit().
     return 0;
 }
 
@@ -805,8 +794,6 @@ bool Game::IsInSlowArea(float x, float y)
         float actualY = Sint16(itr->y - (itr->h / 2 - itr->h / 2));
         float _actualX = x - (PLAYER_WIDTH / 2 - PLAYER_WIDTH / 2);
         float _actualY = y - (PLAYER_HEIGHT / 2 - PLAYER_HEIGHT / 2);
-        //pipeRectEnemy.x -= rotatedPipeEnemy->w / 2 - rotatedPipeEnemy->w / 2;
-        //pipeRectEnemy.y -= rotatedPipeEnemy->h / 2 - rotatedPipeEnemy->h / 2;
 
         if (IsInRange(_actualX, actualX, _actualY, actualY, 100.0f))
             return true;

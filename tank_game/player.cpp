@@ -33,7 +33,6 @@ Player::Player(Game* _game, float x, float y)
 
 void Player::Update()
 {
-    //! We moeten deze event iedere updatecall opnieuw oproepen.
     //SDL_Event _event = game->GetEvent();
 
     if (game->IsInSlowArea(posX, posY))
@@ -127,10 +126,6 @@ void Player::Update()
                             (*itr)->SetPosX(_newX);
                             (*itr)->SetPosY(_newY);
                         }
-
-                        //! TEMP: This will prevent the player from pushing more than one enemy at the same time. Just a temporarily testing thing.
-                        //if (foundCollision)
-                        //    break;
                     }
                 }
             }
@@ -231,10 +226,6 @@ void Player::Update()
                             (*itr)->SetPosX(_newX);
                             (*itr)->SetPosY(_newY);
                         }
-
-                        //! TEMP: This will prevent the player from pushing more than one enemy at the same time. Just a temporarily testing thing.
-                        //if (foundCollision)
-                        //    break;
                     }
                 }
             }

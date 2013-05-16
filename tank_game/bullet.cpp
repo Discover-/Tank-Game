@@ -14,8 +14,7 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipe
     rotateAngle = _pipeAngle;
     screen = _screen;
 
-    //! We maken de x en y co-ordinaten groter zodra de kogel gemaakt wordt. De X en Y as die gegeven zijn (hoofdletters) zijn het midden
-    //! van de tank en niet de uitkomst van de pijp.
+    //! We need to do this so the position of the bullet doesn't start inside the tank itself.
     posX = x + float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 14.3f;
     posY = y - float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 14.3f;
 
@@ -89,7 +88,7 @@ void Bullet::Update()
     rotatedBullet = rotozoomSurface(image, rotateAngle, 1.0, 0);
     SDL_BlitSurface(rotatedBullet, NULL, screen, &_bulletRect);
 
-    //? TODO: directionAngle wordt alleen gegeven op constructor en is zelfde als pipeangle - wat was ik ook al weer denkende? o_o (hoe kan dit werken?)
+    //? TODO: directionAngle is only given in the constructor and is always the same as pipeAngle. How can this work and what was I thinking?
     posX += float(cos(directionAngle * M_PI / 180.0) * xVelocity);
     posY -= float(sin(directionAngle * M_PI / 180.0) * yVelocity);
     _bulletRect.x = Sint16(posX);

@@ -49,12 +49,6 @@ void Landmine::Explode(bool showExplosion /* = true */)
     {
         if ((*itr).breakable && (*itr).visible)
         {
-            //float dx = float((*itr).x - landmineRect.x);
-            //float dy = float((*itr).y - landmineRect.y);
-            //float dist = sqrt(double((dx * dx) + (dy * dy)));
-            //sqrt( pow( x2 - x1, 2 ) + pow( y2 - y1, 2 ) );
-            //if (dist > 0 && dist <= 20)
-
             if (IsInRange(landmineRect.x, (*itr).x, landmineRect.y, (*itr).y, 100.0f))
             {
                 (*itr).visible = false;
@@ -132,7 +126,6 @@ void Landmine::Update()
 
                 if (WillCollision(&landmineRect, &plrRect))
                 {
-                    //Explode();
                     timerTillExplode = 50;
                     steppedOn = true;
                     return;
@@ -154,7 +147,6 @@ void Landmine::Update()
 
                 if (WillCollision(&landmineRect, &npcRect))
                 {
-                    //Explode();
                     timerTillExplode = 50;
                     steppedOn = true;
                     return;

@@ -232,8 +232,6 @@ void Enemy::Update()
                     // (nieuweDirection - movingAngle) / aantalTicks;
                     //float currMovingAngle = double(atan2(posY - yDest, xDest - posX) * 180 / M_PI);
 
-                    //! TODO: Een beetje rare bug atm: nieuweDirection doet het op één hoek niet: de laatste. Daar is het resultaat ongeveer 155
-                    //! terwijl het ongeveer -150 moet zijn (dus negatief).
                     float nieuweDirection = float(atan2(posY - yDestNext, xDestNext - posX) * 180 / M_PI);
                     float aantalGraden = nieuweDirection - movingAngle;
                     float aantalGradenPerTick = aantalGraden / 29;
@@ -256,7 +254,7 @@ void Enemy::Update()
                 else
                     turningToNextPoint = false;
 
-                //! TODO: In plaats van lastPointIncreaseTime een integer genaamd lastPointTurned en verander op iedere nieuwe point turn.
+                //! TODO: Instead of using lastPointIncreaseTime we can use an int named lastPointTurned and we change this on every point turn.
                 //! if (lastPointIncreaseTime != pointId)
 
                 //between 3+ and 3-
@@ -365,7 +363,7 @@ void Enemy::Update()
 
                 if (WillCollision(&rectBody, &currPlrRect))
                 {
-                    foundCollision = true; //! Maybe useful in the future - who knows..
+                    foundCollision = true;
 
                     //? TODO: Take mass in consideration (use some alg. or not?)
                     float _newX = player->GetPosX() + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
@@ -440,10 +438,6 @@ void Enemy::Update()
                                 (*itr)->SetPosX(_newX);
                                 (*itr)->SetPosY(_newY);
                             }
-
-                            //! TEMP: This will prevent the player from pushing more than one enemy at the same time. Just a temporarily testing thing.
-                            //if (foundCollision)
-                            //    break;
                         }
                     }
                 }
@@ -605,7 +599,7 @@ void Enemy::InitializeWaypoints(bool eraseCurrent /* = false */)
                         node.y = 330.0f;
                         break;
                     default:
-                        return; //! Als we hier door zouden gaan komen er waypoints zonder X en Y as en dat willen we niet.
+                        return; //! If we don't return here we would continue with empty X and Y values making the entire fuck up.
                 }
                 break;
             }
@@ -626,7 +620,7 @@ void Enemy::InitializeWaypoints(bool eraseCurrent /* = false */)
                         node.y = 460.0f;
                         break;
                     default:
-                        return; //! Als we hier door zouden gaan komen er waypoints zonder X en Y as en dat willen we niet.
+                        return; //! If we don't return here we would continue with empty X and Y values making the entire fuck up.
                 }
                 break;
             }
@@ -647,7 +641,7 @@ void Enemy::InitializeWaypoints(bool eraseCurrent /* = false */)
                         node.y = 95.0f;
                         break;
                     default:
-                        return; //! Als we hier door zouden gaan komen er waypoints zonder X en Y as en dat willen we niet.
+                        return; //! If we don't return here we would continue with empty X and Y values making the entire fuck up.
                 }
                 break;
             }

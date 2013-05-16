@@ -27,7 +27,7 @@
 #define COLOR_WHITE                 SDL_MapRGB(screen->format, 0xff, 0xff, 0xff)
 #define COLOR_DARK_BLUE             SDL_MapRGB(screen->format, 0x00, 0x00, 0xff)
 #define COLOR_LIGHT_BLUE            SDL_MapRGB(screen->format, 0x00, 0xff, 0xff)
-#define COLOR_WHITE2                SDL_MapRGB(screen->format, 0xff, 0xff, 0xff) //! Lijkt een klein beetje donkerder wit
+#define COLOR_WHITE2                SDL_MapRGB(screen->format, 0xff, 0xff, 0xff) //! Looks a little dark white
 #define COLOR_GREEN                 SDL_MapRGB(screen->format, 0x00, 0xff, 0x00)
 #define COLOR_PINK                  SDL_MapRGB(screen->format, 0xff, 0x00, 0xff)
 
@@ -73,7 +73,7 @@ struct TemporarilySurfaces
     RGB rgb;
 };
 
-//! TODO: Dit implementeren...
+//! TODO: Implement this...
 /*struct RectangleInfo
 {
     float x;
@@ -91,7 +91,7 @@ struct MineExplosions
     Uint32 delay;
 };
 
-//! Een zelf-gemaakte kopie van structure SDL_Rect zodat we kunnen weten of een muur kapot te maken is d.m.b. landmijnen.
+//! A copy of the other default SDL_Rect coming with the SDL library. Required for walls and landmines.
 struct SDL_Rect2
 {
     SDL_Rect2() : x(0), y(0), w(0), h(0), breakable(false), visible(true) { }
