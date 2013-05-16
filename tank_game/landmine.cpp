@@ -118,22 +118,25 @@ void Landmine::Update()
     SDL_SetColorKey(timerImage ? imageTimer : imageNormal, SDL_SRCCOLORKEY, COLOR_WHITE);
     SDL_BlitSurface(timerImage ? imageTimer : imageNormal, NULL, screen, &landmineRect);
 
-    if (!explosionDelay && !steppedOn)
+    if (!steppedOn)
     {
-        if (Player* player = game->GetPlayer())
+        if (!explosionDelay)
         {
-            SDL_Rect plrRect;
-            plrRect.x = Sint16(player->GetPosX());
-            plrRect.y = Sint16(player->GetPosY());
-            plrRect.w = PLAYER_WIDTH;
-            plrRect.h = PLAYER_HEIGHT;
-
-            if (WillCollision(&landmineRect, &plrRect))
+            if (Player* player = game->GetPlayer())
             {
-                //Explode();
-                timerTillExplode = 50;
-                steppedOn = true;
-                return;
+                SDL_Rect plrRect;
+                plrRect.x = Sint16(player->GetPosX());
+                plrRect.y = Sint16(player->GetPosY());
+                plrRect.w = PLAYER_WIDTH;
+                plrRect.h = PLAYER_HEIGHT;
+
+                if (WillCollision(&landmineRect, &plrRect))
+                {
+                    //Explode();
+                    timerTillExplode = 50;
+                    steppedOn = true;
+                    return;
+                }
             }
         }
 
