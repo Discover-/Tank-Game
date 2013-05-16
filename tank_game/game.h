@@ -49,8 +49,7 @@ class Game
         void BlitSurface(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* dst, SDL_Rect* dstrect, RGB rgb);
         SDL_Surface* GetScreen() { return screen; }
         SDL_Event GetEvent() { return _event; }
-        std::vector<SDL_Rect2> GetWalls() { return wallRectangles; }
-        void SetWalls(std::vector<SDL_Rect2> _wallRectangles) { wallRectangles = _wallRectangles; }
+        std::vector<SDL_Rect2>& GetWalls() { return wallRectangles; }
         Player* GetPlayer() { return player; }
         void AddBullet(Bullet* bullet) { allBullets.push_back(bullet); }
         void AddLandmine(Landmine* landmine) { allLandmines.push_back(landmine); }

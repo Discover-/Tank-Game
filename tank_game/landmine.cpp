@@ -43,9 +43,8 @@ void Landmine::Explode(bool showExplosion /* = true */)
     //explosionRGB.g = 0x00;
     //explosionRGB.b = 0x00;
     //game->StoreSurfaceByTime("explosion_big.bmp", landmineRect, explosionRGB, 400);
-    
-    //! TODO: reference zodat er geen Game::SetWalls nodig is.
-    std::vector<SDL_Rect2> wallRects = game->GetWalls();
+
+    std::vector<SDL_Rect2>& wallRects = game->GetWalls();
     for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); )
     {
         if ((*itr).breakable && (*itr).visible)
@@ -67,8 +66,6 @@ void Landmine::Explode(bool showExplosion /* = true */)
         else
             ++itr;
     }
-
-    game->SetWalls(wallRects);
 
     std::vector<Bullet*> _bullets = game->GetAllBullets();
 
