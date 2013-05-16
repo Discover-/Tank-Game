@@ -357,7 +357,7 @@ void Enemy::Update()
             }
         }
 
-        //! Pushing an enemy away logic.
+        //! Pushing a player and other enemies away logic.
         {
             if (!foundCollision)
             {
@@ -370,13 +370,13 @@ void Enemy::Update()
                     //? TODO: Take mass in consideration (use some alg. or not?)
                     float _newX = player->GetPosX() + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
                     float _newY = player->GetPosY() - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
-                    SDL_Rect newNpcRect = { Sint16(_newX), Sint16(_newY), PLAYER_WIDTH, PLAYER_HEIGHT };
+                    SDL_Rect newPlrRect = { Sint16(_newX), Sint16(_newY), PLAYER_WIDTH, PLAYER_HEIGHT };
 
                     for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
                     {
-                        if ((*itrWall).visible && WillCollision(&newNpcRect, &(*itrWall)))
+                        if ((*itrWall).visible && WillCollision(&newPlrRect, &(*itrWall)))
                         {
-                            CollisionSide collisionSide = GetSideOfCollision(&newNpcRect, &(*itrWall).GetNormalRect());
+                            CollisionSide collisionSide = GetSideOfCollision(&newPlrRect, &(*itrWall).GetNormalRect());
 
                             //! Move up or down ONLY.
                             if (collisionSide == SIDE_RIGHT || collisionSide == SIDE_LEFT)
@@ -395,6 +395,57 @@ void Enemy::Update()
 
                     player->SetPosX(_newX);
                     player->SetPosY(_newY);
+                }
+
+                if (!foundCollision)
+                {
+                    std::vector<Enemy*> enemies = game->GetEnemies();
+
+                    for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
+                    {
+                        if ((*itr)->IsAlive() && (*itr) != this)
+                        {
+                            SDL_Rect currNpcRect = { Sint16((*itr)->GetPosX()), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
+
+                            if (WillCollision(&rectBody, &currNpcRect))
+                            {
+                                foundCollision = true;
+
+                                //? TODO: Take mass in consideration (use some alg. or not?)
+                                float _newX = (*itr)->GetPosX() + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+                                float _newY = (*itr)->GetPosY() - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+                                SDL_Rect newNpcRect = { Sint16(_newX), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
+
+                                for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
+                                {
+                                    if ((*itrWall).visible && WillCollision(&newNpcRect, &(*itrWall)))
+                                    {
+                                        CollisionSide collisionSide = GetSideOfCollision(&newNpcRect, &(*itrWall).GetNormalRect());
+
+                                        //! Move up or down ONLY.
+                                        if (collisionSide == SIDE_RIGHT || collisionSide == SIDE_LEFT)
+                                            _newX = (*itr)->GetPosX();
+                                        //! Move to left or right ONLY.
+                                        else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
+                                            _newY = (*itr)->GetPosY();
+
+                                        //! TODO: This will fix one issue but bring up another. If we are currently pushing an enemy into a corner and we only iterate over the first
+                                        //! wall found in the iteration the enemy collides with and do this over and over, we will be pushed outside the game (through the walls).
+                                        //! However, if we do NOT have this break here we will collide with more than one wall which often means we stop moving because both the _newX
+                                        //! and the _newY variables are set to not be changed as we, for example, hit the upper side of one wall but the left side of another.
+                                        break;
+                                    }
+                                }
+
+                                (*itr)->SetPosX(_newX);
+                                (*itr)->SetPosY(_newY);
+                            }
+
+                            //! TEMP: This will prevent the player from pushing more than one enemy at the same time. Just a temporarily testing thing.
+                            //if (foundCollision)
+                            //    break;
+                        }
+                    }
                 }
             }
         }
