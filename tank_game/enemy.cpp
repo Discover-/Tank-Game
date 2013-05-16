@@ -348,10 +348,10 @@ void Enemy::Update()
 
                 //! Move up or down ONLY.
                 if (collisionSide == SIDE_RIGHT || collisionSide == SIDE_LEFT)
-                    posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+                    posY += float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
                 //! Move to left or right ONLY.
                 else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
-                    posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+                    posX -= float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
 
                 break;
             }
