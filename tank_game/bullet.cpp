@@ -28,7 +28,7 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipe
     //std::vector<SDL_Rect2> wallRects = game->GetWalls();
     //for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
     //{
-    //    if ((*itr).visible && WillCollision(&bulletRect, &(*itr)))
+    //    if ((*itr).visible && WillCollision(bulletRect, (*itr)))
     //    {
     //        Explode(false);
     //        return;
@@ -80,19 +80,19 @@ void Bullet::Update()
     if (isRemoved || !game || !game->IsRunning())
         return;
 
-    SDL_Rect _bulletRect = { bulletRect.x, bulletRect.y, BULLET_WIDTH, BULLET_HEIGHT };
-    _bulletRect.x -= rotatedBullet->w / 2 - image->w / 2;
-    _bulletRect.y -= rotatedBullet->h / 2 - image->h / 2;
+    SDL_Rect newBulletRect = { bulletRect.x, bulletRect.y, BULLET_WIDTH, BULLET_HEIGHT };
+    newBulletRect.x -= rotatedBullet->w / 2 - image->w / 2;
+    newBulletRect.y -= rotatedBullet->h / 2 - image->h / 2;
 
     SDL_SetColorKey(image, SDL_SRCCOLORKEY, COLOR_WHITE);
     rotatedBullet = rotozoomSurface(image, rotateAngle, 1.0, 0);
-    SDL_BlitSurface(rotatedBullet, NULL, screen, &_bulletRect);
+    SDL_BlitSurface(rotatedBullet, NULL, screen, &newBulletRect);
 
     //? TODO: directionAngle is only given in the constructor and is always the same as pipeAngle. How can this work and what was I thinking?
     posX += float(cos(directionAngle * M_PI / 180.0) * xVelocity);
     posY -= float(sin(directionAngle * M_PI / 180.0) * yVelocity);
-    _bulletRect.x = Sint16(posX);
-    _bulletRect.y = Sint16(posY);
+    newBulletRect.x = Sint16(posX);
+    newBulletRect.y = Sint16(posY);
 
     if (game->IsInSlowArea(posX, posY))
     {
@@ -122,7 +122,7 @@ void Bullet::Update()
             plrRect.y = Sint16(player->GetPosY());
             plrRect.w = PLAYER_WIDTH;
             plrRect.h = PLAYER_HEIGHT;
-            collision = WillCollision(&bulletRect, &plrRect);
+            collision = WillCollision(bulletRect, plrRect);
         }
 
         std::vector<Bullet*> _bullets = game->GetAllBullets();
@@ -138,7 +138,7 @@ void Bullet::Update()
                     {
                         otherBulletRec = (*itr)->bulletRect;
 
-                        if (WillCollision(&bulletRect, &otherBulletRec))
+                        if (WillCollision(bulletRect, otherBulletRec))
                         {
                             (*itr)->SetRemainingLife(0); //! Both bullets will be destroyed.
                             collision = true;
@@ -156,7 +156,7 @@ void Bullet::Update()
                 {
                     for (std::vector<Landmine*>::iterator itr = _landmines.begin(); itr != _landmines.end(); ++itr)
                     {
-                        if (!(*itr)->IsRemoved() && WillCollision(&bulletRect, &(*itr)->GetRectangle()))
+                        if (!(*itr)->IsRemoved() && WillCollision(newBulletRect, (*itr)->GetRectangle()))
                         {
                             showExplosion = false;
                             (*itr)->Explode();
@@ -170,25 +170,34 @@ void Bullet::Update()
             std::vector<SDL_Rect2> wallRects = game->GetWalls();
             for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
-                if ((*itr).visible && WillCollision(&_bulletRect, &(*itr)))
+                if ((*itr).visible && WillCollision(newBulletRect, (*itr)))
                 {
-                    CollisionSide collisionSide = GetSideOfCollision(&_bulletRect, &(*itr).GetNormalRect());
+                    CollisionSide collisionSide = GetSideOfCollision(newBulletRect, (*itr).GetNormalRect());
 
                     //! Now we place the bullet back a few pixels so it can properly turn and move into the new given direction.
                     if (collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT)
                     {
                         rotateAngle = 180 - rotateAngle;
                         xVelocity = -xVelocity;
-                        posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
-                        posX = collisionSide == SIDE_LEFT ? posX - 5 : posX + 5;
+                        posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 3.5f;
+                        posX = collisionSide == SIDE_LEFT ? posX - 15 : posX + 15;
                     }
                     else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
                     {
                         rotateAngle = -rotateAngle;
                         yVelocity = -yVelocity;
-                        posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
-                        posY = collisionSide == SIDE_TOP ? posY - 5 : posY + 5;
+                        posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 3.5f;
+                        posY = collisionSide == SIDE_TOP ? posY - 15 : posY + 15;
                     }
+
+                    //#ifdef _DEBUG
+                        if (collisionSide != SIDE_MAX)
+                        {
+                            RGB dotRGB = { 0x00, 0x00, 0x00 };
+                            game->StoreSurfaceByTime(collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT ? "red-dot.bmp" : "yellow-dot.bmp", bulletRect, dotRGB, 30000);
+                            game->StoreSurfaceByTime(collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT ? "red-dot.bmp" : "yellow-dot.bmp", (*itr).GetNormalRect(), dotRGB, 30000);
+                        }
+                    //#endif
 
                     life--;
                     break;
@@ -205,7 +214,7 @@ void Bullet::Update()
             {
                 for (std::vector<Enemy*>::iterator itr = _enemies.begin(); itr != _enemies.end(); ++itr)
                 {
-                    if ((*itr)->IsAlive() && WillCollision(&bulletRect, &(*itr)->GetRotatedBodyRect()))
+                    if ((*itr)->IsAlive() && WillCollision(newBulletRect, (*itr)->GetRotatedBodyRect()))
                     {
                         (*itr)->JustDied();
                         Explode(false);

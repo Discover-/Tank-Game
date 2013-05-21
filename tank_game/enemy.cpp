@@ -81,7 +81,7 @@ void Enemy::Update()
         {
             for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
-                if ((*itr).visible && WillCollision(&bulletRect, &(*itr)))
+                if ((*itr).visible && WillCollision(bulletRect, (*itr)))
                 {
                     hitsWallOnStart = true;
                     break;
@@ -100,9 +100,9 @@ void Enemy::Update()
 
                     for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
                     {
-                        if ((*itr).visible && WillCollision(&bulletRect, &(*itr)) && hitWallTimes < PLAYER_BULLET_LIFES)
+                        if ((*itr).visible && WillCollision(bulletRect, (*itr)) && hitWallTimes < 1)
                         {
-                            CollisionSide collisionSide = GetSideOfCollision(&bulletRect, &(*itr).GetNormalRect());
+                            CollisionSide collisionSide = GetSideOfCollision(bulletRect, (*itr).GetNormalRect());
 
                             if (collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT)
                             {
@@ -129,7 +129,7 @@ void Enemy::Update()
                     {
                         for (std::vector<Enemy*>::iterator itr = _enemies.begin(); itr != _enemies.end(); ++itr)
                         {
-                            if ((*itr)->IsAlive() && WillCollision(&(*itr)->GetRotatedBodyRect(), &bulletRect))
+                            if ((*itr)->IsAlive() && WillCollision((*itr)->GetRotatedBodyRect(), bulletRect))
                             {
                                 //hitsEnemyOnPath = true;
                                 break;
@@ -140,7 +140,7 @@ void Enemy::Update()
                     if (hitsEnemyOnPath)
                         break;
 
-                    if (WillCollision(&player->GetRectBody(), &bulletRect))
+                    if (WillCollision(player->GetRectBody(), bulletRect))
                     {
                         if (Bullet* bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false))
                         {
@@ -339,9 +339,9 @@ void Enemy::Update()
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if ((*itr).visible && WillCollision(&npcNewRect, &(*itr)))
+            if ((*itr).visible && WillCollision(npcNewRect, (*itr)))
             {
-                CollisionSide collisionSide = GetSideOfCollision(&npcNewRect, &(*itr).GetNormalRect());
+                CollisionSide collisionSide = GetSideOfCollision(npcNewRect, (*itr).GetNormalRect());
                 foundCollision = true;
 
                 //! Move up or down ONLY.
@@ -361,7 +361,7 @@ void Enemy::Update()
             {
                 SDL_Rect currPlrRect = { Sint16(player->GetPosX()), Sint16(player->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
 
-                if (WillCollision(&rectBody, &currPlrRect))
+                if (WillCollision(rectBody, currPlrRect))
                 {
                     foundCollision = true;
 
@@ -372,9 +372,9 @@ void Enemy::Update()
 
                     for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
                     {
-                        if ((*itrWall).visible && WillCollision(&newPlrRect, &(*itrWall)))
+                        if ((*itrWall).visible && WillCollision(newPlrRect, (*itrWall)))
                         {
-                            CollisionSide collisionSide = GetSideOfCollision(&newPlrRect, &(*itrWall).GetNormalRect());
+                            CollisionSide collisionSide = GetSideOfCollision(newPlrRect, (*itrWall).GetNormalRect());
 
                             //! Move up or down ONLY.
                             if (collisionSide == SIDE_RIGHT || collisionSide == SIDE_LEFT)
@@ -405,7 +405,7 @@ void Enemy::Update()
                         {
                             SDL_Rect currNpcRect = { Sint16((*itr)->GetPosX()), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
 
-                            if (WillCollision(&rectBody, &currNpcRect))
+                            if (WillCollision(rectBody, currNpcRect))
                             {
                                 foundCollision = true;
 
@@ -416,9 +416,9 @@ void Enemy::Update()
 
                                 for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
                                 {
-                                    if ((*itrWall).visible && WillCollision(&newNpcRect, &(*itrWall)))
+                                    if ((*itrWall).visible && WillCollision(newNpcRect, (*itrWall)))
                                     {
-                                        CollisionSide collisionSide = GetSideOfCollision(&newNpcRect, &(*itrWall).GetNormalRect());
+                                        CollisionSide collisionSide = GetSideOfCollision(newNpcRect, (*itrWall).GetNormalRect());
 
                                         //! Move up or down ONLY.
                                         if (collisionSide == SIDE_RIGHT || collisionSide == SIDE_LEFT)

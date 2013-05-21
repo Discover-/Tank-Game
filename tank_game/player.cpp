@@ -66,11 +66,11 @@ void Player::Update()
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if ((*itr).visible && WillCollision(&plrRect, &(*itr)))
+            if ((*itr).visible && WillCollision(plrRect, (*itr)))
             {
                 foundCollision = true;
 
-                while (WillCollision(&plrRect, &(*itr)))
+                while (WillCollision(plrRect, (*itr)))
                 {
                     newX -= 0.01f;
                     plrRect.x = Sint16(newX);
@@ -90,7 +90,7 @@ void Player::Update()
                     {
                         SDL_Rect currNpcRect = { Sint16((*itr)->GetPosX()), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
 
-                        if (WillCollision(&plrRect, &currNpcRect))
+                        if (WillCollision(plrRect, currNpcRect))
                         {
                             foundCollision = true;
 
@@ -104,9 +104,9 @@ void Player::Update()
 
                             for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
                             {
-                                if ((*itrWall).visible && WillCollision(&newNpcRect, &(*itrWall)))
+                                if ((*itrWall).visible && WillCollision(newNpcRect, (*itrWall)))
                                 {
-                                    CollisionSide collisionSide = GetSideOfCollision(&newNpcRect, &(*itrWall).GetNormalRect());
+                                    CollisionSide collisionSide = GetSideOfCollision(newNpcRect, (*itrWall).GetNormalRect());
 
                                     //! Move up or down ONLY.
                                     if (collisionSide == SIDE_RIGHT || collisionSide == SIDE_LEFT)
@@ -139,11 +139,11 @@ void Player::Update()
 
             for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
-                if (WillCollision(&plrRect, &(*itr)))
+                if (WillCollision(plrRect, (*itr)))
                 {
                     foundCollision = true;
 
-                    while (WillCollision(&plrRect, &(*itr)))
+                    while (WillCollision(plrRect, (*itr)))
                     {
                         newY += 0.01f;
                         plrRect.y = Sint16(newY);
@@ -169,11 +169,11 @@ void Player::Update()
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
-            if ((*itr).visible && WillCollision(&plrRect, &(*itr)))
+            if ((*itr).visible && WillCollision(plrRect, (*itr)))
             {
                 foundCollision = true;
 
-                while (WillCollision(&plrRect, &(*itr)))
+                while (WillCollision(plrRect, (*itr)))
                 {
                     newX += 0.01f;
                     plrRect.x = Sint16(newX);
@@ -193,7 +193,7 @@ void Player::Update()
                     {
                         SDL_Rect currNpcRect = { Sint16((*itr)->GetPosX()), Sint16((*itr)->GetPosY()), PLAYER_WIDTH, PLAYER_HEIGHT };
 
-                        if (WillCollision(&plrRect, &currNpcRect))
+                        if (WillCollision(plrRect, currNpcRect))
                         {
                             foundCollision = true;
 
@@ -204,9 +204,9 @@ void Player::Update()
 
                             for (std::vector<SDL_Rect2>::iterator itrWall = wallRects.begin(); itrWall != wallRects.end(); ++itrWall)
                             {
-                                if ((*itrWall).visible && WillCollision(&newNpcRect, &(*itrWall)))
+                                if ((*itrWall).visible && WillCollision(newNpcRect, (*itrWall)))
                                 {
-                                    CollisionSide collisionSide = GetSideOfCollision(&newNpcRect, &(*itrWall).GetNormalRect());
+                                    CollisionSide collisionSide = GetSideOfCollision(newNpcRect, (*itrWall).GetNormalRect());
 
                                     //! Move up or down ONLY.
                                     if (collisionSide == SIDE_RIGHT || collisionSide == SIDE_LEFT)
@@ -239,11 +239,11 @@ void Player::Update()
 
             for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
-                if ((*itr).visible && WillCollision(&plrRect, &(*itr)))
+                if ((*itr).visible && WillCollision(plrRect, (*itr)))
                 {
                     foundCollision = true;
 
-                    while (WillCollision(&plrRect, &(*itr)))
+                    while (WillCollision(plrRect, (*itr)))
                     {
                         newY -= 0.01f;
                         plrRect.y = Sint16(newY);

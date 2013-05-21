@@ -404,7 +404,7 @@ int Game::Update()
 
                             for (std::vector<SDL_Rect2>::iterator itrWall = wallRectangles.begin(); itrWall != wallRectangles.end(); ++itrWall)
                             {
-                                if ((*itrWall).visible && WillCollision(&bulletRect, &(*itrWall)))
+                                if ((*itrWall).visible && WillCollision(bulletRect, (*itrWall)))
                                 {
                                     hitsWall = true;
                                     break;

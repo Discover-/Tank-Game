@@ -100,6 +100,7 @@ struct SDL_Rect2
     bool breakable;
     bool visible;
 
+    //! Return normal SDL_Rect without taking in consideration visible or breakable booleans.
     SDL_Rect GetNormalRect() { SDL_Rect rect = { x, y, w, h }; return rect; }
 };
 
@@ -108,24 +109,24 @@ inline int urand(int min, int max)
     return (rand() % (max - min + 1) + min);
 }
 
-inline bool WillCollision(SDL_Rect* rect1, SDL_Rect* rect2)
+inline bool WillCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
-    return !(rect1->y >= rect2->y + rect2->h || rect1->x >= rect2->x + rect2->w || rect1->y + rect1->h <= rect2->y || rect1->x + rect1->w <= rect2->x);
+    return !(rect1.y >= rect2.y + rect2.h || rect1.x >= rect2.x + rect2.w || rect1.y + rect1.h <= rect2.y || rect1.x + rect1.w <= rect2.x);
 }
 
-inline bool WillCollision(SDL_Rect* rect1, SDL_Rect2* rect2)
+inline bool WillCollision(SDL_Rect rect1, SDL_Rect2 rect2)
 {
-    return !(rect1->y >= rect2->y + rect2->h || rect1->x >= rect2->x + rect2->w || rect1->y + rect1->h <= rect2->y || rect1->x + rect1->w <= rect2->x);
+    return !(rect1.y >= rect2.y + rect2.h || rect1.x >= rect2.x + rect2.w || rect1.y + rect1.h <= rect2.y || rect1.x + rect1.w <= rect2.x);
 }
 
-inline bool WillCollision(SDL_Rect2* rect1, SDL_Rect* rect2)
+inline bool WillCollision(SDL_Rect2 rect1, SDL_Rect rect2)
 {
-    return !(rect1->y >= rect2->y + rect2->h || rect1->x >= rect2->x + rect2->w || rect1->y + rect1->h <= rect2->y || rect1->x + rect1->w <= rect2->x);
+    return !(rect1.y >= rect2.y + rect2.h || rect1.x >= rect2.x + rect2.w || rect1.y + rect1.h <= rect2.y || rect1.x + rect1.w <= rect2.x);
 }
 
-inline bool WillCollision(SDL_Rect2* rect1, SDL_Rect2* rect2)
+inline bool WillCollision(SDL_Rect2 rect1, SDL_Rect2 rect2)
 {
-    return !(rect1->y >= rect2->y + rect2->h || rect1->x >= rect2->x + rect2->w || rect1->y + rect1->h <= rect2->y || rect1->x + rect1->w <= rect2->x);
+    return !(rect1.y >= rect2.y + rect2.h || rect1.x >= rect2.x + rect2.w || rect1.y + rect1.h <= rect2.y || rect1.x + rect1.w <= rect2.x);
 }
 
 inline bool IsInRange(float currX, float xDest, float currY, float yDest, float distance)
@@ -134,39 +135,42 @@ inline bool IsInRange(float currX, float xDest, float currY, float yDest, float 
             (currX > xDest - distance && currX < xDest + distance && currY > yDest - distance && currY < yDest + distance));
 }
 
-inline bool HitLeftSide(SDL_Rect* rect1, SDL_Rect* rect2)
+inline bool HitLeftSide(SDL_Rect rect1, SDL_Rect rect2)
 {
-    if (WillCollision(rect1, rect2) && rect1->x + rect1->w - 2 <= rect2->x)
+    if (WillCollision(rect1, rect2) && rect1.x + rect1.w - 2 <= rect2.x)
         return true;
 
     return false;
 }
 
-inline bool HitRightSide(SDL_Rect* rect1, SDL_Rect* rect2)
+inline bool HitRightSide(SDL_Rect rect1, SDL_Rect rect2)
 {
-    if (WillCollision(rect1, rect2) && rect2->x + rect2->w - 2 <= rect1->x)
+    if (WillCollision(rect1, rect2) && rect2.x + rect2.w - 2 <= rect1.x)
         return true;
 
     return false;
 }
 
-inline bool HitBottomSide(SDL_Rect* rect1, SDL_Rect* rect2)
+inline bool HitBottomSide(SDL_Rect rect1, SDL_Rect rect2)
 {
-    if (WillCollision(rect1, rect2) && rect1->y + rect1->h -2 >= rect2->y)
+    if (WillCollision(rect1, rect2) && rect1.y + rect1.h -2 >= rect2.y)
         return true;
 
     return false;
 }
 
-inline bool HitTopSide(SDL_Rect* rect1, SDL_Rect* rect2)
+inline bool HitTopSide(SDL_Rect rect1, SDL_Rect rect2)
 {
-    if (WillCollision(rect1, rect2) && rect2->y + rect2->h - 2 >= rect1->y)
+    if (WillCollision(rect1, rect2) && rect2.y + rect2.h - 2 >= rect1.y)
         return true;
 
     return false;
 }
 
-inline CollisionSide GetSideOfCollision(SDL_Rect* rect1, SDL_Rect* rect2)
+//! Returns the side (check enumerator CollisionSide) of rect2 that is currently colliding with rect1. So say rect1 is a bullet and rect2 is a wall and the bullet
+//! hits the left side of the wall, it will return SIDE_LEFT. If you, however, switch the parameters so that rect1 is the wall and rect2 is the bullet, the result
+//! will (always, in the case for this example) be SIDE_RIGHT (because the right side of the _rotated_ bullet hits the wall).
+inline CollisionSide GetSideOfCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
     if (!WillCollision(rect1, rect2))
         return SIDE_MAX;
