@@ -84,6 +84,5 @@ class Game
         std::vector<Bullet*> allBullets;
         std::vector<Landmine*> allLandmines;
         std::vector<Enemy*> enemies;
-
-        Uint16 lastMouseX, lastMouseY;
+        int last_time, curr_time, diff_time;
 };

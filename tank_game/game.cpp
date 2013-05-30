@@ -4,8 +4,9 @@ Game::Game()
 {
     pipeAngle = 0;
     player = NULL;
-    lastMouseX = 0;
-    lastMouseY = 0;
+    last_time = 0;
+    curr_time = 0;
+    diff_time = 0;
 }
 
 Game::~Game()
@@ -243,12 +244,6 @@ int Game::Update()
     for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
         (*itr)->SetRotatedInfo(rotatedBodyNpc, rotatedPipeNpc, spriteBodyNpc, spritePipeNpc);
 
-    int mouseX = 10, mouseY = 10;
-
-    int last_time = 0;
-    int curr_time = 0;
-    int diff_time = 0;
-
     //IPaddress ip;
     //SDLNet_ResolveHost(&ip, NULL, 12345);
     //TCPsocket server = SDLNet_TCP_Open(&ip);
@@ -261,7 +256,6 @@ int Game::Update()
     while (isRunning && player)
     {
         SDL_FillRect(screen, NULL, COLOR_GREEN);
-
         startTime = SDL_GetTicks();
 
         //if (client = SDLNet_TCP_Accept(server))
@@ -279,14 +273,11 @@ int Game::Update()
                 case SDL_QUIT:
                     isRunning = false;
                     break;
-                case SDL_MOUSEMOTION:
-                    mouseX = _event.motion.x;
-                    mouseY = _event.motion.y;
-                    break;
                 //! For whatever reason movement works really ugly if this key handling is handled in Player::Update, even though the function
                 //! would be called from the same place.. >_>
                 case SDL_KEYDOWN:
                 case SDL_KEYUP:
+                {
                     switch (_event.key.keysym.sym)
                     {
                         case SDLK_UP:
@@ -306,6 +297,7 @@ int Game::Update()
                             player->SetKeysDown(3, _event.type == SDL_KEYDOWN);
                             break;
                         case SDLK_SPACE:
+                        {
                             if (player->GetLandmineCount() >= PLAYER_MAX_LANDMINES)
                                 break;
 
@@ -322,7 +314,9 @@ int Game::Update()
                                 player->IncrLandmineCount();
                             }
                             break;
+                        }
                         case SDLK_r:
+                        {
                             //! Place the player back to the start position when pressing Shift + R. Also repair all walls, get rid
                             //! of all currently flying bullets, reset bulletcount, respawn all enemies and let all enemies choose
                             //! a new waypoint path to follow.
@@ -365,6 +359,7 @@ int Game::Update()
                                 temporarilySurfaces.clear();
                             }
                             break;
+                        }
                         case SDLK_t:
                             if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
                                 for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
@@ -374,6 +369,7 @@ int Game::Update()
                             break;
                     }
                     break;
+                }
                 case SDL_MOUSEBUTTONDOWN:
                 {
                     //! Using Shift + Mouseclick will place a landmine at the mouse. This is a temporarily thing to make testing easier.
@@ -473,12 +469,9 @@ int Game::Update()
         player->SetRectPipeBody(recPipePlr, recBodyPlr);
 
         if (_event.type == SDL_MOUSEMOTION)
-        //if (lastMouseX != _event.motion.x || lastMouseY != _event.motion.y)
         {
             pipeAngle = double(atan2((plrY + (PLAYER_HEIGHT / 2)) - _event.motion.y, _event.motion.x - (plrX + (PLAYER_WIDTH / 2))) * 180 / M_PI);
             rotatedPipePlr = rotozoomSurface(spritePipePlr, pipeAngle, 1.0, 0);
-            lastMouseX = _event.motion.x;
-            lastMouseY = _event.motion.y;
         }
 
         //! This makes the rotozoomSurface (rotating the surface) functions properly take the center rather than
@@ -561,12 +554,7 @@ int Game::Update()
             for (std::vector<TemporarilySurfaces>::iterator itr = temporarilySurfaces.begin(); itr != temporarilySurfaces.end(); ++itr)
             {
                 if (SDL_Surface* srfc = itr->surface)
-                {
                     SDL_BlitSurface(srfc, NULL, screen, &itr->rect);
-
-                    //? TODO: Is this colorkey call neccessary?
-                    SDL_SetColorKey(srfc, SDL_SRCCOLORKEY, SDL_MapRGB(srfc->format, itr->rgb.r, itr->rgb.g, itr->rgb.b));
-                }
                 else
                 {
                     SDL_Surface* tmpSurface = SDL_LoadBMP(itr->bmpFile);
@@ -625,8 +613,6 @@ int Game::Update()
 
         SDL_BlitSurface(rotatedBodyPlr, NULL, screen, &recBodyPlr);
         SDL_BlitSurface(rotatedPipePlr, NULL, screen, &recPipePlr);
-
-        //DrawLine(screen, mouseX, mouseY, 300, 400);
 
         SDL_Flip(screen);
 
@@ -711,55 +697,6 @@ void Game::UnregistrateLandmine(Landmine* landmine)
         //landmine->~Landmine();
         //landmines.erase(_itr);
         //delete landmine; // freeze
-    }
-}
-
-void PlacePixel(SDL_Surface* dest, int x, int y, int r, int g, int b)
-{
-    if (x >= 0 && x < dest->w && y >= 0 && y < dest->h)
-        ((Uint32*)dest->pixels)[y * dest->pitch / 4 + x] = SDL_MapRGB(dest->format, r, g, b);
-}
-
-void SwapValues(int& a, int& b)
-{
-    int tmp = a;
-    a = b;
-    b = tmp;
-}
-
-void DrawLine(SDL_Surface* dest, int x0, int y0, int x1, int y1)
-{
-    bool step = abs(x1 - x0) < abs(y1 - y0);
-
-    if (step)
-    {
-        SwapValues(x0, y0);
-        SwapValues(x1, y1);
-        //SwapValues(x0, x1);
-        //SwapValues(y0, y1);
-    }
-
-    if (x1 < x0)
-    {
-        SwapValues(x0, x1);
-        SwapValues(y0, y1);
-    }
-
-    float error = 0.0f;
-    float roundError = float(abs(y1 - y0) / (x1 - x0));
-    int y = 0;
-    int ystep = (y1 > y0 ? 1 : -1);
-
-    for (int i = 0; i < x1; ++i)
-    {
-        step ? PlacePixel(dest, y, i, 255, 255, 255) : PlacePixel(dest, i, y, 255, 255, 255);
-        error += roundError;
-
-        if (error >= 0.5)
-        {
-            y += ystep;
-            error -= 1.0f;
-        }
     }
 }
 

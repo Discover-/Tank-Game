@@ -13,10 +13,12 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipe
     directionAngle = _pipeAngle;
     rotateAngle = _pipeAngle;
     screen = _screen;
+    shooterIsPlr = _shooterIsPlr;
+    life = _life;
 
     //! We need to do this so the position of the bullet doesn't start inside the tank itself.
-    posX = x + float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 14.3f;
-    posY = y - float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 14.3f;
+    posX = x + float(cos(_pipeAngle * M_PI / 180.0) * xVelocity) * 14.3f;
+    posY = y - float(sin(_pipeAngle * M_PI / 180.0) * yVelocity) * 14.3f;
 
     bulletRect.x = Sint16(posX);
     bulletRect.y = Sint16(posY);
@@ -36,10 +38,7 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipe
     //}
 
     SDL_SetColorKey(image, SDL_SRCCOLORKEY, COLOR_WHITE);
-    rotatedBullet = rotozoomSurface(image, rotateAngle, 1.0, 0);
-    SDL_BlitSurface(rotatedBullet, NULL, screen, &bulletRect);
-    shooterIsPlr = _shooterIsPlr;
-    life = _life;
+    rotatedBullet = rotozoomSurface(image, _pipeAngle, 1.0, 0);
 }
 
 Bullet::~Bullet()
@@ -88,7 +87,6 @@ void Bullet::Update()
     rotatedBullet = rotozoomSurface(image, rotateAngle, 1.0, 0);
     SDL_BlitSurface(rotatedBullet, NULL, screen, &newBulletRect);
 
-    //? TODO: directionAngle is only given in the constructor and is always the same as pipeAngle. How can this work and what was I thinking?
     posX += float(cos(directionAngle * M_PI / 180.0) * xVelocity);
     posY -= float(sin(directionAngle * M_PI / 180.0) * yVelocity);
     newBulletRect.x = Sint16(posX);
@@ -179,24 +177,24 @@ void Bullet::Update()
                     {
                         rotateAngle = 180 - rotateAngle;
                         xVelocity = -xVelocity;
-                        posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 3.5f;
-                        posX = collisionSide == SIDE_LEFT ? posX - 15 : posX + 15;
+                        posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
+                        posX = collisionSide == SIDE_LEFT ? posX - 5 : posX + 5;
                     }
                     else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
                     {
                         rotateAngle = -rotateAngle;
                         yVelocity = -yVelocity;
-                        posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 3.5f;
-                        posY = collisionSide == SIDE_TOP ? posY - 15 : posY + 15;
+                        posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
+                        posY = collisionSide == SIDE_TOP ? posY - 5 : posY + 5;
                     }
 
                     //#ifdef _DEBUG
-                        if (collisionSide != SIDE_MAX)
-                        {
-                            RGB dotRGB = { 0x00, 0x00, 0x00 };
-                            game->StoreSurfaceByTime(collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT ? "red-dot.bmp" : "yellow-dot.bmp", bulletRect, dotRGB, 30000);
-                            game->StoreSurfaceByTime(collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT ? "red-dot.bmp" : "yellow-dot.bmp", (*itr).GetNormalRect(), dotRGB, 30000);
-                        }
+                    //    if (collisionSide != SIDE_MAX)
+                    //    {
+                    //        RGB dotRGB = { 0x00, 0x00, 0x00 };
+                    //        game->StoreSurfaceByTime(collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT ? "red-dot.bmp" : "yellow-dot.bmp", bulletRect, dotRGB, 30000);
+                    //        game->StoreSurfaceByTime(collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT ? "red-dot.bmp" : "yellow-dot.bmp", (*itr).GetNormalRect(), dotRGB, 30000);
+                    //    }
                     //#endif
 
                     life--;

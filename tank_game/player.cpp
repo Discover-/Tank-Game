@@ -94,7 +94,6 @@ void Player::Update()
                         {
                             foundCollision = true;
 
-                            //? TODO: Use player or enemies movespeed?
                             //? TODO: Take mass in consideration (use some alg. or not?)
                             //float _newX = (*itr)->GetPosX() + float(cos(movingAngle * M_PI / 180.0) * (*itr)->GetMoveSpeed(MOVE_TYPE_FORWARD));
                             //float _newY = (*itr)->GetPosY() - float(sin(movingAngle * M_PI / 180.0) * (*itr)->GetMoveSpeed(MOVE_TYPE_FORWARD));

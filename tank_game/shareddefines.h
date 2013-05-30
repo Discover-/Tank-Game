@@ -73,16 +73,6 @@ struct TemporarilySurfaces
     RGB rgb;
 };
 
-//! TODO: Implement this...
-/*struct RectangleInfo
-{
-    float x;
-    float y;
-    float width;
-    float height;
-    unsigned int color;
-};*/
-
 struct MineExplosions
 {
     float x;
