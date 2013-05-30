@@ -362,6 +362,7 @@ int Game::Update()
                                             landmine->Explode(false);
 
                                 player->SetBulletCount(0);
+                                temporarilySurfaces.clear();
                             }
                             break;
                         case SDLK_t:
