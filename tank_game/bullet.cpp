@@ -84,7 +84,7 @@ void Bullet::Update()
 
     if (!shooterIsPlr && followPlayer)
     {
-        directionAngle = float(atan2(posY - player->GetPosY(), player->GetPosX() - posX) * 180 / M_PI);
+        directionAngle = float(atan2(posY - (player->GetPosY() + PLAYER_HEIGHT / 2), (player->GetPosX() + PLAYER_WIDTH / 2) - posX) * 180 / M_PI);
         rotateAngle = directionAngle;
     }
 
