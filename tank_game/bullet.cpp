@@ -168,24 +168,66 @@ void Bullet::Update()
             std::vector<SDL_Rect2> wallRects = game->GetWalls();
             for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
-                if ((*itr).visible && WillCollision(newBulletRect, (*itr)))
+                if (WillCollision(newBulletRect, (*itr)))
                 {
-                    CollisionSide collisionSide = GetSideOfCollision(newBulletRect, (*itr).GetNormalRect());
+                    //CollisionSide collisionSide = GetSideOfCollision(newBulletRect, (*itr));
 
-                    //! Now we place the bullet back a few pixels so it can properly turn and move into the new given direction.
-                    if (collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT)
+                    ////! Now we place the bullet back a few pixels so it can properly turn and move into the new given direction.
+                    //if (collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT)
+                    //{
+                    //    rotateAngle = 180 - rotateAngle;
+                    //    xVelocity = -xVelocity;
+                    //    posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
+                    //    posX = collisionSide == SIDE_LEFT ? posX - 5 : posX + 5;
+                    //}
+                    //else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
+                    //{
+                    //    rotateAngle = -rotateAngle;
+                    //    yVelocity = -yVelocity;
+                    //    posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
+                    //    posY = collisionSide == SIDE_TOP ? posY - 5 : posY + 5;
+                    //}
+
+                    bool hitLeftSide = false, hitRightSide = false, hitBottomSide = false, hitUpperSide = false;
+                    bool setWhichSideHit = false;
+
+                    if (bulletRect.x + bulletRect.w - 2 <= (*itr).x) //! Left
+                    {
+                        hitLeftSide = true;
+	                    setWhichSideHit = true;
+                    }
+
+                    if (!setWhichSideHit && (*itr).x + (*itr).w - 2 <= bulletRect.x) //! Right
+                    {
+                        hitRightSide = true;
+	                    setWhichSideHit = true;
+                    }
+
+                    if (!setWhichSideHit && bulletRect.y + bulletRect.h -2 >= (*itr).y) //! Bottom
+                    {
+                        hitBottomSide = true;
+	                    setWhichSideHit = false;
+                    }
+
+                    if (!setWhichSideHit && (*itr).y + (*itr).h - 2 >= bulletRect.y) //! Top
+                    {
+                        hitUpperSide = true;
+	                    setWhichSideHit = false;
+                    }
+
+                    if (hitLeftSide || hitRightSide)
                     {
                         rotateAngle = 180 - rotateAngle;
                         xVelocity = -xVelocity;
                         posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
-                        posX = collisionSide == SIDE_LEFT ? posX - 5 : posX + 5;
+                        posX = hitLeftSide ? posX - 5 : posX + 5;
                     }
-                    else if (collisionSide == SIDE_BOTTOM || collisionSide == SIDE_TOP)
+                    else if (hitBottomSide || hitUpperSide)
                     {
                         rotateAngle = -rotateAngle;
                         yVelocity = -yVelocity;
                         posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
-                        posY = collisionSide == SIDE_TOP ? posY - 5 : posY + 5;
+                        posY = hitUpperSide ? posY - 5 : posY + 5;
                     }
 
                     //#ifdef _DEBUG
