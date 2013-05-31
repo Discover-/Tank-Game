@@ -20,8 +20,9 @@ TODO:
   * Table for all objects (walls, for example).
 - Instead of having one player at the time, allow the possibility of playing multiplayer (1 versus 1, 2 versus NPCs, etc.).
 - Level design storing in XML.
-- Translate all Dutch comments into English.
+- Update wall logic to store all walls that are in a line (horizontal AND vertical respectively) in one image for collision (bullet and movement).
 
 DONE:
 - Figure out why distance check for landmine explosions isn't working (the 2D distance formula should work...)
 - Figure out issues with collision on some of the walls. Possible cause might be that we stop iterating over walls when we found a collision.
+- Translate all Dutch comments into English.

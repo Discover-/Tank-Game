@@ -208,6 +208,10 @@ int Game::Update()
 
     screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_SWSURFACE);
     
+    SDL_Surface* tmpBackground = SDL_LoadBMP("background.bmp");
+    SDL_Surface* backgroundSrfc = SDL_DisplayFormat(tmpBackground);
+    SDL_FreeSurface(tmpBackground);
+    
     SDL_Surface* tmpWallBreakable = SDL_LoadBMP("wall_breakable.bmp");
     SDL_Surface* wallBreakable = SDL_DisplayFormat(tmpWallBreakable);
     SDL_FreeSurface(tmpWallBreakable);
@@ -555,6 +559,8 @@ int Game::Update()
                 }
             }
         }
+
+        SDL_BlitSurface(backgroundSrfc, NULL, screen, NULL);
 
         if (!temporarilySurfaces.empty())
         {
