@@ -51,6 +51,7 @@ class Game
         SDL_Surface* GetScreen() { return screen; }
         SDL_Event GetEvent() { return _event; }
         std::vector<SDL_Rect2>& GetWalls() { return wallRectangles; }
+        std::vector<SDL_Rect2>& GetMergedWalls() { return mergedWalls; }
         Player* GetPlayer() { return player; }
         void AddBullet(Bullet* bullet) { allBullets.push_back(bullet); }
         void AddLandmine(Landmine* landmine) { allLandmines.push_back(landmine); }
@@ -63,10 +64,12 @@ class Game
         void AddDelayedFunctionCall(Uint8 delayMs, void* function, int param1 = 0, int param2 = 0, int param3 = 0);
 
         void InitializeWalls();
+        void InitializeCharacters(SDL_Surface* spriteBodyPlr, SDL_Surface* spritePipePlr, SDL_Surface* spriteBodyNpc, SDL_Surface* spritePipeNpc);
+        void InitializeSlowAreas();
+
         void AddWall(Sint16 x, Sint16 y, Sint16 w = 50, Sint16 h = 50, bool breakable = false, bool visible = true);
         void AddWall(SDL_Rect2 wallRect) { wallRectangles.push_back(wallRect); }
-
-        void InitializeCharacters(SDL_Surface* spriteBodyPlr, SDL_Surface* spritePipePlr, SDL_Surface* spriteBodyNpc, SDL_Surface* spritePipeNpc);
+        void AddMergedWall(Sint16 x, Sint16 y, Sint16 w = 50, Sint16 h = 50, bool breakable = false, bool visible = true);
 
         std::vector<SDL_Rect> GetSlowAreas() { return slowAreaRectangles; }
         bool IsInSlowArea(float x, float y);
@@ -77,6 +80,7 @@ class Game
         SDL_Surface* screen;
         SDL_Event _event;
         std::vector<SDL_Rect2> wallRectangles;
+        std::vector<SDL_Rect2> mergedWalls; //! To ease up collision detection.
         std::vector<SDL_Rect> slowAreaRectangles;
         std::vector<TemporarilySurfaces> temporarilySurfaces;
         std::vector<MineExplosions> mineExplosions;

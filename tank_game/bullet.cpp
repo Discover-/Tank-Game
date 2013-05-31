@@ -27,7 +27,7 @@ Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipe
 
     inSlowArea = false;
 
-    //std::vector<SDL_Rect2> wallRects = game->GetWalls();
+    //std::vector<SDL_Rect2> wallRects = game->GetMergedWalls();
     //for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
     //{
     //    if ((*itr).visible && WillCollision(bulletRect, (*itr)))
@@ -165,7 +165,7 @@ void Bullet::Update()
                 }
             }
 
-            std::vector<SDL_Rect2> wallRects = game->GetWalls();
+            std::vector<SDL_Rect2> wallRects = game->GetMergedWalls();
             for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
                 if (WillCollision(newBulletRect, (*itr)))

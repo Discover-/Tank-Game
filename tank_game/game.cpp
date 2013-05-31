@@ -126,6 +126,8 @@ void Game::AddWall(Sint16 x, Sint16 y, Sint16 w /* = 50 */, Sint16 h /* = 50 */,
     wall.visible = visible;
     wall.breakable = breakable;
 
+    //! Redunant check because we call the overload function of AddWall that takes SDL_Rect2 as its parameter
+    //! to skip these extra lines for breakable walls.
     if (!breakable)
     {
         std::string wallStr = "wall_" + std::to_string(long double(urand(0, 7))) + ".bmp";
@@ -136,6 +138,19 @@ void Game::AddWall(Sint16 x, Sint16 y, Sint16 w /* = 50 */, Sint16 h /* = 50 */,
     }
 
     wallRectangles.push_back(wall);
+}
+
+void Game::AddMergedWall(Sint16 x, Sint16 y, Sint16 w /* = 50 */, Sint16 h /* = 50 */, bool breakable /* = false */, bool visible /* = true */)
+{
+    SDL_Rect2 mergedWall;
+    mergedWall.x = x;
+    mergedWall.y = y;
+    mergedWall.w = w;
+    mergedWall.h = h;
+    mergedWall.visible = visible;
+    mergedWall.breakable = breakable;
+    mergedWall.image = NULL;
+    mergedWalls.push_back(mergedWall);
 }
 
 void Game::InitializeWalls()
@@ -179,6 +194,16 @@ void Game::InitializeWalls()
         AddWall(currWallX, currWallY, 50, 50, (i == 82 || i == 83)); //! Walls 82 and 83 are breakable by landmines.
         currWallY += 50;
     }
+
+    //! Filling up the container for all MERGED walls which are made to get rid of collision detection problems like bullets disappearing inbetween two wall rectangles.
+    AddMergedWall(0, 0, 1000, 50, false, true);
+    AddMergedWall(0, 550, 1000, 50, false, true);
+    AddMergedWall(0, 0, 50, 600, false, true);
+    AddMergedWall(950, 0, 50, 600, false, true);
+    AddMergedWall(225, 150, 50, 100, false, true);
+    AddMergedWall(225, 350, 50, 100, false, true);
+    AddMergedWall(225, 250, 50, 100, true, true);
+    AddMergedWall(225, 300, 50, 100, true, true);
 }
 
 void Game::InitializeCharacters(SDL_Surface* spriteBodyPlr, SDL_Surface* spritePipePlr, SDL_Surface* spriteBodyNpc, SDL_Surface* spritePipeNpc)
@@ -197,6 +222,12 @@ void Game::InitializeCharacters(SDL_Surface* spriteBodyPlr, SDL_Surface* spriteP
 
     for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
         (*itr)->InitializeWaypoints();
+}
+
+void Game::InitializeSlowAreas()
+{
+    SDL_Rect slowAreaRect = { 770, 70, 150, 75 };
+    slowAreaRectangles.push_back(slowAreaRect);
 }
 
 int Game::Update()
@@ -243,9 +274,7 @@ int Game::Update()
 
     InitializeWalls();
     InitializeCharacters(spriteBodyPlr, spritePipePlr, spriteBodyNpc, spritePipeNpc);
-
-    SDL_Rect slowAreaRect = { 770, 70, 150, 75 };
-    slowAreaRectangles.push_back(slowAreaRect);
+    InitializeSlowAreas();
 
     SDL_Surface* rotatedBodyPlr = rotozoomSurface(spriteBodyPlr, 0.0f, 1.0, 0);
     SDL_Surface* rotatedPipePlr = rotozoomSurface(spritePipePlr, 0.0f, 1.0, 0);
@@ -387,7 +416,7 @@ int Game::Update()
                     //! Using Shift + Mouseclick will place a landmine at the mouse. This is a temporarily thing to make testing easier.
                     if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
                     {
-                        if (Landmine* landmine = new Landmine(this, screen, _event.motion.x - 15, _event.motion.y - 15))
+                        if (Landmine* landmine = new Landmine(this, screen, float(_event.motion.x - 15), float(_event.motion.y - 15)))
                         {
                             player->AddLandmine(landmine);
                             allLandmines.push_back(landmine);
@@ -411,7 +440,7 @@ int Game::Update()
                             float actualY = bulletY + float(sin(pipeAngle * M_PI / 180.0) * PLAYER_BULLET_SPEED_Y) * 14.3f;
                             SDL_Rect bulletRect = { Sint16(actualX), Sint16(actualY), BULLET_WIDTH, BULLET_HEIGHT };
 
-                            for (std::vector<SDL_Rect2>::iterator itrWall = wallRectangles.begin(); itrWall != wallRectangles.end(); ++itrWall)
+                            for (std::vector<SDL_Rect2>::iterator itrWall = mergedWalls.begin(); itrWall != mergedWalls.end(); ++itrWall)
                             {
                                 if ((*itrWall).visible && WillCollision(bulletRect, (*itrWall)))
                                 {

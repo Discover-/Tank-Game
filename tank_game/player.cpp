@@ -56,7 +56,7 @@ void Player::Update()
     float newX = 0.0f;
     float newY = 0.0f;
     SDL_Rect plrRect = { Sint16(posX), Sint16(posY), 51, 45 };
-    std::vector<SDL_Rect2> wallRects = game->GetWalls();
+    std::vector<SDL_Rect2> wallRects = game->GetMergedWalls();
 
     if (keysDown[0])
     {

@@ -61,6 +61,8 @@ void Enemy::Update()
     if (!player)
         return;
 
+    std::vector<SDL_Rect2> wallRects = game->GetMergedWalls();
+
     if (canShoot && !randomShootTimer)// && bulletCount < PLAYER_MAX_BULLETS)
     {
         float bulletX = float(posX + (PLAYER_WIDTH / 2) - 12) + (16 / 2);
@@ -75,7 +77,7 @@ void Enemy::Update()
         bool hitsWallOnStart = false;
         bool hitsEnemyOnPath = false;
         SDL_Rect bulletRect = { Sint16(actualX), Sint16(actualY), BULLET_WIDTH, BULLET_HEIGHT };
-        std::vector<SDL_Rect2> wallRects = game->GetWalls();
+        
 
         if (!IsInRange(posX, player->GetPosX(), posY, player->GetPosY(), 80.0f))
         {
@@ -334,8 +336,6 @@ void Enemy::Update()
 
         SDL_Rect npcNewRect = { Sint16(posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD])), Sint16(posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD])), PLAYER_WIDTH, PLAYER_HEIGHT };
         bool foundCollision = false;
-
-        std::vector<SDL_Rect2> wallRects = game->GetWalls();
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
         {
