@@ -205,12 +205,12 @@ int Game::Update()
 
     SDL_Init(SDL_INIT_EVERYTHING);
     //SDLNet_Init();
+
+    screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_SWSURFACE);
     
     SDL_Surface* tmpWallBreakable = SDL_LoadBMP("wall_breakable.bmp");
     SDL_Surface* wallBreakable = SDL_DisplayFormat(tmpWallBreakable);
     SDL_FreeSurface(tmpWallBreakable);
-
-    screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_SWSURFACE);
     
     SDL_Surface* tmpBodyPlr = SDL_LoadBMP("sprite_body.bmp");
     SDL_Surface* spriteBodyPlr = SDL_DisplayFormat(tmpBodyPlr);
