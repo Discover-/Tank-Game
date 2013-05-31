@@ -374,7 +374,8 @@ int Game::Update()
                         case SDLK_t:
                             if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
                                 for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
-                                    (*itr)->JustDied();
+                                    if ((*itr)->IsAlive())
+                                        (*itr)->JustDied();
                             break;
                         default:
                             break;
