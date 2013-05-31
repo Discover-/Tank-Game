@@ -95,8 +95,6 @@ void Player::Update()
                             foundCollision = true;
 
                             //? TODO: Take mass in consideration (use some alg. or not?)
-                            //float _newX = (*itr)->GetPosX() + float(cos(movingAngle * M_PI / 180.0) * (*itr)->GetMoveSpeed(MOVE_TYPE_FORWARD));
-                            //float _newY = (*itr)->GetPosY() - float(sin(movingAngle * M_PI / 180.0) * (*itr)->GetMoveSpeed(MOVE_TYPE_FORWARD));
                             float _newX = (*itr)->GetPosX() + float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
                             float _newY = (*itr)->GetPosY() - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
                             SDL_Rect newNpcRect = { Sint16(_newX), Sint16(_newY), PLAYER_WIDTH, PLAYER_HEIGHT };
@@ -128,31 +126,31 @@ void Player::Update()
                     }
                 }
             }
+        }
 
-            if (!foundCollision)
-                posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
+        if (!foundCollision)
+            posX += float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
 
-            foundCollision = false;
-            newY = (posY - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
-            plrRect.y = Sint16(newY);
+        foundCollision = false;
+        newY = (posY - float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]));
+        plrRect.y = Sint16(newY);
 
-            for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+        for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+        {
+            if ((*itr).visible && WillCollision(plrRect, (*itr)))
             {
-                if (WillCollision(plrRect, (*itr)))
-                {
-                    foundCollision = true;
+                foundCollision = true;
 
-                    while (WillCollision(plrRect, (*itr)))
-                    {
-                        newY += 0.01f;
-                        plrRect.y = Sint16(newY);
-                    }
+                while (WillCollision(plrRect, (*itr)))
+                {
+                    newY += 0.01f;
+                    plrRect.y = Sint16(newY);
                 }
             }
-
-            if (!foundCollision)
-                posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
         }
+
+        if (!foundCollision)
+            posY -= float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_FORWARD]);
     }
 
     newX = 0.0f;
@@ -228,31 +226,31 @@ void Player::Update()
                     }
                 }
             }
+        }
 
-            if (!foundCollision)
-                posX -= float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
+        if (!foundCollision)
+            posX -= float(cos(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
 
-            foundCollision = false;
-            newY = (posY + float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]));
-            plrRect.y = Sint16(newY);
+        foundCollision = false;
+        newY = (posY + float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]));
+        plrRect.y = Sint16(newY);
 
-            for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+        for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
+        {
+            if ((*itr).visible && WillCollision(plrRect, (*itr)))
             {
-                if ((*itr).visible && WillCollision(plrRect, (*itr)))
-                {
-                    foundCollision = true;
+                foundCollision = true;
 
-                    while (WillCollision(plrRect, (*itr)))
-                    {
-                        newY -= 0.01f;
-                        plrRect.y = Sint16(newY);
-                    }
+                while (WillCollision(plrRect, (*itr)))
+                {
+                    newY -= 0.01f;
+                    plrRect.y = Sint16(newY);
                 }
             }
-
-            if (!foundCollision)
-                posY += float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
         }
+
+        if (!foundCollision)
+            posY += float(sin(movingAngle * M_PI / 180.0) * moveSpeed[MOVE_TYPE_BACKWARD]);
     }
 
     if (keysDown[1])
