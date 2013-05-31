@@ -1,6 +1,6 @@
 #include "game.h"
 
-Player::Player(Game* _game, float x, float y)
+Player::Player(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe)
 {
     posX = x;
     posY = y;
@@ -14,6 +14,8 @@ Player::Player(Game* _game, float x, float y)
     moveSpeed[MOVE_TYPE_FORWARD] = PLAYER_MOVES_SPEED_FORWARD;
     moveSpeed[MOVE_TYPE_BACKWARD] = PLAYER_MOVES_SPEED_BACKWARD;
     inSlowArea = false;
+    bodySprite = body;
+    pipeSprite = pipe;
 
     for (int i = 0; i < 4; ++i)
         keysDown[i] = false;

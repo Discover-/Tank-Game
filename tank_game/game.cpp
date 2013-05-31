@@ -206,19 +206,58 @@ void Game::InitializeWalls()
     AddMergedWall(225, 300, 50, 100, true, true);
 }
 
-void Game::InitializeCharacters(SDL_Surface* spriteBodyPlr, SDL_Surface* spritePipePlr, SDL_Surface* spriteBodyNpc0, SDL_Surface* spritePipeNpc0, SDL_Surface* spriteBodyNpc1, SDL_Surface* spritePipeNpc1)
+void Game::InitializeCharacters()
 {
-    player = new Player(this, 400.0f, 200.0f);
+    SDL_Surface* tmpBodyPlr = SDL_LoadBMP("sprite_body_plr.bmp");
+    SDL_Surface* spriteBodyPlr = SDL_DisplayFormat(tmpBodyPlr);
+    SDL_FreeSurface(tmpBodyPlr);
+    SDL_SetColorKey(spriteBodyPlr, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpPipePlr = SDL_LoadBMP("sprite_pipe_plr.bmp");
+    SDL_Surface* spritePipePlr = SDL_DisplayFormat(tmpPipePlr);
+    SDL_FreeSurface(tmpPipePlr);
+    SDL_SetColorKey(spritePipePlr, SDL_SRCCOLORKEY, COLOR_WHITE);
 
+    player = new Player(this, 400.0f, 200.0f, spriteBodyPlr, spritePipePlr);
+
+    SDL_Surface* tmpBodyNpcTier0 = SDL_LoadBMP("sprite_body_npc_tier_0.bmp");
+    SDL_Surface* spriteBodyNpcTier0 = SDL_DisplayFormat(tmpBodyNpcTier0);
+    SDL_FreeSurface(tmpBodyNpcTier0);
+    SDL_SetColorKey(spriteBodyNpcTier0, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpPipeNpcTier0 = SDL_LoadBMP("sprite_pipe_npc_tier_0.bmp");
+    SDL_Surface* spritePipeNpcTier0 = SDL_DisplayFormat(tmpPipeNpcTier0);
+    SDL_FreeSurface(tmpPipeNpcTier0);
+    SDL_SetColorKey(spritePipeNpcTier0, SDL_SRCCOLORKEY, COLOR_WHITE);
+
+    SDL_Surface* tmpBodyNpcTier1 = SDL_LoadBMP("sprite_body_npc_tier_1.bmp");
+    SDL_Surface* spriteBodyNpcTier1 = SDL_DisplayFormat(tmpBodyNpcTier1);
+    SDL_FreeSurface(tmpBodyNpcTier1);
+    SDL_SetColorKey(spriteBodyNpcTier1, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpPipeNpcTier1 = SDL_LoadBMP("sprite_pipe_npc_tier_1.bmp");
+    SDL_Surface* spritePipeNpcTier1 = SDL_DisplayFormat(tmpPipeNpcTier1);
+    SDL_FreeSurface(tmpPipeNpcTier1);
+    SDL_SetColorKey(spritePipeNpcTier1, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpBodyNpcTier2 = SDL_LoadBMP("sprite_body_npc_tier_2.bmp");
+    SDL_Surface* spriteBodyNpcTier2 = SDL_DisplayFormat(tmpBodyNpcTier2);
+    SDL_FreeSurface(tmpBodyNpcTier2);
+    SDL_SetColorKey(spriteBodyNpcTier2, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpPipeNpcTier2 = SDL_LoadBMP("sprite_pipe_npc_tier_2.bmp");
+    SDL_Surface* spritePipeNpcTier2 = SDL_DisplayFormat(tmpPipeNpcTier2);
+    SDL_FreeSurface(tmpPipeNpcTier2);
+    SDL_SetColorKey(spritePipeNpcTier2, SDL_SRCCOLORKEY, COLOR_WHITE);
+
+    SDL_Rect npcRect0 = { 60,  60,  PLAYER_WIDTH, PLAYER_HEIGHT };
     SDL_Rect npcRect1 = { 300, 300, PLAYER_WIDTH, PLAYER_HEIGHT };
     SDL_Rect npcRect2 = { 300, 400, PLAYER_WIDTH, PLAYER_HEIGHT };
     SDL_Rect npcRect3 = { 300, 500, PLAYER_WIDTH, PLAYER_HEIGHT };
-    Enemy* enemy1 = new Enemy(this, 300.0f, 300.0f, spriteBodyNpc0, spritePipeNpc0, npcRect1, npcRect1, ENEMY_TYPE_TIER_ONE);
-    Enemy* enemy2 = new Enemy(this, 350.0f, 350.0f, spriteBodyNpc0, spritePipeNpc0, npcRect2, npcRect2, ENEMY_TYPE_TIER_ONE);
-    Enemy* enemy3 = new Enemy(this, 400.0f, 400.0f, spriteBodyNpc1, spritePipeNpc1, npcRect3, npcRect3, ENEMY_TYPE_TIER_THREE);
-    enemies.push_back(enemy1);
-    enemies.push_back(enemy2);
-    enemies.push_back(enemy3);
+    enemies.push_back(new Enemy(this, 60.0f, 60.0f, spriteBodyNpcTier0, spritePipeNpcTier0, npcRect0, ENEMY_TYPE_TIER_ZERO));
+    enemies.push_back(new Enemy(this, 270.0f, 480.0f, spriteBodyNpcTier1, spritePipeNpcTier1, npcRect1, ENEMY_TYPE_TIER_ONE));
+    enemies.push_back(new Enemy(this, 350.0f, 350.0f, spriteBodyNpcTier1, spritePipeNpcTier1, npcRect2, ENEMY_TYPE_TIER_ONE));
+    enemies.push_back(new Enemy(this, 600.0f, 200.0f, spriteBodyNpcTier2, spritePipeNpcTier2, npcRect3, ENEMY_TYPE_TIER_THREE));
 
     for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
         (*itr)->InitializeWaypoints();
@@ -247,51 +286,19 @@ int Game::Update()
     SDL_Surface* wallBreakable = SDL_DisplayFormat(tmpWallBreakable);
     SDL_FreeSurface(tmpWallBreakable);
     
-    SDL_Surface* tmpBodyPlr = SDL_LoadBMP("sprite_body.bmp");
-    SDL_Surface* spriteBodyPlr = SDL_DisplayFormat(tmpBodyPlr);
-    SDL_FreeSurface(tmpBodyPlr);
-    SDL_SetColorKey(spriteBodyPlr, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpPipePlr = SDL_LoadBMP("sprite_pipe.bmp");
-    SDL_Surface* spritePipePlr = SDL_DisplayFormat(tmpPipePlr);
-    SDL_FreeSurface(tmpPipePlr);
-    SDL_SetColorKey(spritePipePlr, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpBodyNpc0 = SDL_LoadBMP("sprite_body_npc_0.bmp");
-    SDL_Surface* spriteBodyNpc0 = SDL_DisplayFormat(tmpBodyNpc0);
-    SDL_FreeSurface(tmpBodyNpc0);
-    SDL_SetColorKey(spriteBodyNpc0, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpPipeNpc0 = SDL_LoadBMP("sprite_pipe_npc_0.bmp");
-    SDL_Surface* spritePipeNpc0 = SDL_DisplayFormat(tmpPipeNpc0);
-    SDL_FreeSurface(tmpPipeNpc0);
-    SDL_SetColorKey(spritePipeNpc0, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpBodyNpc1 = SDL_LoadBMP("sprite_body_npc_1.bmp");
-    SDL_Surface* spriteBodyNpc1 = SDL_DisplayFormat(tmpBodyNpc1);
-    SDL_FreeSurface(tmpBodyNpc1);
-    SDL_SetColorKey(spriteBodyNpc1, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpPipeNpc1 = SDL_LoadBMP("sprite_pipe_npc_1.bmp");
-    SDL_Surface* spritePipeNpc1 = SDL_DisplayFormat(tmpPipeNpc1);
-    SDL_FreeSurface(tmpPipeNpc1);
-    SDL_SetColorKey(spritePipeNpc1, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
     SDL_Surface* tmpSlowArea = SDL_LoadBMP("slow_area.bmp");
     SDL_Surface* slowArea = SDL_DisplayFormat(tmpSlowArea);
     SDL_FreeSurface(tmpSlowArea);
     SDL_SetColorKey(slowArea, SDL_SRCCOLORKEY, COLOR_WHITE);
 
     InitializeWalls();
-    InitializeCharacters(spriteBodyPlr, spritePipePlr, spriteBodyNpc0, spritePipeNpc0, spriteBodyNpc1, spritePipeNpc1);
+    InitializeCharacters();
     InitializeSlowAreas();
 
+    SDL_Surface* spriteBodyPlr = player->GetBodySprite();
+    SDL_Surface* spritePipePlr = player->GetPipeSprite();
     SDL_Surface* rotatedBodyPlr = rotozoomSurface(spriteBodyPlr, 0.0f, 1.0, 0);
     SDL_Surface* rotatedPipePlr = rotozoomSurface(spritePipePlr, 0.0f, 1.0, 0);
-    SDL_Surface* rotatedBodyNpc0 = rotozoomSurface(spriteBodyNpc0, 0.0f, 1.0, 0);
-    SDL_Surface* rotatedPipeNpc0 = rotozoomSurface(spritePipeNpc0, 0.0f, 1.0, 0);
-    SDL_Surface* rotatedBodyNpc1 = rotozoomSurface(spriteBodyNpc1, 0.0f, 1.0, 0);
-    SDL_Surface* rotatedPipeNpc1 = rotozoomSurface(spritePipeNpc1, 0.0f, 1.0, 0);
 
     //IPaddress ip;
     //SDLNet_ResolveHost(&ip, NULL, 12345);
@@ -323,7 +330,7 @@ int Game::Update()
                     isRunning = false;
                     break;
                 //! For whatever reason movement works really ugly if this key handling is handled in Player::Update, even though the function
-                //! would be called from the same place.. >_>
+                //! would be called from the same place..
                 case SDL_KEYDOWN:
                 case SDL_KEYUP:
                 {
@@ -520,10 +527,9 @@ int Game::Update()
 
         rotatedBodyPlr = rotozoomSurface(spriteBodyPlr, plrMovingAngle, 1.0, 0);
 
-        SDL_Rect recBodyPlr = { int(plrX), int(plrY), 0, 0 };
+        SDL_Rect recBodyPlr = { int(plrX), int(plrY), PLAYER_WIDTH, PLAYER_HEIGHT };
         recBodyPlr.x -= rotatedBodyPlr->w / 2 - spriteBodyPlr->w / 2;
         recBodyPlr.y -= rotatedBodyPlr->h / 2 - spriteBodyPlr->h / 2;
-
         SDL_Rect recPipePlr = { int(plrX), int(plrY), PLAYER_WIDTH, PLAYER_HEIGHT };
 
         player->SetRectPipeBody(recPipePlr, recBodyPlr);
@@ -635,19 +641,8 @@ int Game::Update()
         {
             if ((*itr)->IsAlive())
             {
-                SDL_Rect bodyRectEnemy = (*itr)->GetRotatedBodyRect();
-                SDL_Rect pipeRectEnemy = (*itr)->GetRotatedPipeRect();
-                SDL_Surface* rotatedBodyEnemy = (*itr)->GetRotatedBodySurface();
-                SDL_Surface* rotatedPipeEnemy = (*itr)->GetRotatedPipeSurface();
-
-                //! Make rotating of the surfaces properly centered.
-                bodyRectEnemy.x -= rotatedBodyEnemy->w / 2 - rotatedBodyEnemy->w / 2;
-                bodyRectEnemy.y -= rotatedBodyEnemy->h / 2 - rotatedBodyEnemy->h / 2;
-                pipeRectEnemy.x -= rotatedPipeEnemy->w / 2 - rotatedPipeEnemy->w / 2;
-                pipeRectEnemy.y -= rotatedPipeEnemy->h / 2 - rotatedPipeEnemy->h / 2;
-
-                SDL_BlitSurface(rotatedBodyEnemy, NULL, screen, &bodyRectEnemy);
-                SDL_BlitSurface(rotatedPipeEnemy, NULL, screen, &pipeRectEnemy);
+                SDL_BlitSurface((*itr)->GetRotatedBodySurface(), NULL, screen, &(*itr)->GetRotatedBodyRect());
+                SDL_BlitSurface((*itr)->GetRotatedPipeSurface(), NULL, screen, &(*itr)->GetRotatedPipeRect());
             }
         }
 
@@ -670,17 +665,8 @@ int Game::Update()
 
     SDL_FreeSurface(spriteBodyPlr);
     SDL_FreeSurface(spritePipePlr);
-    SDL_FreeSurface(spriteBodyNpc0);
-    SDL_FreeSurface(spritePipeNpc0);
-    SDL_FreeSurface(spriteBodyNpc1);
-    SDL_FreeSurface(spritePipeNpc1);
     SDL_FreeSurface(rotatedBodyPlr);
     SDL_FreeSurface(rotatedPipePlr);
-    //SDL_FreeSurface(wall);
-    SDL_FreeSurface(rotatedPipeNpc0);
-    SDL_FreeSurface(rotatedBodyNpc0);
-    SDL_FreeSurface(rotatedPipeNpc1);
-    SDL_FreeSurface(rotatedBodyNpc1);
     //SDLNet_TCP_Close(server);
     //SDLNet_Quit();
     SDL_Quit(); //! 'Screen' is dumped in SDL_Quit().

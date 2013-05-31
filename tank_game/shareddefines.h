@@ -58,9 +58,10 @@ enum CollisionSide
 
 enum EnemyTypes
 {
-    ENEMY_TYPE_TIER_ONE     = 0, //! Shoots bullets randomly.
-    ENEMY_TYPE_TIER_TWO     = 1, //! Lays mines and randomly shoots.
-    ENEMY_TYPE_TIER_THREE   = 2, //! Shoots at enemies and bullets follow their target and have only one life.
+    ENEMY_TYPE_TIER_ZERO    = 0, //! Shoots bullets randomly and doesn't move at all.
+    ENEMY_TYPE_TIER_ONE     = 1, //! Shoots bullets randomly and follows waypoints.
+    ENEMY_TYPE_TIER_TWO     = 2, //! Lays mines and randomly shoots.
+    ENEMY_TYPE_TIER_THREE   = 3, //! Shoots at enemies and bullets follow their target and have only one life.
 };
 
 struct RGB

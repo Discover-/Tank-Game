@@ -1,6 +1,6 @@
 #include "game.h"
 
-Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe, SDL_Rect _rectBody, SDL_Rect _rectPipe, EnemyTypes _enemyType /* = ENEMY_TYPE_TIER_ONE */)
+Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe, SDL_Rect _rectBodyPipe, EnemyTypes _enemyType /* = ENEMY_TYPE_TIER_ONE */)
 {
     if (!_game)
         return;
@@ -17,8 +17,8 @@ Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe
     landmineCooldown = 0;
     bodySprite = body;
     pipeSprite = pipe;
-    rectBody = _rectBody;
-    rectPipe = _rectPipe;
+    rectBody = _rectBodyPipe;
+    rectPipe = _rectBodyPipe;
     rotatedBody = NULL;
     rotatedPipe = NULL;
     rotatingBodyAngle = 1.0f;
@@ -154,10 +154,17 @@ void Enemy::Update()
                     {
                         Bullet* bullet = NULL;
 
-                        if (enemyType == ENEMY_TYPE_TIER_ONE)
-                            bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false);
-                        else if (enemyType == ENEMY_TYPE_TIER_THREE)
-                            bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false, 1, 2, 2, true);
+                        switch (enemyType)
+                        {
+                            case ENEMY_TYPE_TIER_ZERO:
+                            case ENEMY_TYPE_TIER_ONE:
+                                bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false);
+                                break;
+                            case ENEMY_TYPE_TIER_TWO:
+                            case ENEMY_TYPE_TIER_THREE:
+                                bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false, 1, 2, 2, true);
+                                break;
+                        }
 
                         if (bullet)
                         {
@@ -176,7 +183,7 @@ void Enemy::Update()
         }
     }
 
-    if (!waypoints.empty())
+    if (!waypoints.empty() && enemyType != ENEMY_TYPE_TIER_ZERO)
     {
         bool turningToNextPoint = false;
         float xDestTemp = 0.0f;
@@ -465,7 +472,7 @@ void Enemy::Update()
         rectPipe.x = Sint16(posX);
         rectPipe.y = Sint16(posY);
 
-        rotatingPipeAngle += 3;
+        rotatingPipeAngle += 3.0f;
         rotatedBody = rotozoomSurface(bodySprite, movingAngle, 1.0, 0);
         rotatedPipe = rotozoomSurface(pipeSprite, rotatingPipeAngle, 1.0, 0);
 
@@ -475,14 +482,21 @@ void Enemy::Update()
         rectBody.x -= rotatedBody->w / 2 - bodySprite->w / 2;
         rectBody.y -= rotatedBody->h / 2 - bodySprite->h / 2;
     }
+    //! We also need to call this if we're a tank that doesn't move because we might get pushed away by players.
     else
     {
         rectBody.x = Sint16(posX);
         rectBody.y = Sint16(posY);
         rectPipe.x = Sint16(posX);
         rectPipe.y = Sint16(posY);
-        rotatingBodyAngle += 3.0f;
-        rotatedBody = rotozoomSurface(bodySprite, rotatingBodyAngle, 1.0, 0);
+
+        rotatingPipeAngle += 3.0f;
+        rotatedBody = rotozoomSurface(bodySprite, movingAngle, 1.0, 0);
+        rotatedPipe = rotozoomSurface(pipeSprite, rotatingPipeAngle, 1.0, 0);
+
+        rectPipe.x -= rotatedPipe->w / 2 - pipeSprite->w / 2;
+        rectPipe.y -= rotatedPipe->h / 2 - pipeSprite->h / 2;
+
         rectBody.x -= rotatedBody->w / 2 - bodySprite->w / 2;
         rectBody.y -= rotatedBody->h / 2 - bodySprite->h / 2;
     }
@@ -551,7 +565,7 @@ void Enemy::SetRectPosY(Sint16 val, bool body, bool pipe)
 
 void Enemy::InitializeWaypoints(bool eraseCurrent /* = false */)
 {
-    if (isDead)
+    if (isDead || enemyType == ENEMY_TYPE_TIER_ZERO)
         return;
 
     if (eraseCurrent)
@@ -669,11 +683,6 @@ void Enemy::InitializeWaypoints(bool eraseCurrent /* = false */)
     }
 
     waypoints.push_back(wpInfo);
-}
-
-void Enemy::AddWaypointPath(WaypointInformation wpInfo)
-{
-    return;
 }
 
 void Enemy::JustDied()

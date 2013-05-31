@@ -24,7 +24,7 @@ class Game;
 class Enemy
 {
     public:
-        Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe, SDL_Rect _rectBody, SDL_Rect _rectPipe, EnemyTypes = ENEMY_TYPE_TIER_ONE);
+        Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe, SDL_Rect _rectBodyPipe, EnemyTypes = ENEMY_TYPE_TIER_ONE);
         ~Enemy();
 
         void Update();
@@ -72,7 +72,6 @@ class Enemy
 
         /* WAYPOINTS */
         void InitializeWaypoints(bool eraseCurrent = false);
-        void AddWaypointPath(WaypointInformation wpInfo);
         std::vector<WaypointInformation>& GetWaypoints() { return waypoints; }
 
         void JustDied();

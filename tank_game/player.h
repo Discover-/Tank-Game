@@ -6,7 +6,7 @@ class Game;
 class Player
 {
     public:
-        Player(Game* _game, float x, float y);
+        Player(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe);
         ~Player();
 
         void Update();
@@ -45,6 +45,8 @@ class Player
         void SetRectPipeBody(SDL_Rect rectPipe, SDL_Rect rectBody) { rectPipe = rectPipe; rectBody = rectBody; }
         SDL_Rect GetRectPipe() { return rectPipe; }
         SDL_Rect GetRectBody() { return rectBody; }
+        SDL_Surface* GetBodySprite() { return bodySprite; }
+        SDL_Surface* GetPipeSprite() { return pipeSprite; }
 
         float GetMoveSpeed(MoveTypes moveType) { return moveSpeed[moveType]; }
 
@@ -63,4 +65,5 @@ class Player
         std::vector<Landmine*> landmines;
         bool inSlowArea;
         SDL_Rect rectPipe, rectBody;
+        SDL_Surface* bodySprite, *pipeSprite;
 };
