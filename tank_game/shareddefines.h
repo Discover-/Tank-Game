@@ -56,6 +56,13 @@ enum CollisionSide
     SIDE_MAX            = 4,
 };
 
+enum EnemyTypes
+{
+    ENEMY_TYPE_TIER_ONE     = 0, //! Shoots bullets randomly.
+    ENEMY_TYPE_TIER_TWO     = 1, //! Lays mines and randomly shoots.
+    ENEMY_TYPE_TIER_THREE   = 2, //! Shoots at enemies and bullets follow their target and have only one life.
+};
+
 struct RGB
 {
     //SDL_PixelFormat const* format;

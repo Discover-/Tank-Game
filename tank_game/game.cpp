@@ -206,16 +206,16 @@ void Game::InitializeWalls()
     AddMergedWall(225, 300, 50, 100, true, true);
 }
 
-void Game::InitializeCharacters(SDL_Surface* spriteBodyPlr, SDL_Surface* spritePipePlr, SDL_Surface* spriteBodyNpc, SDL_Surface* spritePipeNpc)
+void Game::InitializeCharacters(SDL_Surface* spriteBodyPlr, SDL_Surface* spritePipePlr, SDL_Surface* spriteBodyNpc0, SDL_Surface* spritePipeNpc0, SDL_Surface* spriteBodyNpc1, SDL_Surface* spritePipeNpc1)
 {
     player = new Player(this, 400.0f, 200.0f);
 
     SDL_Rect npcRect1 = { 300, 300, PLAYER_WIDTH, PLAYER_HEIGHT };
     SDL_Rect npcRect2 = { 300, 400, PLAYER_WIDTH, PLAYER_HEIGHT };
     SDL_Rect npcRect3 = { 300, 500, PLAYER_WIDTH, PLAYER_HEIGHT };
-    Enemy* enemy1 = new Enemy(this, 300.0f, 300.0f, spriteBodyNpc, spritePipeNpc, npcRect1, npcRect1);
-    Enemy* enemy2 = new Enemy(this, 350.0f, 350.0f, spriteBodyNpc, spritePipeNpc, npcRect2, npcRect2);
-    Enemy* enemy3 = new Enemy(this, 400.0f, 400.0f, spriteBodyNpc, spritePipeNpc, npcRect3, npcRect3);
+    Enemy* enemy1 = new Enemy(this, 300.0f, 300.0f, spriteBodyNpc0, spritePipeNpc0, npcRect1, npcRect1, ENEMY_TYPE_TIER_ONE);
+    Enemy* enemy2 = new Enemy(this, 350.0f, 350.0f, spriteBodyNpc0, spritePipeNpc0, npcRect2, npcRect2, ENEMY_TYPE_TIER_ONE);
+    Enemy* enemy3 = new Enemy(this, 400.0f, 400.0f, spriteBodyNpc1, spritePipeNpc1, npcRect3, npcRect3, ENEMY_TYPE_TIER_THREE);
     enemies.push_back(enemy1);
     enemies.push_back(enemy2);
     enemies.push_back(enemy3);
@@ -257,15 +257,25 @@ int Game::Update()
     SDL_FreeSurface(tmpPipePlr);
     SDL_SetColorKey(spritePipePlr, SDL_SRCCOLORKEY, COLOR_WHITE);
     
-    SDL_Surface* tmpBodyNpc = SDL_LoadBMP("sprite_body_npc.bmp");
-    SDL_Surface* spriteBodyNpc = SDL_DisplayFormat(tmpBodyNpc);
-    SDL_FreeSurface(tmpBodyNpc);
-    SDL_SetColorKey(spriteBodyNpc, SDL_SRCCOLORKEY, COLOR_WHITE);
+    SDL_Surface* tmpBodyNpc0 = SDL_LoadBMP("sprite_body_npc_0.bmp");
+    SDL_Surface* spriteBodyNpc0 = SDL_DisplayFormat(tmpBodyNpc0);
+    SDL_FreeSurface(tmpBodyNpc0);
+    SDL_SetColorKey(spriteBodyNpc0, SDL_SRCCOLORKEY, COLOR_WHITE);
     
-    SDL_Surface* tmpPipeNpc = SDL_LoadBMP("sprite_pipe_npc.bmp");
-    SDL_Surface* spritePipeNpc = SDL_DisplayFormat(tmpPipeNpc);
-    SDL_FreeSurface(tmpPipeNpc);
-    SDL_SetColorKey(spritePipeNpc, SDL_SRCCOLORKEY, COLOR_WHITE);
+    SDL_Surface* tmpPipeNpc0 = SDL_LoadBMP("sprite_pipe_npc_0.bmp");
+    SDL_Surface* spritePipeNpc0 = SDL_DisplayFormat(tmpPipeNpc0);
+    SDL_FreeSurface(tmpPipeNpc0);
+    SDL_SetColorKey(spritePipeNpc0, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpBodyNpc1 = SDL_LoadBMP("sprite_body_npc_1.bmp");
+    SDL_Surface* spriteBodyNpc1 = SDL_DisplayFormat(tmpBodyNpc1);
+    SDL_FreeSurface(tmpBodyNpc1);
+    SDL_SetColorKey(spriteBodyNpc1, SDL_SRCCOLORKEY, COLOR_WHITE);
+    
+    SDL_Surface* tmpPipeNpc1 = SDL_LoadBMP("sprite_pipe_npc_1.bmp");
+    SDL_Surface* spritePipeNpc1 = SDL_DisplayFormat(tmpPipeNpc1);
+    SDL_FreeSurface(tmpPipeNpc1);
+    SDL_SetColorKey(spritePipeNpc1, SDL_SRCCOLORKEY, COLOR_WHITE);
     
     SDL_Surface* tmpSlowArea = SDL_LoadBMP("slow_area.bmp");
     SDL_Surface* slowArea = SDL_DisplayFormat(tmpSlowArea);
@@ -273,16 +283,15 @@ int Game::Update()
     SDL_SetColorKey(slowArea, SDL_SRCCOLORKEY, COLOR_WHITE);
 
     InitializeWalls();
-    InitializeCharacters(spriteBodyPlr, spritePipePlr, spriteBodyNpc, spritePipeNpc);
+    InitializeCharacters(spriteBodyPlr, spritePipePlr, spriteBodyNpc0, spritePipeNpc0, spriteBodyNpc1, spritePipeNpc1);
     InitializeSlowAreas();
 
     SDL_Surface* rotatedBodyPlr = rotozoomSurface(spriteBodyPlr, 0.0f, 1.0, 0);
     SDL_Surface* rotatedPipePlr = rotozoomSurface(spritePipePlr, 0.0f, 1.0, 0);
-    SDL_Surface* rotatedBodyNpc = rotozoomSurface(spriteBodyNpc, 0.0f, 1.0, 0);
-    SDL_Surface* rotatedPipeNpc = rotozoomSurface(spritePipeNpc, 0.0f, 1.0, 0);
-
-    for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
-        (*itr)->SetRotatedInfo(rotatedBodyNpc, rotatedPipeNpc, spriteBodyNpc, spritePipeNpc);
+    SDL_Surface* rotatedBodyNpc0 = rotozoomSurface(spriteBodyNpc0, 0.0f, 1.0, 0);
+    SDL_Surface* rotatedPipeNpc0 = rotozoomSurface(spritePipeNpc0, 0.0f, 1.0, 0);
+    SDL_Surface* rotatedBodyNpc1 = rotozoomSurface(spriteBodyNpc1, 0.0f, 1.0, 0);
+    SDL_Surface* rotatedPipeNpc1 = rotozoomSurface(spritePipeNpc1, 0.0f, 1.0, 0);
 
     //IPaddress ip;
     //SDLNet_ResolveHost(&ip, NULL, 12345);
@@ -432,7 +441,7 @@ int Game::Update()
                         {
                             if (!allLandmines.empty())
                                 for (std::vector<Landmine*>::iterator itr = allLandmines.begin(); itr != allLandmines.end(); ++itr)
-                                    if (!(*itr)->IsRemoved() && IsInRange(_event.motion.x - 15, (*itr)->GetPosX(), _event.motion.y - 15, (*itr)->GetPosY(), 44.0f))
+                                    if (!(*itr)->IsRemoved() && IsInRange(float(_event.motion.x - 15), (*itr)->GetPosX(), float(_event.motion.y - 15), (*itr)->GetPosY(), 44.0f))
                                         (*itr)->Explode();
                         }
                     }
@@ -529,24 +538,6 @@ int Game::Update()
         //! the upper left corner in consideration.
         recPipePlr.x -= rotatedPipePlr->w / 2 - spritePipePlr->w / 2;
         recPipePlr.y -= rotatedPipePlr->h / 2 - spritePipePlr->h / 2;
-
-        //for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
-        //{
-        //    if ((*itr)->IsAlive())
-        //    {
-        //        (*itr)->GetRotatedBodyRect().x -= (*itr)->GetRotatedBodySurface()->w / 2 - spriteBodyNpc->w / 2;
-        //        (*itr)->GetRotatedBodyRect().y -= (*itr)->GetRotatedBodySurface()->h / 2 - spriteBodyNpc->h / 2;
-        //    }
-        //}
-
-        for (std::vector<Enemy*>::iterator itr = enemies.begin(); itr != enemies.end(); ++itr)
-        {
-            if ((*itr)->IsAlive())
-            {
-                rotatedBodyNpc = (*itr)->GetRotatedBodySurface();
-                rotatedPipeNpc = (*itr)->GetRotatedPipeSurface();
-            }
-        }
 
         if (!mineExplosions.empty())
         {
@@ -679,12 +670,17 @@ int Game::Update()
 
     SDL_FreeSurface(spriteBodyPlr);
     SDL_FreeSurface(spritePipePlr);
-    SDL_FreeSurface(spritePipeNpc);
+    SDL_FreeSurface(spriteBodyNpc0);
+    SDL_FreeSurface(spritePipeNpc0);
+    SDL_FreeSurface(spriteBodyNpc1);
+    SDL_FreeSurface(spritePipeNpc1);
     SDL_FreeSurface(rotatedBodyPlr);
     SDL_FreeSurface(rotatedPipePlr);
     //SDL_FreeSurface(wall);
-    SDL_FreeSurface(rotatedPipeNpc);
-    SDL_FreeSurface(rotatedBodyNpc);
+    SDL_FreeSurface(rotatedPipeNpc0);
+    SDL_FreeSurface(rotatedBodyNpc0);
+    SDL_FreeSurface(rotatedPipeNpc1);
+    SDL_FreeSurface(rotatedBodyNpc1);
     //SDLNet_TCP_Close(server);
     //SDLNet_Quit();
     SDL_Quit(); //! 'Screen' is dumped in SDL_Quit().

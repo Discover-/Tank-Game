@@ -1,20 +1,21 @@
 #include "game.h"
 
-Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool _shooterIsPlr /* = true */, int _life /* = 2 */)
+Bullet::Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool _shooterIsPlr /* = true */, int _life /* = 2 */, float xVel /* = PLAYER_BULLET_SPEED_X */, float yVel /* = PLAYER_BULLET_SPEED_Y */, bool _followPlayer /* = false */)
 {
     if (!_game)
         return;
 
     game = _game;
     image = SDL_LoadBMP("bullet.bmp");
-    xVelocity = PLAYER_BULLET_SPEED_X;
-    yVelocity = PLAYER_BULLET_SPEED_Y;
+    xVelocity = xVel;
+    yVelocity = yVel;
     isRemoved = false;
     directionAngle = _pipeAngle;
     rotateAngle = _pipeAngle;
     screen = _screen;
     shooterIsPlr = _shooterIsPlr;
     life = _life;
+    followPlayer = _followPlayer;
 
     //! We need to do this so the position of the bullet doesn't start inside the tank itself.
     posX = x + float(cos(_pipeAngle * M_PI / 180.0) * xVelocity) * 14.3f;
@@ -76,8 +77,16 @@ void Bullet::Explode(bool showExplosion /* = true */)
 
 void Bullet::Update()
 {
-    if (isRemoved || !game || !game->IsRunning())
+    Player* player = game->GetPlayer();
+
+    if (isRemoved || !game || !game->IsRunning() || !player)
         return;
+
+    if (!shooterIsPlr && followPlayer)
+    {
+        directionAngle = float(atan2(posY - player->GetPosY(), player->GetPosX() - posX) * 180 / M_PI);
+        rotateAngle = directionAngle;
+    }
 
     SDL_Rect newBulletRect = { bulletRect.x, bulletRect.y, BULLET_WIDTH, BULLET_HEIGHT };
     newBulletRect.x -= rotatedBullet->w / 2 - image->w / 2;
@@ -188,46 +197,49 @@ void Bullet::Update()
                     //    posY = collisionSide == SIDE_TOP ? posY - 5 : posY + 5;
                     //}
 
-                    bool hitLeftSide = false, hitRightSide = false, hitBottomSide = false, hitUpperSide = false;
-                    bool setWhichSideHit = false;
+                    if (life > 1)
+                    {
+                        bool hitLeftSide = false, hitRightSide = false, hitBottomSide = false, hitUpperSide = false;
+                        bool setWhichSideHit = false;
 
-                    if (bulletRect.x + bulletRect.w - 2 <= (*itr).x) //! Left
-                    {
-                        hitLeftSide = true;
-	                    setWhichSideHit = true;
-                    }
+                        if (bulletRect.x + bulletRect.w - 2 <= (*itr).x) //! Left
+                        {
+                            hitLeftSide = true;
+                            setWhichSideHit = true;
+                        }
 
-                    if (!setWhichSideHit && (*itr).x + (*itr).w - 2 <= bulletRect.x) //! Right
-                    {
-                        hitRightSide = true;
-	                    setWhichSideHit = true;
-                    }
+                        if (!setWhichSideHit && (*itr).x + (*itr).w - 2 <= bulletRect.x) //! Right
+                        {
+                            hitRightSide = true;
+                            setWhichSideHit = true;
+                        }
 
-                    if (!setWhichSideHit && bulletRect.y + bulletRect.h -2 >= (*itr).y) //! Bottom
-                    {
-                        hitBottomSide = true;
-	                    setWhichSideHit = false;
-                    }
+                        if (!setWhichSideHit && bulletRect.y + bulletRect.h -2 >= (*itr).y) //! Bottom
+                        {
+                            hitBottomSide = true;
+                            setWhichSideHit = false;
+                        }
 
-                    if (!setWhichSideHit && (*itr).y + (*itr).h - 2 >= bulletRect.y) //! Top
-                    {
-                        hitUpperSide = true;
-	                    setWhichSideHit = false;
-                    }
+                        if (!setWhichSideHit && (*itr).y + (*itr).h - 2 >= bulletRect.y) //! Top
+                        {
+                            hitUpperSide = true;
+                            setWhichSideHit = false;
+                        }
 
-                    if (hitLeftSide || hitRightSide)
-                    {
-                        rotateAngle = 180 - rotateAngle;
-                        xVelocity = -xVelocity;
-                        posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
-                        posX = hitLeftSide ? posX - 5 : posX + 5;
-                    }
-                    else if (hitBottomSide || hitUpperSide)
-                    {
-                        rotateAngle = -rotateAngle;
-                        yVelocity = -yVelocity;
-                        posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
-                        posY = hitUpperSide ? posY - 5 : posY + 5;
+                        if (hitLeftSide || hitRightSide)
+                        {
+                            rotateAngle = 180 - rotateAngle;
+                            xVelocity = -xVelocity;
+                            posY += float(sin(directionAngle * M_PI / 180.0) * yVelocity) * 1.5f;
+                            posX = hitLeftSide ? posX - 5 : posX + 5;
+                        }
+                        else if (hitBottomSide || hitUpperSide)
+                        {
+                            rotateAngle = -rotateAngle;
+                            yVelocity = -yVelocity;
+                            posX -= float(cos(directionAngle * M_PI / 180.0) * xVelocity) * 1.5f;
+                            posY = hitUpperSide ? posY - 5 : posY + 5;
+                        }
                     }
 
                     //#ifdef _DEBUG

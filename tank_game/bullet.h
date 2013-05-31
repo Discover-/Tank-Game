@@ -6,7 +6,7 @@ class Enemy;
 class Bullet
 {
     public:
-        Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool shooterIsPlr = true, int life = 2);
+        Bullet(Game* _game, SDL_Surface* _screen, float x, float y, double _pipeAngle, bool shooterIsPlr = true, int life = 2, float xVel = 5, float yVel = 5, bool followPlayer = false);
         ~Bullet();
 
         void Update();
@@ -38,4 +38,5 @@ class Bullet
         SDL_Surface* rotatedBullet;
         bool shooterIsPlr;
         bool inSlowArea;
+        bool followPlayer;
 };

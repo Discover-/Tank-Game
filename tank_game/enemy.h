@@ -24,7 +24,7 @@ class Game;
 class Enemy
 {
     public:
-        Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe, SDL_Rect _rectBody, SDL_Rect _rectPipe);
+        Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe, SDL_Rect _rectBody, SDL_Rect _rectPipe, EnemyTypes = ENEMY_TYPE_TIER_ONE);
         ~Enemy();
 
         void Update();
@@ -118,4 +118,6 @@ class Enemy
         bool inSlowArea;
 
         Uint8 bulletCount;
+
+        EnemyTypes enemyType;
 };

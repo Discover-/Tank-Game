@@ -1,6 +1,6 @@
 #include "game.h"
 
-Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe, SDL_Rect _rectBody, SDL_Rect _rectPipe)
+Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe, SDL_Rect _rectBody, SDL_Rect _rectPipe, EnemyTypes _enemyType /* = ENEMY_TYPE_TIER_ONE */)
 {
     if (!_game)
         return;
@@ -31,6 +31,7 @@ Enemy::Enemy(Game* _game, float x, float y, SDL_Surface* body, SDL_Surface* pipe
     moveSpeed[MOVE_TYPE_BACKWARD] = NPC_MOVES_SPEED_BACKWARD;
     inSlowArea = false;
     bulletCount = 0;
+    enemyType = _enemyType;
 }
 
 void Enemy::Update()
@@ -76,6 +77,7 @@ void Enemy::Update()
         int hitWallTimes = 0;
         bool hitsWallOnStart = false;
         bool hitsEnemyOnPath = false;
+        bool dontFire = false;
         SDL_Rect bulletRect = { Sint16(actualX), Sint16(actualY), BULLET_WIDTH, BULLET_HEIGHT };
         
 
@@ -104,6 +106,12 @@ void Enemy::Update()
                     {
                         if ((*itr).visible && WillCollision(bulletRect, (*itr)) && hitWallTimes < 1)
                         {
+                            if (enemyType == ENEMY_TYPE_TIER_THREE)
+                            {
+                                dontFire = true;
+                                break;
+                            }
+
                             CollisionSide collisionSide = GetSideOfCollision(bulletRect, (*itr).GetNormalRect());
 
                             if (collisionSide == SIDE_LEFT || collisionSide == SIDE_RIGHT)
@@ -139,12 +147,19 @@ void Enemy::Update()
                         }
                     }
 
-                    if (hitsEnemyOnPath)
+                    if (hitsEnemyOnPath || dontFire)
                         break;
 
                     if (WillCollision(player->GetRectBody(), bulletRect))
                     {
-                        if (Bullet* bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false))
+                        Bullet* bullet = NULL;
+
+                        if (enemyType == ENEMY_TYPE_TIER_ONE)
+                            bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false);
+                        else if (enemyType == ENEMY_TYPE_TIER_THREE)
+                            bullet = new Bullet(game, screen, bulletX, bulletY, rotatingPipeAngle, false, 1, 2, 2, true);
+
+                        if (bullet)
                         {
                             game->AddBullet(bullet);
                             //AddBullet(bullet);
