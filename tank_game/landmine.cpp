@@ -38,6 +38,8 @@ void Landmine::Explode(bool showExplosion /* = true */)
     if (showExplosion)
         game->AddBigExplosion(landmineRect.x, landmineRect.y, 0, 80);
 
+    isRemoved = true;
+
     //RGB explosionRGB;
     //explosionRGB.r = 0x00;
     //explosionRGB.g = 0x00;
@@ -72,12 +74,12 @@ void Landmine::Explode(bool showExplosion /* = true */)
             if (!(*itr)->IsRemoved() && IsInRange(centeredRect.x, (*itr)->GetPosX(), centeredRect.y, (*itr)->GetPosY(), 100.0f))
                 (*itr)->Explode();
 
-    //std::vector<Landmine*> _landmines = game->GetAllLandmines();
+    std::vector<Landmine*> _landmines = game->GetAllLandmines();
 
-    //if (!_landmines.empty())
-    //    for (std::vector<Landmine*>::iterator itr = _landmines.begin(); itr != _landmines.end(); ++itr)
-    //        if (!(*itr)->IsRemoved() && (*itr) != this && IsInRange(landmineRect.x, (*itr)->GetPosX(), landmineRect.y, (*itr)->GetPosY(), 100.0f))
-    //            (*itr)->Explode();
+    if (!_landmines.empty())
+        for (std::vector<Landmine*>::iterator itr = _landmines.begin(); itr != _landmines.end(); ++itr)
+            if ((*itr) != this && !(*itr)->IsRemoved() && IsInRange(centeredRect.x, (*itr)->GetPosX() + landmineRect.w / 2, centeredRect.y, (*itr)->GetPosY() + landmineRect.w / 2, 100.0f))
+                (*itr)->Explode();
 
     std::vector<Enemy*> _enemies = game->GetEnemies();
 
@@ -98,7 +100,6 @@ void Landmine::Explode(bool showExplosion /* = true */)
     //! Just get rid of them...
     landmineRect.x = 5000;
     landmineRect.y = 5000;
-    isRemoved = true;
     game->RemoveLandmine(this);
 
     if (Player* player = game->GetPlayer())
