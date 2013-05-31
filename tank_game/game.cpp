@@ -314,7 +314,7 @@ int Game::Update()
 
                             if (player->CanPlaceLandmine())
                             {
-                                if (Landmine* landmine = new Landmine(this, screen, float(player->GetPosX() + PLAYER_WIDTH / 2), float(player->GetPosY() + (PLAYER_HEIGHT / 2))))
+                                if (Landmine* landmine = new Landmine(this, screen, float(player->GetPosX() + 17), float(player->GetPosY() + 4)))
                                 {
                                     player->AddLandmine(landmine);
                                     allLandmines.push_back(landmine);
@@ -387,7 +387,7 @@ int Game::Update()
                     //! Using Shift + Mouseclick will place a landmine at the mouse. This is a temporarily thing to make testing easier.
                     if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
                     {
-                        if (Landmine* landmine = new Landmine(this, screen, _event.motion.x, _event.motion.y))
+                        if (Landmine* landmine = new Landmine(this, screen, _event.motion.x - 15, _event.motion.y - 15))
                         {
                             player->AddLandmine(landmine);
                             allLandmines.push_back(landmine);
