@@ -301,3 +301,29 @@ void Player::HandleTimers(unsigned int diff_time)
             landmineCooldown -= diff_time;
     }
 }
+
+void Player::SetKeysDown(Uint8 index, bool value)
+{
+    keysDown[index] = value;
+
+    if (value)
+    {
+        switch (index)
+        {
+            case 0: //! ^ & W
+                keysDown[2] = false;
+                break;
+            case 2: //! v & A
+                keysDown[0] = false;
+                break;
+            case 1: //! < & A
+                keysDown[3] = false;
+                break;
+            case 3: //! > & D
+                keysDown[1] = false;
+                break;
+            default:
+                break;
+        }
+    }
+}

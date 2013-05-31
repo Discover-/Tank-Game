@@ -10,7 +10,7 @@ class Player
         ~Player();
 
         void Update();
-        void SetKeysDown(Uint8 index, bool value) { keysDown[index] = value; }
+        void SetKeysDown(Uint8 index, bool value);
         void HandleTimers(unsigned int diff_time);
 
         /* MOVEMENT */
