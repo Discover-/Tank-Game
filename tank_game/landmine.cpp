@@ -44,12 +44,16 @@ void Landmine::Explode(bool showExplosion /* = true */)
     //explosionRGB.b = 0x00;
     //game->StoreSurfaceByTime("explosion_big.bmp", landmineRect, explosionRGB, 400);
 
+    SDL_Rect centeredRect = landmineRect;
+    centeredRect.x += centeredRect.w / 2;
+    centeredRect.y += centeredRect.h / 2;
+
     std::vector<SDL_Rect2>& wallRects = game->GetWalls();
     for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); )
     {
         if ((*itr).breakable && (*itr).visible)
         {
-            if (IsInRange(landmineRect.x, (*itr).x, landmineRect.y, (*itr).y, 100.0f))
+            if (IsInRange(centeredRect.x, (*itr).x, centeredRect.y, (*itr).y, 100.0f))
             {
                 (*itr).visible = false;
                 itr = wallRects.begin();
@@ -65,7 +69,7 @@ void Landmine::Explode(bool showExplosion /* = true */)
 
     if (!_bullets.empty())
         for (std::vector<Bullet*>::iterator itr = _bullets.begin(); itr != _bullets.end(); ++itr)
-            if (!(*itr)->IsRemoved() && IsInRange(landmineRect.x, (*itr)->GetPosX(), landmineRect.y, (*itr)->GetPosY(), 100.0f))
+            if (!(*itr)->IsRemoved() && IsInRange(centeredRect.x, (*itr)->GetPosX(), centeredRect.y, (*itr)->GetPosY(), 100.0f))
                 (*itr)->Explode();
 
     //std::vector<Landmine*> _landmines = game->GetAllLandmines();
@@ -79,7 +83,7 @@ void Landmine::Explode(bool showExplosion /* = true */)
 
     if (!_enemies.empty())
         for (std::vector<Enemy*>::iterator itr = _enemies.begin(); itr != _enemies.end(); ++itr)
-            if ((*itr)->IsAlive() && IsInRange(landmineRect.x, (*itr)->GetPosX(), landmineRect.y, (*itr)->GetPosY(), 60.0f))
+            if ((*itr)->IsAlive() && IsInRange(centeredRect.x, (*itr)->GetPosX(), centeredRect.y, (*itr)->GetPosY(), 60.0f))
                 (*itr)->JustDied();
 
     //if (Player* player = game->GetPlayer())
