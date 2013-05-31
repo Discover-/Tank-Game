@@ -84,11 +84,12 @@ struct MineExplosions
 //! A copy of the other default SDL_Rect coming with the SDL library. Required for walls and landmines.
 struct SDL_Rect2
 {
-    SDL_Rect2() : x(0), y(0), w(0), h(0), breakable(false), visible(true) { }
+    SDL_Rect2() : x(0), y(0), w(0), h(0), breakable(false), visible(true), image(NULL) { }
     Sint16 x, y;
     Uint16 w, h;
     bool breakable;
     bool visible;
+    SDL_Surface* image;
 
     //! Return normal SDL_Rect without taking in consideration visible or breakable booleans.
     SDL_Rect GetNormalRect() { SDL_Rect rect = { x, y, w, h }; return rect; }

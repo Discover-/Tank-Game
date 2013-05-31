@@ -17,6 +17,7 @@
 #include <time.h>
 #include <unordered_map>
 #include <set>
+#include <string>
 #include "Windows.h"
 #include "SDL.h"
 #include "SDL_rotozoom.h"

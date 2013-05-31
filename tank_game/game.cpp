@@ -125,6 +125,16 @@ void Game::AddWall(Sint16 x, Sint16 y, Sint16 w /* = 50 */, Sint16 h /* = 50 */,
     wall.h = h;
     wall.visible = visible;
     wall.breakable = breakable;
+
+    if (!breakable)
+    {
+        std::string wallStr = "wall_" + std::to_string(long double(urand(0, 7))) + ".bmp";
+        SDL_Surface* tmpWall = SDL_LoadBMP(wallStr.c_str());
+        SDL_Surface* wallSurface = SDL_DisplayFormat(tmpWall);
+        SDL_FreeSurface(tmpWall);
+        wall.image = wallSurface;
+    }
+
     wallRectangles.push_back(wall);
 }
 
@@ -195,6 +205,11 @@ int Game::Update()
 
     SDL_Init(SDL_INIT_EVERYTHING);
     //SDLNet_Init();
+    
+    SDL_Surface* tmpWallBreakable = SDL_LoadBMP("wall_breakable.bmp");
+    SDL_Surface* wallBreakable = SDL_DisplayFormat(tmpWallBreakable);
+    SDL_FreeSurface(tmpWallBreakable);
+
     screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_SWSURFACE);
     
     SDL_Surface* tmpBodyPlr = SDL_LoadBMP("sprite_body.bmp");
@@ -216,14 +231,6 @@ int Game::Update()
     SDL_Surface* spritePipeNpc = SDL_DisplayFormat(tmpPipeNpc);
     SDL_FreeSurface(tmpPipeNpc);
     SDL_SetColorKey(spritePipeNpc, SDL_SRCCOLORKEY, COLOR_WHITE);
-    
-    SDL_Surface* tmpWall = SDL_LoadBMP("wall.bmp");
-    SDL_Surface* wall = SDL_DisplayFormat(tmpWall);
-    SDL_FreeSurface(tmpWall);
-    
-    SDL_Surface* tmpWallBreakable = SDL_LoadBMP("wall_breakable.bmp");
-    SDL_Surface* wallBreakable = SDL_DisplayFormat(tmpWallBreakable);
-    SDL_FreeSurface(tmpWallBreakable);
     
     SDL_Surface* tmpSlowArea = SDL_LoadBMP("slow_area.bmp");
     SDL_Surface* slowArea = SDL_DisplayFormat(tmpSlowArea);
@@ -255,7 +262,7 @@ int Game::Update()
 
     while (isRunning && player)
     {
-        SDL_FillRect(screen, NULL, COLOR_GREEN);
+        SDL_FillRect(screen, NULL, COLOR_BLACK);
         startTime = SDL_GetTicks();
 
         //if (client = SDLNet_TCP_Accept(server))
@@ -579,12 +586,8 @@ int Game::Update()
         {
             if (itr->visible)
             {
-                SDL_Rect itrRect;
-                itrRect.x = (*itr).x;
-                itrRect.y = (*itr).y;
-                itrRect.w = (*itr).w;
-                itrRect.h = (*itr).h;
-                SDL_BlitSurface((*itr).breakable ? wallBreakable : wall, NULL, screen, &itrRect);
+                SDL_Rect itrRect = { (*itr).x, (*itr).y, (*itr).w, (*itr).h };
+                SDL_BlitSurface((*itr).breakable ? wallBreakable : (*itr).image, NULL, screen, &itrRect);
             }
         }
 
@@ -633,7 +636,7 @@ int Game::Update()
     SDL_FreeSurface(spritePipeNpc);
     SDL_FreeSurface(rotatedBodyPlr);
     SDL_FreeSurface(rotatedPipePlr);
-    SDL_FreeSurface(wall);
+    //SDL_FreeSurface(wall);
     SDL_FreeSurface(rotatedPipeNpc);
     SDL_FreeSurface(rotatedBodyNpc);
     //SDLNet_TCP_Close(server);
