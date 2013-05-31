@@ -240,7 +240,7 @@ int Game::Update()
     InitializeWalls();
     InitializeCharacters(spriteBodyPlr, spritePipePlr, spriteBodyNpc, spritePipeNpc);
 
-    SDL_Rect slowAreaRect = { 200, 70, 150, 75 };
+    SDL_Rect slowAreaRect = { 770, 70, 150, 75 };
     slowAreaRectangles.push_back(slowAreaRect);
 
     SDL_Surface* rotatedBodyPlr = rotozoomSurface(spriteBodyPlr, 0.0f, 1.0, 0);
