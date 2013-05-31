@@ -177,7 +177,7 @@ void Bullet::Update()
             std::vector<SDL_Rect2> wallRects = game->GetMergedWalls();
             for (std::vector<SDL_Rect2>::iterator itr = wallRects.begin(); itr != wallRects.end(); ++itr)
             {
-                if (WillCollision(newBulletRect, (*itr)))
+                if ((*itr).visible && WillCollision(newBulletRect, (*itr)))
                 {
                     //CollisionSide collisionSide = GetSideOfCollision(newBulletRect, (*itr));
 

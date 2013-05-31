@@ -67,6 +67,23 @@ void Landmine::Explode(bool showExplosion /* = true */)
             ++itr;
     }
 
+    std::vector<SDL_Rect2>& mergedWallRects = game->GetMergedWalls();
+    for (std::vector<SDL_Rect2>::iterator itr = mergedWallRects.begin(); itr != mergedWallRects.end(); )
+    {
+        if ((*itr).breakable && (*itr).visible)
+        {
+            if (IsInRange(centeredRect.x, (*itr).x, centeredRect.y, (*itr).y, 100.0f))
+            {
+                (*itr).visible = false;
+                itr = mergedWallRects.begin();
+            }
+            else
+                ++itr;
+        }
+        else
+            ++itr;
+    }
+
     std::vector<Bullet*> _bullets = game->GetAllBullets();
 
     if (!_bullets.empty())
