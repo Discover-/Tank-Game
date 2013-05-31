@@ -591,7 +591,7 @@ int Game::Update()
 
         for (std::vector<SDL_Rect2>::iterator itr = wallRectangles.begin(); itr != wallRectangles.end(); ++itr)
         {
-            if (itr->visible)
+            if (itr->visible && ((*itr).breakable || (*itr).image))
             {
                 SDL_Rect itrRect = { (*itr).x, (*itr).y, (*itr).w, (*itr).h };
                 SDL_BlitSurface((*itr).breakable ? wallBreakable : (*itr).image, NULL, screen, &itrRect);
