@@ -16,6 +16,7 @@ TODO:
 - Placement of pushing away code is incorrect.
 - Use a library like box2D for physics and pushing away logic improvements.
 - When a player moves into a corner it should take in consideration both walls, not just one.
+- Make big explosions 'grow' from the center rather than to the bottom right corner.
 
 DONE:
 - Figure out why distance check for landmine explosions isn't working (the 2D distance formula should work...)
