@@ -15,6 +15,7 @@ TODO:
 - Level design storing in XML.
 - Placement of pushing away code is incorrect.
 - Use a library like box2D for physics and pushing away logic improvements.
+- When a player moves into a corner it should take in consideration both walls, not just one.
 
 DONE:
 - Figure out why distance check for landmine explosions isn't working (the 2D distance formula should work...)

@@ -416,15 +416,25 @@ int Game::Update()
                     //! Using Shift + Mouseclick will place a landmine at the mouse. This is a temporarily thing to make testing easier.
                     if (keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT])
                     {
-                        if (Landmine* landmine = new Landmine(this, screen, float(_event.motion.x - 15), float(_event.motion.y - 15)))
+                        if (_event.button.button == SDL_BUTTON_LEFT)
                         {
-                            player->AddLandmine(landmine);
-                            allLandmines.push_back(landmine);
-                        }
+                            if (Landmine* landmine = new Landmine(this, screen, float(_event.motion.x - 15), float(_event.motion.y - 15)))
+                            {
+                                player->AddLandmine(landmine);
+                                allLandmines.push_back(landmine);
+                            }
 
-                        player->SetCanPlaceLandmine(false);
-                        player->SetPlaceLandmineCooldown(500);
-                        player->IncrLandmineCount();
+                            player->SetCanPlaceLandmine(false);
+                            player->SetPlaceLandmineCooldown(500);
+                            player->IncrLandmineCount();
+                        }
+                        else if (_event.button.button == SDL_BUTTON_RIGHT)
+                        {
+                            if (!allLandmines.empty())
+                                for (std::vector<Landmine*>::iterator itr = allLandmines.begin(); itr != allLandmines.end(); ++itr)
+                                    if (!(*itr)->IsRemoved() && IsInRange(_event.motion.x - 15, (*itr)->GetPosX(), _event.motion.y - 15, (*itr)->GetPosY(), 44.0f))
+                                        (*itr)->Explode();
+                        }
                     }
                     else
                     {
