@@ -120,7 +120,7 @@ void Bullet::Update()
             plrRect.y = Sint16(player->GetPosY());
             plrRect.w = PLAYER_WIDTH;
             plrRect.h = PLAYER_HEIGHT;
-            collision = WillCollision(bulletRect, plrRect);
+            collision = WillCollision(newBulletRect, plrRect);
         }
 
         std::vector<Bullet*> _bullets = game->GetAllBullets();
@@ -136,7 +136,7 @@ void Bullet::Update()
                     {
                         otherBulletRec = (*itr)->bulletRect;
 
-                        if (WillCollision(bulletRect, otherBulletRec))
+                        if (WillCollision(newBulletRect, otherBulletRec))
                         {
                             (*itr)->SetRemainingLife(0); //! Both bullets will be destroyed.
                             collision = true;
