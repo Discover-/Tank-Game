@@ -14,39 +14,14 @@ Game::~Game()
 
 }
 
-void Game::ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination)
-{
-    SDL_Rect rect;
-    rect.x = x;
-    rect.y = y;
-    SDL_BlitSurface(source, NULL, destination, &rect);
-}
-
-void Game::DrawSprite(int srcX, int srcY, int dstX, int dstY, int width, int height, SDL_Surface* source, SDL_Surface* destination)
-{
-    SDL_Rect src;
-    src.x = srcX;
-    src.y = srcY;
-    src.w = width;
-    src.h = height;
-
-    SDL_Rect dst;
-    dst.x = dstX;
-    dst.y = dstY;
-    dst.w = width;
-    dst.h = height;
-
-    SDL_BlitSurface(source, &src, destination, &dst);
-}
-
-void Game::StoreSurfaceByTime(char* bmpFile, SDL_Rect rect, RGB rgb, unsigned int despawnTime)
+void Game::StoreSurfaceByTime(char* bmpFile, SDL_Rect rect, RGB rgb, unsigned int despawnTime, SDL_Surface* image /* = NULL */)
 {
     TemporarilySurfaces tmpSurface;
     tmpSurface.bmpFile = bmpFile;
     tmpSurface.despawnTime = despawnTime;
     tmpSurface.rect = rect;
     tmpSurface.rgb = rgb;
-    tmpSurface.surface = NULL;
+    tmpSurface.surface = image;
     temporarilySurfaces.push_back(tmpSurface);
 }
 
@@ -74,11 +49,11 @@ void Game::HandleTimers(unsigned int diff_time)
         }
     }
 
-    if (!mineExplosions.empty())
+    if (!growingExplosions.empty())
     {
-        for (std::vector<MineExplosions>::iterator itr = mineExplosions.begin(); itr != mineExplosions.end(); )
+        for (std::vector<GrowingExplosions>::iterator itr = growingExplosions.begin(); itr != growingExplosions.end(); )
         {
-            if (itr->delay > 0 && itr->frame < 7)
+            if (itr->delay > 0 && itr->frame < itr->maxFrames)
             {
                 if (diff_time >= itr->delay)
                 {
@@ -92,8 +67,8 @@ void Game::HandleTimers(unsigned int diff_time)
             }
             else
             {
-                mineExplosions.erase(itr++);
-                itr = mineExplosions.begin();
+                growingExplosions.erase(itr++);
+                itr = growingExplosions.begin();
             }
         }
     }
@@ -545,55 +520,15 @@ int Game::Update()
         recPipePlr.x -= rotatedPipePlr->w / 2 - spritePipePlr->w / 2;
         recPipePlr.y -= rotatedPipePlr->h / 2 - spritePipePlr->h / 2;
 
-        if (!mineExplosions.empty())
+        if (!growingExplosions.empty())
         {
-            for (std::vector<MineExplosions>::iterator itr = mineExplosions.begin(); itr != mineExplosions.end(); ++itr)
+            for (std::vector<GrowingExplosions>::iterator itr = growingExplosions.begin(); itr != growingExplosions.end(); ++itr)
             {
-                bool _continue = false;
-                char* bmpFile = "";
-
-                switch (itr->frame)
-                {
-                    case 0: bmpFile = "explosion_big_f0.bmp"; break;
-                    case 1: bmpFile = "explosion_big_f1.bmp"; break;
-                    case 2: bmpFile = "explosion_big_f2.bmp"; break;
-                    case 3: bmpFile = "explosion_big_f3.bmp"; break;
-                    case 4: bmpFile = "explosion_big_f4.bmp"; break;
-                    case 5: bmpFile = "explosion_big_f5.bmp"; break;
-                    case 6: bmpFile = "explosion_big_f6.bmp"; break;
-                    default: _continue = true; break;
-                }
-
-                if (_continue)
-                    continue;
-
-                SDL_Rect tmpRectt;
-                tmpRectt.x = Sint16(itr->x);
-                tmpRectt.y = Sint16(itr->y);
-
-                RGB explosionRGB;
-                explosionRGB.r = 0x00;
-                explosionRGB.g = 0x00;
-                explosionRGB.b = 0x00;
-
-                StoreSurfaceByTime(bmpFile, tmpRectt, explosionRGB, 80);
-
-                //SDL_Surface* tmpMineExpl = SDL_LoadBMP(bmpFile);
-                //SDL_Surface* mineExpl = SDL_DisplayFormat(tmpMineExpl);
-                //SDL_FreeSurface(tmpMineExpl);
-                //SDL_SetColorKey(mineExpl, SDL_SRCCOLORKEY, COLOR_WHITE);
-                //SDL_BlitSurface(mineExpl, &mineExplosionRect[itr->frame], screen, &tmpRectt);
-
-                //if (itr->frame < MAX_MINE_EXPLOSION_FRAMES)
-                {
-                    //itr->frame++;
-                    //itr++;
-                }
-                //else
-                {
-                    //mineExplosions.erase(itr++);
-                    //itr = mineExplosions.begin();
-                }
+                SDL_Rect tmpRectt = { Sint16(itr->x), Sint16(itr->y), 0, 0 };
+                RGB explosionRGB = { 0x00, 0x00, 0x00 };
+                SDL_Surface* explosionSprite = rotozoomSurface(SDL_LoadBMP("explosion.bmp"), 1.0, itr->frame + 0.5, 0);
+                SDL_SetColorKey(explosionSprite, SDL_SRCCOLORKEY, SDL_MapRGB(explosionSprite->format, explosionRGB.r, explosionRGB.g, explosionRGB.b));
+                StoreSurfaceByTime("explosion.bmp", tmpRectt, explosionRGB, 80, explosionSprite);
             }
         }
 

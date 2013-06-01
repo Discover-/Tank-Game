@@ -688,5 +688,5 @@ void Enemy::InitializeWaypoints(bool eraseCurrent /* = false */)
 void Enemy::JustDied()
 {
     isDead = true;
-    game->AddBigExplosion(posX, posY, 0, 80);
+    game->AddGrowingExplosion(posX + PLAYER_WIDTH / 2, posY + PLAYER_HEIGHT / 2, 0, 80, 3);
 }

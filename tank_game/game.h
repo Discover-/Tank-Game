@@ -39,14 +39,12 @@ class Game
 
         int Update();
         bool IsRunning() { return isRunning; }
-        void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
-        void DrawSprite(int srcX, int srcY, int dstX, int dstY, int width, int height, SDL_Surface* source, SDL_Surface* destination);
-        void StoreSurfaceByTime(char* bmpFile, SDL_Rect rect, RGB rgb, unsigned int despawnTime);
+        void StoreSurfaceByTime(char* bmpFile, SDL_Rect rect, RGB rgb, unsigned int despawnTime, SDL_Surface* image = NULL);
         void HandleTimers(unsigned int diff_time);
         void UnregistrateBullet(Bullet* bullet);
         void UnregistrateLandmine(Landmine* landmine);
-        void AddBigExplosion(MineExplosions mineExplosion) { mineExplosions.push_back(mineExplosion); }
-        void AddBigExplosion(float x, float y, Uint8 frame, Uint32 delay) { MineExplosions mineExpl = { Sint16(x), Sint16(y), frame, delay }; AddBigExplosion(mineExpl); }
+        void AddGrowingExplosion(GrowingExplosions mineExplosion) { growingExplosions.push_back(mineExplosion); }
+        void AddGrowingExplosion(float x, float y, Uint8 frame, Uint32 delay, Uint32 maxFrames) { GrowingExplosions mineExpl = { Sint16(x), Sint16(y), frame, delay, maxFrames }; AddGrowingExplosion(mineExpl); }
         void BlitSurface(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* dst, SDL_Rect* dstrect, RGB rgb);
         SDL_Surface* GetScreen() { return screen; }
         SDL_Event GetEvent() { return _event; }
@@ -83,7 +81,7 @@ class Game
         std::vector<SDL_Rect2> mergedWalls; //! To ease up collision detection.
         std::vector<SDL_Rect> slowAreaRectangles;
         std::vector<TemporarilySurfaces> temporarilySurfaces;
-        std::vector<MineExplosions> mineExplosions;
+        std::vector<GrowingExplosions> growingExplosions;
         SDL_Rect mineExplosionRect[MAX_MINE_EXPLOSION_FRAMES];
         Player* player;
         std::vector<Bullet*> allBullets;

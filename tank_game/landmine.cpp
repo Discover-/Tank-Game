@@ -36,7 +36,7 @@ Landmine::~Landmine()
 void Landmine::Explode(bool showExplosion /* = true */)
 {
     if (showExplosion)
-        game->AddBigExplosion(float(landmineRect.x - 5), float(landmineRect.y - 5), 0, 80);
+        game->AddGrowingExplosion(float(landmineRect.x - 5), float(landmineRect.y - 5), 0, 80, 3);
 
     isRemoved = true;
 

@@ -16,7 +16,6 @@ TODO:
 - Placement of pushing away code is incorrect.
 - Use a library like box2D for physics and pushing away logic improvements.
 - When a player moves into a corner it should take in consideration both walls, not just one.
-- Make big explosions 'grow' from the center rather than to the bottom right corner.
 - Implement AI for enemies.
   * Always point pipe on enemy, even if it's behind a wall.
   * Instead of following a static set of waypoints, perhaps make them choose the point closest to the player? Still won't look very realistic.
@@ -32,6 +31,8 @@ TODO:
   * Bullets that have 1 life and fly twice as fast (and possibly leave a fiery trace for the nice effect).
   * Bullets that have several lifes and fly twice as fast (and possibly leave a fiery trace for the nice effect).
 - Implement 'holes' in the ground you can't walk over but you can shoot bullets over.
+- Get rid of default constructor for SDL_Rect2.
+- Make big explosions 'grow' from the center rather than to the bottom right corner.
 
 DONE:
 - Figure out why distance check for landmine explosions isn't working (the 2D distance formula should work...)
@@ -45,3 +46,10 @@ DONE:
   * Remember to also add this functionality to the Enemy class for when a player tank is on their waypoint path.
   * Also add this functionality between enemies.
 - Update wall logic to store all walls that are in a line (horizontal AND vertical respectively) in one image for collision (bullet and movement).
+- Make explosions use rotozoomSurface's zooming functionality.
+
+
+
+
+
+

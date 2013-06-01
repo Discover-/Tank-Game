@@ -81,12 +81,13 @@ struct TemporarilySurfaces
     RGB rgb;
 };
 
-struct MineExplosions
+struct GrowingExplosions
 {
     float x;
     float y;
     Uint8 frame;
     Uint32 delay;
+    Uint32 maxFrames;
 };
 
 //! A copy of the other default SDL_Rect coming with the SDL library. Required for walls and landmines.
